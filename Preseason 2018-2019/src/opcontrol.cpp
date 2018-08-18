@@ -37,8 +37,8 @@
 void operatorControl() {
 	// Setup
 	Battery battery;
-	pros::Controller controller (E_CONTROLLER_MASTER);
-	// pros::Controller controllerSecondary (E_CONTROLLER_PARTER);
+	pros::Controller controller (CONTROLLER_MAIN);
+	pros::Controller controllerPartner (CONTROLLER_PARTNER);
 	pros::Motor leftFrontDriveMotor (1, GEARSET_200, REV, ENCODER_DEGREES);
 	pros::Motor leftRearDriveMotor (11, GEARSET_200, FWD, ENCODER_DEGREES);
 	pros::Motor rightFrontDriveMotor (10, GEARSET_200, REV, ENCODER_DEGREES);
@@ -53,9 +53,9 @@ void operatorControl() {
 
 	DriveControl drivecontrol (driveMotorsMutex, leftFrontDriveMotor, leftRearDriveMotor, rightFrontDriveMotor, rightRearDriveMotor);
 
-	while (1) {
+	while (true) {
 
-    drivecontrol.run(controller.get_analog(ANALOG_LEFT_X), controller.get_analog(ANALOG_LEFT_X), true, 1, 1);
+		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), true, true, 1, 1);
 
 		pros::c::delay(20);
 	}

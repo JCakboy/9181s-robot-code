@@ -14,7 +14,7 @@
  * is pedantically correct within the PROS styleguide, but not convienent for most student
  * programmers.
  */
-#define PROS_USE_SIMPLE_NAMES
+// #define PROS_USE_SIMPLE_NAMES
 
 /**
  * If defined, C++ literals will be available for use.
@@ -47,6 +47,8 @@
  */
 //#include <iostream>
 
+#include "armcontrol.hpp"
+#include "balllauncher.hpp"
 #include "battery.hpp"
 #include "definitions.hpp"
 #include "emath.hpp"

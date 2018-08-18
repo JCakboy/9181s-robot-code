@@ -34,6 +34,11 @@ void DriveControl::addRightMotor(pros::Motor & motor) {
   DriveControl::rightMotors.push_back(motor);
 }
 
+void DriveControl::clearMotors() {
+  DriveControl::clearLeftMotors();
+  DriveControl::clearRightMotors();
+}
+
 void DriveControl::clearLeftMotors() {
   DriveControl::leftMotors.clear();
 }
@@ -46,7 +51,7 @@ bool DriveControl::removeLeftMotor(pros::Motor & motor) {
   int i = 0;
   bool found = false;
   for (; i < DriveControl::leftMotors.size(); i++)
-    if (*(DriveControl::leftMotors[i]) == *motor) {
+    if (DriveControl::leftMotors[i]._port == motor._port) {
       found = true;
       break;
     }
@@ -59,7 +64,7 @@ bool DriveControl::removeRightMotor(pros::Motor & motor) {
   int i = 0;
   bool found = false;
   for (; i < DriveControl::rightMotors.size(); i++)
-    if (*(DriveControl::rightMotors[i]) == *motor) {
+    if (DriveControl::rightMotors[i]._port == motor._port) {
       found = true;
       break;
     }
@@ -68,17 +73,23 @@ bool DriveControl::removeRightMotor(pros::Motor & motor) {
   return found;
 }
 */
-void DriveControl::run(double moveVoltage, double turnVoltage, bool tankScale, double moveSensitivity, double turnSensitivity) {
+void DriveControl::run(double moveVoltage, double turnVoltage, bool tankScale, bool flipReverse, double moveSensitivity, double turnSensitivity) {
   if (tankScale) {
     moveVoltage = emath::tankScaleJoystick(moveVoltage);
     turnVoltage = emath::tankScaleJoystick(turnVoltage);
   }
+
+  bool flip = flipReverse && moveVoltage < -42.3;
+
   moveVoltage *= moveSensitivity;
   turnVoltage *= turnSensitivity;
 
-  if (lock.take(1000)) {
-    DriveControl::runLeftMotors(emath::limit127(moveVoltage - turnVoltage));
-    DriveControl::runRightMotors(emath::limit127(moveVoltage - (0 - turnVoltage)));
+  int leftVoltage = emath::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage - (0 - turnVoltage));
+  int rightVoltage = emath::limit127(!flip ? moveVoltage - (0 - turnVoltage) : moveVoltage - turnVoltage);
+
+  if (lock.take(MUTEX_WAIT_TIME)) {
+    DriveControl::runLeftMotors(leftVoltage);
+    DriveControl::runRightMotors(rightVoltage);
     lock.give();
   }
 }

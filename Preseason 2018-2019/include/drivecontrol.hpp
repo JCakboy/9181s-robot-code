@@ -27,11 +27,13 @@ class DriveControl {
 
     bool removeRightMotor(pros::Motor & motor);
 */
+    void clearMotors();
+
     void clearLeftMotors();
 
     void clearRightMotors();
 
-    void run(double moveVoltage, double turnVoltage, bool tankScale, double moveSensitivity, double turnSensitivity);
+    void run(double moveVoltage, double turnVoltage, bool tankScale, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
 };
 
