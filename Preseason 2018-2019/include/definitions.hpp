@@ -3,8 +3,10 @@
 
 #include "main.h"
 
-// General
-#define MUTEX_WAIT_TIME 1000 // in ms
+/*
+ * A header file simplifying enumeration values,
+ * similar to #define PROS_USE_SIMPLE_NAMES
+ */
 
 // Controller enumereration definitions
 #define CONTROLLER_MAIN E_CONTROLLER_MASTER

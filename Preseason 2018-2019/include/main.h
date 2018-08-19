@@ -21,7 +21,7 @@
  *
  * For instance, you can do `4_m = 50` to set motor 4's target velocity to 50
  */
-#define PROS_USE_LITERALS
+// #define PROS_USE_LITERALS
 
 #include "api.h"
 
@@ -50,9 +50,12 @@
 #include "armcontrol.hpp"
 #include "balllauncher.hpp"
 #include "battery.hpp"
+#include "constants.hpp"
 #include "definitions.hpp"
 #include "emath.hpp"
 #include "drivecontrol.hpp"
+#include "ports.hpp"
+#include "xdrivecontrol.hpp"
 
 #endif
 

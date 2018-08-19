@@ -18,12 +18,12 @@ DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor & leftMotor, pro
   DriveControl::rightMotors.push_back(rightMotor);
 }
 
-DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor & leftFrontMotor, pros::Motor & leftRearMotor, pros::Motor & rightFrontMotor, pros::Motor & rightRearMotor) {
+DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor & frontLeftMotor, pros::Motor & rearLeftMotor, pros::Motor & frontRightMotor, pros::Motor & rearRightMotor) {
   DriveControl::lock = motorLock;
-  DriveControl::leftMotors.push_back(leftFrontMotor);
-  DriveControl::leftMotors.push_back(leftRearMotor);
-  DriveControl::rightMotors.push_back(rightFrontMotor);
-  DriveControl::rightMotors.push_back(rightRearMotor);
+  DriveControl::addLeftMotor(frontLeftMotor);
+  DriveControl::addLeftMotor(rearLeftMotor);
+  DriveControl::addRightMotor(frontRightMotor);
+  DriveControl::addRightMotor(rearRightMotor);
 }
 
 void DriveControl::addLeftMotor(pros::Motor & motor) {
@@ -73,19 +73,19 @@ bool DriveControl::removeRightMotor(pros::Motor & motor) {
   return found;
 }
 */
-void DriveControl::run(double moveVoltage, double turnVoltage, bool tankScale, bool flipReverse, double moveSensitivity, double turnSensitivity) {
-  if (tankScale) {
-    moveVoltage = emath::tankScaleJoystick(moveVoltage);
-    turnVoltage = emath::tankScaleJoystick(turnVoltage);
-  }
+void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse) {
+  DriveControl::run(moveVoltage, turnVoltage, flipReverse, 1.0, 1.0);
+}
 
-  bool flip = flipReverse && moveVoltage < -42.3;
+
+void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse, double moveSensitivity, double turnSensitivity) {
+  bool flip = flipReverse && moveVoltage < MOTOR_REVERSE_FLIP_THRESHOLD;
 
   moveVoltage *= moveSensitivity;
   turnVoltage *= turnSensitivity;
 
-  int leftVoltage = emath::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage - (0 - turnVoltage));
-  int rightVoltage = emath::limit127(!flip ? moveVoltage - (0 - turnVoltage) : moveVoltage - turnVoltage);
+  int leftVoltage = emath::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
+  int rightVoltage = emath::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
 
   if (lock.take(MUTEX_WAIT_TIME)) {
     DriveControl::runLeftMotors(leftVoltage);

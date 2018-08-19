@@ -52,10 +52,16 @@ void operatorControl() {
 	pros::Mutex driveMotorsMutex;
 
 	DriveControl drivecontrol (driveMotorsMutex, leftFrontDriveMotor, leftRearDriveMotor, rightFrontDriveMotor, rightRearDriveMotor);
+/*
+	pros::Mutex driveMotorsMutex;
 
+	initPorts();
+
+	DriveControl drivecontrol (driveMotorsMutex, *::leftFrontDriveMotor, *::leftRearDriveMotor, *::rightFrontDriveMotor, *::rightRearDriveMotor);
+*/
 	while (true) {
 
-		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), true, true, 1, 1);
+		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), true, 1, 1);
 
 		pros::c::delay(20);
 	}

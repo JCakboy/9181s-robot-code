@@ -4,6 +4,11 @@
 void BallLauncher::start() {
   //BallLauncher::launchTask = &pros::Task( &BallLauncher::task );
   BallLauncher::launchTask->resume();
+  BallLauncher::load();
+}
+
+bool BallLauncher::ready() {
+  return BallLauncher::state == 1;
 }
 
 void BallLauncher::load() {
@@ -11,7 +16,8 @@ void BallLauncher::load() {
 }
 
 void BallLauncher::launch() {
-  BallLauncher::launchTask->notify_ext(2, E_NOTIFY_ACTION_OWRITE, NULL);
+  if (BallLauncher::ready())
+    BallLauncher::launchTask->notify_ext(2, E_NOTIFY_ACTION_OWRITE, NULL);
 }
 
 void BallLauncher::task() {
@@ -54,6 +60,6 @@ void ElasticLauncher::_launch() {
 void ElasticLauncher::_load() {
   ElasticLauncher::motor->set_brake_mode(BRAKE_HOLD);
   ElasticLauncher::motor->move(127);
-  pros::delay(1000);
+  pros::delay(ELASTIC_LAUNCHER_MOTOR_TIME);
   ElasticLauncher::motor->move(0);
 }
