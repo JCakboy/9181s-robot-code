@@ -27,7 +27,8 @@ class DriveControl {
     // Creates the Drive Control object with one left and one right motor, see below
     explicit DriveControl(pros::Mutex & motorLock, pros::Motor & leftMotor, pros::Motor & rightMotor);
 
-    /* Creates the Drive Control object
+    /*
+     * Creates the Drive Control object
      *
      * motorLock: the mutex it will attempt to take when accessing the motors
      * frontLeftMotor: a motor on the left side of the robot

@@ -34,6 +34,11 @@ bool Claw::removeFlipMotor(pros::Motor & motor) {
 
 }
 */
+void Claw::clearMotors() {
+  Claw::clearActiveMotors();
+  Claw::clearFlipMotors();
+}
+
 void Claw::clearActiveMotors(){
   Claw::activeMotors.clear();
 }
