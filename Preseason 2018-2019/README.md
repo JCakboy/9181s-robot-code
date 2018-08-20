@@ -5,8 +5,12 @@
 This folder contains a PROS 3 project through a PROS 2 editor.
 Changes to this folder on the `master` branch should include output binaries
 
+
 Initialization: `src\initialize.cpp`
+
 Autonomous: `src\autonomous.cpp`
+
 Operator control: `src\opcontrol.cpp`
+
 
 Output binary: `bin\output.bin` or `bin\output.elf`
