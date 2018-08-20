@@ -73,7 +73,7 @@ class PneumaticLauncher : public BallLauncher {
 class ElasticLauncher : public BallLauncher {
   private:
     pros::Mutex lock;
-    pros::Motor* motor;
+    std::vector<pros::Motor> motors;
 
   protected:
     void _load();
@@ -82,6 +82,19 @@ class ElasticLauncher : public BallLauncher {
 
   public:
     explicit ElasticLauncher(pros::Mutex & motorLock, pros::Motor & motor);
+
+    // Adds a motor to the motor list
+    void addMotor(pros::Motor & motor);
+
+    /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
+
+    // Removes a motor from the motor list
+    void removeMotor(pros::Motor & motor);
+    */
+
+    // Clears all motors from the motor list
+    void clearMotors();
+
   };
 
 #endif

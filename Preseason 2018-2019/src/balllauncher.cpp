@@ -50,16 +50,20 @@ void PneumaticLauncher::_load() {
 
 ElasticLauncher::ElasticLauncher(pros::Mutex & motorLock, pros::Motor & motor) {
   motor.set_brake_mode(BRAKE_HOLD);
-  ElasticLauncher::motor = &motor;
+  ElasticLauncher::motors.push_back(motor);
 }
 
 void ElasticLauncher::_launch() {
-  ElasticLauncher::motor->set_brake_mode(BRAKE_COAST);
+  for (const auto & motor : ElasticLauncher::motors)
+    motor.set_brake_mode(BRAKE_COAST);
 }
 
 void ElasticLauncher::_load() {
-  ElasticLauncher::motor->set_brake_mode(BRAKE_HOLD);
-  ElasticLauncher::motor->move(127);
+  for (const auto & motor : ElasticLauncher::motors) {
+    motor.set_brake_mode(BRAKE_HOLD);
+    motor.move(127);
+  }
   pros::delay(ELASTIC_LAUNCHER_MOTOR_TIME);
-  ElasticLauncher::motor->move(0);
+  for (const auto & motor : ElasticLauncher::motors)
+    motor.move(0);
 }

@@ -46,16 +46,16 @@ class XDriveControl {
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
     // Removes a motor from the front left position list
-    void removeFrontLeftMotor(pros::Motor & motor);
+    bool removeFrontLeftMotor(pros::Motor & motor);
 
     // Removes a motor from the front right position list
-    void removeFrontRightMotor(pros::Motor & motor);
+    bool removeFrontRightMotor(pros::Motor & motor);
 
     // Removes a motor from the rear left position list
-    void removeRearLeftMotor(pros::Motor & motor);
+    bool removeRearLeftMotor(pros::Motor & motor);
 
     // Removes a motor from the rear right position list
-    void removeRearRightMotor(pros::Motor & motor);
+    bool removeRearRightMotor(pros::Motor & motor);
 
 */
 

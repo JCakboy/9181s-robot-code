@@ -5,7 +5,7 @@
 #include <vector>
 
 /*
- * Class meant to control the arm for caps
+ * Class meant to control a robot arm
  *
  * The current implementation supports horizontal and vertical movement,
  * multiple motors for each of the two axes and will respect the given mutex
