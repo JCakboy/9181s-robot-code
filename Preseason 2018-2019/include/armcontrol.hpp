@@ -29,7 +29,7 @@ class ArmControl {
     // Creates the Arm Control object without an x motor, see below
     explicit ArmControl(pros::Mutex & motorLock, pros::Motor yMotor);
 
-    /* 
+    /*
      * Creates the Arm Control object
      *
      * motorLock: the mutex it will attempt to take when accessing the motors
