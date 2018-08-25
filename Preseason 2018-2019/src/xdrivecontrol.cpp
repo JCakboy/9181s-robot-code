@@ -99,91 +99,50 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
   int rearLeftVoltage = emath::limit127(moveVoltage - strafeVoltage);
   int rearRightVoltage = emath::limit127(moveVoltage + strafeVoltage);
 
+  class nest {
+    public:
+      static int distribute(int & turn, int & frontVoltage, int & rearVoltage) {
+        int overflow = 0;
+        for (; turn != 0; turn = emath::step0(turn)) {
+          int ftemp = std::round(frontVoltage + turn - emath::step0(turn));
+          int rtemp = std::round(rearVoltage + turn - emath::step0(turn));
+
+          if (emath::within127(ftemp))
+            frontVoltage = ftemp;
+          else {
+            int rtt = rtemp + turn - emath::step0(turn);
+            if (emath::within127(rtt))
+              rtemp = rtt;
+            else if (!emath::within127(rtemp)) {
+              overflow = overflow - turn + emath::step0(turn);
+              continue;
+            }
+          }
+
+          if (emath::within127(rtemp))
+            rearVoltage = rtemp;
+          else {
+            int ftt = rtemp + turn - emath::step0(turn);
+            if (emath::within127(ftt))
+              frontVoltage = ftt;
+          }
+        }
+        return overflow;
+      }
+  };
+
   int lt = std::round(turnVoltage / 2.0);
 	int rt = std::round(turnVoltage / -2.0);
 
 	double overflow = 0;
 
-	for (; lt != 0; lt = emath::step0(lt)) {
-		int ftemp = std::round(frontLeftVoltage + lt - emath::step0(lt));
-		int rtemp = std::round(rearLeftVoltage + lt - emath::step0(lt));
-
-		if (emath::within127(ftemp))
-			frontLeftVoltage = ftemp;
-		else {
-			int rtt = rtemp + lt - emath::step0(lt);
-			if (emath::within127(rtt))
-				rtemp = rtt;
-			else if (!emath::within127(rtemp)) {
-				overflow = overflow - lt + emath::step0(lt);
-				continue;
-			}
-		}
-
-		if (emath::within127(rtemp))
-			rearLeftVoltage = rtemp;
-		else {
-			int ftt = rtemp + lt - emath::step0(lt);
-			if (emath::within127(ftt))
-				frontLeftVoltage = ftt;
-		}
-	}
+  overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
 	rt += overflow;
-	overflow = 0;
-
-	for (; rt != 0; rt = emath::step0(rt)) {
-		int ftemp = std::round(frontRightVoltage + rt - emath::step0(rt));
-		int rtemp = std::round(rearRightVoltage + rt - emath::step0(rt));
-
-		if (emath::within127(ftemp))
-			frontRightVoltage = ftemp;
-		else {
-			int rtt = rtemp + rt - emath::step0(rt);
-			if (emath::within127(rtt))
-				rtemp = rtt;
-			else if (!emath::within127(rtemp)) {
-				overflow = overflow + rt - emath::step0(rt);
-				continue;
-			}
-		}
-
-		if (emath::within127(rtemp))
-			rearRightVoltage = rtemp;
-		else {
-			int ftt = rtemp + rt - emath::step0(rt);
-			if (emath::within127(ftt))
-				frontRightVoltage = ftt;
-		}
-	}
+	overflow = nest::distribute(rt, frontRightVoltage, rearRightVoltage);
 
 	lt += overflow;
-	overflow = 0;
-
-	for (; lt != 0; lt = emath::step0(lt)) {
-		int ftemp = std::round(frontLeftVoltage + lt - emath::step0(lt));
-		int rtemp = std::round(rearLeftVoltage + lt - emath::step0(lt));
-
-		if (emath::within127(ftemp))
-			frontLeftVoltage = ftemp;
-		else {
-			int rtt = rtemp + lt - emath::step0(lt);
-			if (emath::within127(rtt))
-				rtemp = rtt;
-			else if (!emath::within127(rtemp)) {
-				overflow = overflow - lt + emath::step0(lt);
-				continue;
-			}
-		}
-
-		if (emath::within127(rtemp))
-			rearLeftVoltage = rtemp;
-		else {
-			int ftt = rtemp + lt - emath::step0(lt);
-			if (emath::within127(ftt))
-				frontLeftVoltage = ftt;
-		}
-	}
+	overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
   if (lock.take(MUTEX_WAIT_TIME)) {
     runFrontLeftMotors(frontLeftVoltage);
