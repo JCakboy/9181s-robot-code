@@ -29,8 +29,39 @@
  *
  * This task should never exit; it should end with some kind of infinite loop, even if empty.
  */
+
+ double min(double a, double b) {
+ 	return ((a < b) ? a : b);
+ }
+
+ double max(double a, double b) {
+ 	return ((a > b) ? a : b);
+ }
+
+ int limit127(int a) {
+ 	return max(min(a, 127), -127);
+ }
+
 void operatorControl() {
 	while (1) {
+
+		int moveVoltage = joystickGetAnalog(1, 3);
+		int turnVoltage = joystickGetAnalog(1, 4);
+		bool flipReverse = true;
+
+		bool flip = flipReverse && moveVoltage < -42;
+
+	  moveVoltage *= 1;
+		turnVoltage *= 1;
+
+	  int leftVoltage = limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
+	  int rightVoltage = limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
+
+		motorSet(1, leftVoltage);
+		motorSet(2, leftVoltage);
+		motorSet(3, rightVoltage);
+		motorSet(4, rightVoltage);
+
 		delay(20);
 	}
 }
