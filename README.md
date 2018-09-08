@@ -1,6 +1,6 @@
 # Robot Code
 
-This repository contains Vex V5 Brain code for the upcoming 2018-2019 Robotics competition season.
+This repository contains 9181X robot code for the 2018-2019 Robotics competition season.
 
 ## Git Integration
 
