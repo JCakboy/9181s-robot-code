@@ -52,6 +52,9 @@ void operatorControl() {
 	}
 	*/
 
+	Logger::init("/ser/sout");
+	Logger::init(emath::timestamp() + ".txt");
+
 	// Setup
 	Battery battery;
 	pros::Controller controller (CONTROLLER_MAIN);

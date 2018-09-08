@@ -36,4 +36,16 @@ namespace emath {
 		return a;
 	}
 
+	std::string timestamp() {
+	  time_t now;
+	  struct tm* timeinfo;
+
+	  time (&now);
+	  timeinfo = localtime (&now);
+
+	  char ts [20];
+	  strftime (ts, 20, "%F %T",timeinfo);
+	  new std::string(ts);
+	}
+
 }

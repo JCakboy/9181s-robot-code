@@ -70,6 +70,7 @@
 #include "definitions.hpp"
 #include "emath.hpp"
 #include "drivecontrol.hpp"
+#include "logger.hpp"
 #include "ports.hpp"
 #include "xdrivecontrol.hpp"
 

@@ -1,6 +1,9 @@
 #ifndef _EMATH_HPP_
 #define _EMATH_HPP_
 
+#include "main.h"
+#include "time.h"
+
 /*
  * An extended math namespace to perform common robot math functions
  *
@@ -28,6 +31,9 @@ namespace emath {
 
 	// Adds or subtracts 1 from the given value, whicher gets it closer to 0
 	int step0(int a);
+
+	// Returns a timestamp in the format: YYYY-MM-DD hh:mm:ss
+	std::string timestamp();
 
 }
 

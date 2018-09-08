@@ -95,6 +95,6 @@ class ElasticLauncher : public BallLauncher {
     // Clears all motors from the motor list
     void clearMotors();
 
-  };
+};
 
 #endif
