@@ -17,12 +17,15 @@
  */
 
 class BallLauncher {
+  private:
+    bool stopped;
+
   protected:
     pros::Task* launchTask;
     int state;
 
     // The task to control the launcher. Should never be called
-    void task();
+    static void task(void* param);
 
     // Meant to be overriden to implement the loading a specific type of launcher
     virtual void _load();
@@ -42,6 +45,10 @@ class BallLauncher {
 
     // Launches the launcher
     void launch();
+
+    // Stops the launcher
+    void stop();
+
 };
 
 /*
@@ -52,7 +59,7 @@ class BallLauncher {
 
 class PneumaticLauncher : public BallLauncher {
   private:
-    pros::Mutex lock;
+    pros::Mutex * lock;
     pros::ADIDigitalOut* piston;
 
   protected:
@@ -72,7 +79,7 @@ class PneumaticLauncher : public BallLauncher {
 
 class ElasticLauncher : public BallLauncher {
   private:
-    pros::Mutex lock;
+    pros::Mutex * lock;
     std::vector<pros::Motor> motors;
 
   protected:
@@ -89,7 +96,7 @@ class ElasticLauncher : public BallLauncher {
     /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
     // Removes a motor from the motor list
-    void removeMotor(pros::Motor & motor);
+    void removeMotor(pros::Motor motor);
     */
 
     // Clears all motors from the motor list

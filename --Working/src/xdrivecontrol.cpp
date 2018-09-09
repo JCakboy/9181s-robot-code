@@ -22,43 +22,43 @@ void XDriveControl::runRearRightMotors(int voltage) {
     motor.move(voltage);
 }
 
-XDriveControl::XDriveControl(pros::Mutex & motorLock, pros::Motor & frontLeftMotor, pros::Motor & rearLeftMotor, pros::Motor & frontRightMotor, pros::Motor & rearRightMotor) {
-  XDriveControl::lock = motorLock;
+XDriveControl::XDriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
+  XDriveControl::lock = &motorLock;
   XDriveControl::addFrontLeftMotor(frontLeftMotor);
   XDriveControl::addFrontRightMotor(frontRightMotor);
   XDriveControl::addRearLeftMotor(rearLeftMotor);
   XDriveControl::addRearRightMotor(rearRightMotor);
 }
 
-void XDriveControl::addFrontLeftMotor(pros::Motor & motor) {
+void XDriveControl::addFrontLeftMotor(pros::Motor motor) {
   XDriveControl::frontLeftMotors.push_back(motor);
 }
 
-void XDriveControl::addFrontRightMotor(pros::Motor & motor) {
+void XDriveControl::addFrontRightMotor(pros::Motor motor) {
   XDriveControl::frontRightMotors.push_back(motor);
 }
 
-void XDriveControl::addRearLeftMotor(pros::Motor & motor) {
+void XDriveControl::addRearLeftMotor(pros::Motor motor) {
   XDriveControl::rearLeftMotors.push_back(motor);
 }
 
-void XDriveControl::addRearRightMotor(pros::Motor & motor) {
+void XDriveControl::addRearRightMotor(pros::Motor motor) {
   XDriveControl::rearRightMotors.push_back(motor);
 }
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
-bool XDriveControl::removeFrontLeftMotor(pros::Motor & motor) {
+bool XDriveControl::removeFrontLeftMotor(pros::Motor motor) {
 
 }
 
-bool XDriveControl::removeFrontRightMotor(pros::Motor & motor) {
+bool XDriveControl::removeFrontRightMotor(pros::Motor motor) {
 
 }
 
-bool XDriveControl::removeRearLeftMotor(pros::Motor & motor) {
+bool XDriveControl::removeRearLeftMotor(pros::Motor motor) {
 
 }
 
-bool XDriveControl::removeRearRightMotor(pros::Motor & motor) {
+bool XDriveControl::removeRearRightMotor(pros::Motor motor) {
 
 }
 */
@@ -144,12 +144,12 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
 	lt += overflow;
 	overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
-  if (lock.take(MUTEX_WAIT_TIME)) {
+  if (lock->take(MUTEX_WAIT_TIME)) {
     runFrontLeftMotors(frontLeftVoltage);
     runFrontRightMotors(frontRightVoltage);
     runRearLeftMotors(rearLeftVoltage);
     runRearRightMotors(rearRightVoltage);
-    lock.give();
+    lock->give();
   }
 
 }

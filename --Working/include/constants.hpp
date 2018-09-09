@@ -16,7 +16,7 @@
 // How long to run the elastic launcher loading motor
 #define ELASTIC_LAUNCHER_MOTOR_TIME 1000 // in ms
 
-// Enable logging
+// Minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
 
 #endif

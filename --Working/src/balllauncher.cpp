@@ -2,7 +2,11 @@
 #include "balllauncher.hpp"
 
 void BallLauncher::start() {
-  //BallLauncher::launchTask = &pros::Task( &BallLauncher::task );
+  if (!BallLauncher::stopped)
+    return;
+  BallLauncher::stopped = false;
+  pros::Task * lt = new pros::Task(BallLauncher::task, this);
+  BallLauncher::launchTask = lt;
   BallLauncher::launchTask->resume();
   BallLauncher::load();
 }
@@ -20,23 +24,33 @@ void BallLauncher::launch() {
     BallLauncher::launchTask->notify_ext(2, NOTIFY_OWRITE, NULL);
 }
 
-void BallLauncher::task() {
+void BallLauncher::stop() {
+  if (BallLauncher::stopped)
+    return;
+  BallLauncher::stopped = true;
+  BallLauncher::launchTask->suspend();
+  delete BallLauncher::launchTask;
+  BallLauncher::launchTask = NULL;
+}
+
+void BallLauncher::task(void* param) {
+  BallLauncher bl = *(static_cast<BallLauncher*>(param));
   while (true) {
-    int tstate = BallLauncher::launchTask->notify_take(true, TIMEOUT_MAX);
-    if (tstate == BallLauncher::state)
+    int tstate = bl.launchTask->notify_take(true, TIMEOUT_MAX);
+    if (tstate == bl.state)
       continue;
     if (tstate == 1) {
-      BallLauncher::_load();
+      bl._load();
     } else if (tstate == 2) {
-      BallLauncher::_launch();
+      bl._launch();
     }
-    BallLauncher::state = tstate;
+    bl.state = tstate;
   }
 }
 
 
 PneumaticLauncher::PneumaticLauncher(pros::Mutex & pistonLock, pros::ADIDigitalOut & piston) {
-  PneumaticLauncher::lock = pistonLock;
+  PneumaticLauncher::lock = &pistonLock;
   PneumaticLauncher::piston = &piston;
 }
 

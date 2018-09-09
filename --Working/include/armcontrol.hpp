@@ -18,7 +18,7 @@ class ArmControl {
   private:
     std::vector<pros::Motor> xMotors;
     std::vector<pros::Motor> yMotors;
-    pros::Mutex lock;
+    pros::Mutex * lock;
 
     void runXMotors(int voltage);
 
@@ -39,18 +39,18 @@ class ArmControl {
     explicit ArmControl(pros::Mutex & motorLock, pros::Motor xMotor, pros::Motor yMotor);
 
     // Adds a motor to the list to move the arm left or right
-    void addXMotor(pros::Motor & motor);
+    void addXMotor(pros::Motor motor);
 
     // Adds a motor to the list to move the arm up or down
-    void addYMotor(pros::Motor & motor);
+    void addYMotor(pros::Motor motor);
 
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
     // Removes a motor from the list to move the arm left or right
-    bool removeXMotor(pros::Motor & motor);
+    bool removeXMotor(pros::Motor motor);
 
     // Removes a motor from the list to move the arm up or down
-    bool removeYMotor(pros::Motor & motor);
+    bool removeYMotor(pros::Motor motor);
 
 */
 

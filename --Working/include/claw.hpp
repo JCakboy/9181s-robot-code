@@ -21,16 +21,16 @@ class Claw {
     std::vector<pros::Motor> activeMotors;
     std::vector<pros::Motor> flipMotors;
     std::vector<pros::Motor> pullMotors;
-    pros::Mutex lock;
+    pros::Mutex * lock;
 
     void runActiveMotors(int voltage);
 
   public:
     // Creates the claw object without an active claw motor. See below
-    explicit Claw (pros::Mutex & motorLock, pros::Motor & flipMotor);
+    explicit Claw (pros::Mutex & motorLock, pros::Motor flipMotor);
 
     // Creates the claw object without a claw flip motor. See below
-    explicit Claw (pros::Mutex & motorLock, pros::Motor & pullMotor, pros::Motor & activeMotor);
+    explicit Claw (pros::Mutex & motorLock, pros::Motor pullMotor, pros::Motor activeMotor);
 
     /*
      * Creates the claw object
@@ -40,27 +40,27 @@ class Claw {
      * pullMotor: the motor to pull the claw back
      * activeMotor: the motor to use to clamp the claw
      */
-    explicit Claw (pros::Mutex & motorLock, pros::Motor & flipMotor, pros::Motor & pullMotor, pros::Motor & activeMotor);
+    explicit Claw (pros::Mutex & motorLock, pros::Motor flipMotor, pros::Motor pullMotor, pros::Motor activeMotor);
 
     // Adds a motor to the list to clamp the claw
-    void addActiveMotor(pros::Motor & motor);
+    void addActiveMotor(pros::Motor motor);
 
     // Adds a motor to the list to flip the claw
-    void addFlipMotor(pros::Motor & motor);
+    void addFlipMotor(pros::Motor motor);
 
     // Adds a motor to the list to pull back the clawLock
-    void addPullMotor(pros::Motor & motor);
+    void addPullMotor(pros::Motor motor);
 
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
     // Removes a motor from the list to clamp the claw
-    bool removeActiveMotor(pros::Motor & motor);
+    bool removeActiveMotor(pros::Motor motor);
 
     // Removes a motor from the list to flip the claw
-    bool removeFlipMotor(pros::Motor & motor);
+    bool removeFlipMotor(pros::Motor motor);
 
     // Removes a motor from the list to pull back the clawLock
-    bool removePullMotor(pros::Motor & motor);
+    bool removePullMotor(pros::Motor motor);
 
 */
 

@@ -10,7 +10,7 @@ class XDriveControl {
     std::vector<pros::Motor> frontRightMotors;
     std::vector<pros::Motor> rearLeftMotors;
     std::vector<pros::Motor> rearRightMotors;
-    pros::Mutex lock;
+    pros::Mutex * lock;
     void runFrontLeftMotors(int voltage);
 
     void runFrontRightMotors(int voltage);
@@ -29,33 +29,33 @@ class XDriveControl {
      * frontRightMotor: a motor on the front right side of the robot
      * rearRightMotor: a motor on the rear right side of the robot
      */
-    explicit XDriveControl (pros::Mutex & motorLock, pros::Motor & frontLeftMotor, pros::Motor & rearLeftMotor, pros::Motor & frontRightMotor, pros::Motor & rearRightMotor);
+    explicit XDriveControl (pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
 
     // Adds a motor to the front left position list
-    void addFrontLeftMotor(pros::Motor & motor);
+    void addFrontLeftMotor(pros::Motor motor);
 
     // Adds a motor to the front right position list
-    void addFrontRightMotor(pros::Motor & motor);
+    void addFrontRightMotor(pros::Motor motor);
 
     // Adds a motor to the rear left position list
-    void addRearLeftMotor(pros::Motor & motor);
+    void addRearLeftMotor(pros::Motor motor);
 
     // Adds a motor to the rear right position list
-    void addRearRightMotor(pros::Motor & motor);
+    void addRearRightMotor(pros::Motor motor);
 
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
     // Removes a motor from the front left position list
-    bool removeFrontLeftMotor(pros::Motor & motor);
+    bool removeFrontLeftMotor(pros::Motor motor);
 
     // Removes a motor from the front right position list
-    bool removeFrontRightMotor(pros::Motor & motor);
+    bool removeFrontRightMotor(pros::Motor motor);
 
     // Removes a motor from the rear left position list
-    bool removeRearLeftMotor(pros::Motor & motor);
+    bool removeRearLeftMotor(pros::Motor motor);
 
     // Removes a motor from the rear right position list
-    bool removeRearRightMotor(pros::Motor & motor);
+    bool removeRearRightMotor(pros::Motor motor);
 
 */
 

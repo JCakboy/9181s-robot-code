@@ -12,25 +12,25 @@ void DriveControl::runRightMotors(int voltage) {
     motor.move(voltage);
 }
 
-DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor & leftMotor, pros::Motor & rightMotor) {
-  DriveControl::lock = motorLock;
+DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
+  DriveControl::lock = &motorLock;
   DriveControl::leftMotors.push_back(leftMotor);
   DriveControl::rightMotors.push_back(rightMotor);
 }
 
-DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor & frontLeftMotor, pros::Motor & rearLeftMotor, pros::Motor & frontRightMotor, pros::Motor & rearRightMotor) {
-  DriveControl::lock = motorLock;
+DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
+  DriveControl::lock = &motorLock;
   DriveControl::addLeftMotor(frontLeftMotor);
   DriveControl::addLeftMotor(rearLeftMotor);
   DriveControl::addRightMotor(frontRightMotor);
   DriveControl::addRightMotor(rearRightMotor);
 }
 
-void DriveControl::addLeftMotor(pros::Motor & motor) {
+void DriveControl::addLeftMotor(pros::Motor motor) {
   DriveControl::leftMotors.push_back(motor);
 }
 
-void DriveControl::addRightMotor(pros::Motor & motor) {
+void DriveControl::addRightMotor(pros::Motor motor) {
   DriveControl::rightMotors.push_back(motor);
 }
 
@@ -47,7 +47,7 @@ void DriveControl::clearRightMotors() {
   DriveControl::rightMotors.clear();
 }
 /* currently not working, may work when pros 3 is released
-bool DriveControl::removeLeftMotor(pros::Motor & motor) {
+bool DriveControl::removeLeftMotor(pros::Motor motor) {
   int i = 0;
   bool found = false;
   for (; i < DriveControl::leftMotors.size(); i++)
@@ -60,7 +60,7 @@ bool DriveControl::removeLeftMotor(pros::Motor & motor) {
   return found;
 }
 
-bool DriveControl::removeRightMotor(pros::Motor & motor) {
+bool DriveControl::removeRightMotor(pros::Motor motor) {
   int i = 0;
   bool found = false;
   for (; i < DriveControl::rightMotors.size(); i++)
@@ -87,9 +87,9 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse,
   int leftVoltage = emath::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
   int rightVoltage = emath::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
 
-  if (lock.take(MUTEX_WAIT_TIME)) {
+  if (lock->take(MUTEX_WAIT_TIME)) {
     DriveControl::runLeftMotors(leftVoltage);
     DriveControl::runRightMotors(rightVoltage);
-    lock.give();
+    lock->give();
   }
 }
