@@ -16,7 +16,8 @@ bool BallLauncher::ready() {
 }
 
 void BallLauncher::load() {
-  BallLauncher::launchTask->notify_ext(1, NOTIFY_OWRITE, NULL);
+  if (!BallLauncher::ready())
+    BallLauncher::launchTask->notify_ext(1, NOTIFY_OWRITE, NULL);
 }
 
 void BallLauncher::launch() {
@@ -43,6 +44,8 @@ void BallLauncher::task(void* param) {
       bl._load();
     } else if (tstate == 2) {
       bl._launch();
+      if (BALL_LAUNCHER_AUTO_LOAD)
+        bl.load();
     }
     bl.state = tstate;
   }
