@@ -22,6 +22,30 @@ void XDriveControl::runRearRightMotors(int voltage) {
     motor.move(voltage);
 }
 
+void XDriveControl::setFrontLeftBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : XDriveControl::frontLeftMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
+void XDriveControl::setFrontRightBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : XDriveControl::frontRightMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
+void XDriveControl::setRearLeftBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : XDriveControl::rearLeftMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
+void XDriveControl::setRearRightBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : XDriveControl::rearRightMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
 XDriveControl::XDriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
   XDriveControl::lock = &motorLock;
   XDriveControl::addFrontLeftMotor(frontLeftMotor);
@@ -85,11 +109,11 @@ void XDriveControl::clearRearRightMotors() {
   XDriveControl::rearRightMotors.clear();
 }
 
-void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage) {
-  XDriveControl::run(moveVoltage, strafeVoltage, turnVoltage, 1.0, 1.0, 1.0);
+void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake) {
+  XDriveControl::run(moveVoltage, strafeVoltage, turnVoltage, brake, 1.0, 1.0, 1.0);
 }
 
-void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
+void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
   moveVoltage *= moveSensitivity;
   strafeVoltage *= strafeSensitivity;
   turnVoltage *= turnSensitivity;
@@ -145,10 +169,14 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
 	overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
   if (lock->take(MUTEX_WAIT_TIME)) {
-    runFrontLeftMotors(frontLeftVoltage);
-    runFrontRightMotors(frontRightVoltage);
-    runRearLeftMotors(rearLeftVoltage);
-    runRearRightMotors(rearRightVoltage);
+    XDriveControl::setFrontLeftBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setFrontRightBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setRearLeftBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setRearRightBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::runFrontLeftMotors(frontLeftVoltage);
+    XDriveControl::runFrontRightMotors(frontRightVoltage);
+    XDriveControl::runRearLeftMotors(rearLeftVoltage);
+    XDriveControl::runRearRightMotors(rearRightVoltage);
     lock->give();
   }
 

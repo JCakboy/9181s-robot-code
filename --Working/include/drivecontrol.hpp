@@ -23,6 +23,10 @@ class DriveControl {
 
     void runRightMotors(int voltage);
 
+    void setLeftBrake(pros::motor_brake_mode_e_t mode);
+
+    void setRightBrake(pros::motor_brake_mode_e_t mode);
+
   public:
     // Creates the Drive Control object with one left and one right motor, see below
     explicit DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor);
@@ -64,18 +68,19 @@ class DriveControl {
     void clearRightMotors();
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
-    void run(double moveVoltage, double turnVoltage, bool flipReverse);
+    void run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse);
 
     /*
      * Runs the Drive Control by calculating the values for the left and right motors
      *
      * moveVoltage: the movement voltage, forward or backward, ranging from -127 to 127
      * turnVoltage: the turning voltage ranging from -127 to 127
+     * brake: whether to brake the motors. Braking involves a physical brake while reducing movement 10 fold
      * flipReverse: whether to flip left or right movement when reversing, used to more closely mimic movement
      * moveSensitivity: multiplier to make movement forward or backward move or less sensitive. Output voltages will still be in valid ranges
      * turnSensitivity: multiplier to make turning move or less sensitive. Output voltages will still be in valid ranges.
      */
-    void run(double moveVoltage, double turnVoltage, bool flipReverse, double moveSensitivity, double turnSensitivity);
+    void run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
 };
 

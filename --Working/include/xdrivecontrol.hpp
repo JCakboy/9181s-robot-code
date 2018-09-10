@@ -19,6 +19,14 @@ class XDriveControl {
 
     void runRearRightMotors(int voltage);
 
+    void setFrontLeftBrake(pros::motor_brake_mode_e_t mode);
+
+    void setFrontRightBrake(pros::motor_brake_mode_e_t mode);
+
+    void setRearLeftBrake(pros::motor_brake_mode_e_t mode);
+
+    void setRearRightBrake(pros::motor_brake_mode_e_t mode);
+
   public:
     /*
      * Creates the X-Drive Control object
@@ -75,7 +83,7 @@ class XDriveControl {
     void clearRearRightMotors();
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
-    void run(double moveVoltage, double strafeVoltage, double turnVoltage);
+    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake);
 
     /**
      * Runs the Drive Control by calculating the values for all four motor positions
@@ -83,11 +91,12 @@ class XDriveControl {
      * moveVoltage: the movement voltage, forward or backward, ranging from -127 to 127
      * strafeVoltage: the movement voltage, right or left, ranging from -127 to 127
      * turnVoltage: the turning voltage ranging from -127 to 127
+     * brake: whether to brake the motors. Braking involves a physical brake while reducing movement 10 fold
      * moveSensitivity: multiplier to make movement forward or backward move or less sensitive. Output voltages will still be in valid ranges
      * strafeSensitivity: multiplier to make movement right or left move or less sensitive. Output voltages will still be in valid ranges
      * turnSensitivity: multiplier to make movement forward or backward move or less sensitive. Output voltages will still be in valid ranges, however, it is recommended to stay at 1.0
      */
-    void run(double moveVoltage, double strafeVoltage, double turnVoltage, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
+    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
 
 };
 

@@ -12,6 +12,18 @@ void DriveControl::runRightMotors(int voltage) {
     motor.move(voltage);
 }
 
+void DriveControl::setLeftBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : DriveControl::leftMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
+void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
+  for (const auto & motor : DriveControl::rightMotors)
+    if (motor.get_brake_mode() != mode)
+      motor.set_brake_mode(mode);
+}
+
 DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
   DriveControl::lock = &motorLock;
   DriveControl::leftMotors.push_back(leftMotor);
@@ -73,12 +85,12 @@ bool DriveControl::removeRightMotor(pros::Motor motor) {
   return found;
 }
 */
-void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse) {
-  DriveControl::run(moveVoltage, turnVoltage, flipReverse, 1.0, 1.0);
+void DriveControl::run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse) {
+  DriveControl::run(moveVoltage, turnVoltage, brake, flipReverse, 1.0, 1.0);
 }
 
 
-void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse, double moveSensitivity, double turnSensitivity) {
+void DriveControl::run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
   bool flip = flipReverse && moveVoltage < MOTOR_REVERSE_FLIP_THRESHOLD;
 
   moveVoltage *= moveSensitivity;
@@ -88,6 +100,8 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool flipReverse,
   int rightVoltage = emath::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
 
   if (lock->take(MUTEX_WAIT_TIME)) {
+    DriveControl::setLeftBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
+    DriveControl::setRightBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
     DriveControl::runLeftMotors(leftVoltage);
     DriveControl::runRightMotors(rightVoltage);
     lock->give();

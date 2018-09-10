@@ -72,8 +72,8 @@ void operatorControl() {
 */
 	while (true) {
 
-		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), true, 1, 1);
+		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), false, true, 1, 1);
 
-		pros::c::delay(20);
+		pros::c::delay(1000 / TASK_OPCONTROL_HZ);
 	}
 }

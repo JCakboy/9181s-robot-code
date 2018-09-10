@@ -2,9 +2,11 @@
 
 This repository contains 9181X robot code for the 2018-2019 Robotics competition season.
 
+Current robot code: `--Working`
+
 ## Git Integration
 
-It is recommended that this project be access through Atom. If you prefer a different text editor, become familiar with [Git through the command line](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository).
+It is recommended that this project be accessed through Atom. If you prefer a different text editor, become familiar with [Git through the command line](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository).
 
 **For PROS projects:**
 
