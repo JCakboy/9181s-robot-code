@@ -72,6 +72,7 @@
 #include "drivecontrol.hpp"
 #include "logger.hpp"
 #include "ports.hpp"
+#include "watchdog.hpp"
 #include "xdrivecontrol.hpp"
 
 #endif

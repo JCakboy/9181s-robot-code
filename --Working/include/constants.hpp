@@ -10,6 +10,8 @@
 // Refresh rate for opcontrol
 #define TASK_OPCONTROL_HZ 50
 
+#define TASK_WATCHDOG_HZ 1
+
 // How long to wait for a mutex to be released
 #define MUTEX_WAIT_TIME 1000 // in ms
 
@@ -22,7 +24,10 @@
 // How long to run the elastic launcher loading motor
 #define ELASTIC_LAUNCHER_MOTOR_TIME 1000 // in ms
 
-// Minimum logging level
+// Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
+
+// Minimum alert level
+#define ALERT_LEVEL E_LOGGING_WARNING
 
 #endif
