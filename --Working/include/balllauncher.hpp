@@ -24,6 +24,9 @@ class BallLauncher {
     pros::Task* launchTask;
     int state;
 
+    // Initializes the launcher
+    BallLauncher();
+
     // The task to control the launcher. Should never be called
     static void task(void* param);
 

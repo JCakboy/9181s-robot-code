@@ -1,6 +1,10 @@
 #include "main.h"
 #include "balllauncher.hpp"
 
+BallLauncher::BallLauncher() {
+  BallLauncher::stopped = true;
+}
+
 void BallLauncher::start() {
   if (!BallLauncher::stopped)
     return;

@@ -44,7 +44,7 @@ void operatorControl() {
 	*/
 
 	Logger::init("/ser/sout");
-	Logger::init(emath::timestamp() + ".txt");
+	Logger::init("/usd/" + emath::timestamp() + ".txt");
 
 	// Setup
 	Battery battery;
