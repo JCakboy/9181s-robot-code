@@ -40,7 +40,7 @@ void BallLauncher::stop() {
 
 void BallLauncher::task(void* param) {
   BallLauncher bl = *(static_cast<BallLauncher*>(param));
-  while (true) {
+  while (flags::generalAlive) {
     int tstate = bl.launchTask->notify_take(true, TIMEOUT_MAX);
     if (tstate == bl.state)
       continue;

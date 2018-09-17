@@ -57,7 +57,7 @@ void Watchdog::addWatcher(Watcher * watch) {
 }
 
 void Watchdog::task(void *param) {
-  while(true) {
+  while (flags::watchdogAlive) {
     for (const auto & watch : Watchdog::watchers)
       watch->runChecks();
     pros::c::delay(1000 / TASK_WATCHDOG_HZ);
