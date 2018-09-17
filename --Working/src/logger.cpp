@@ -1,6 +1,8 @@
 #include "main.h"
 #include "logger.hpp"
 
+std::vector<Logger*> Logger::loggers;
+
 Logger::Logger (logging_levels mLevel, std::string filename) {
   logfile.open(filename);
 }
@@ -16,8 +18,8 @@ void Logger::init(std::string filename) {
 }
 
 void Logger::init(logging_levels minLevel, std::string filename) {
-  Logger log (minLevel, filename);
-  Logger::loggers.push_back(&log);
+  Logger * log = new Logger(minLevel, filename);
+  Logger::loggers.push_back(log);
 }
 
 void Logger::log(logging_levels level, std::string message) {

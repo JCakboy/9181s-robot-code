@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include <fstream>
+#include <vector>
 
 /*
  * An enumeration specifying different logging levels
@@ -36,9 +37,10 @@ struct Logger {
     int minLevel;
     std::ofstream logfile;
 
-    static std::string timestamp();
-
     explicit Logger(logging_levels mLevel, std::string filename);
+
+
+    static void addNew(Logger * log);
 
     void _log(logging_levels level, std::string message);
 
