@@ -1,8 +1,15 @@
 #include "main.h"
 #include "watchdog.hpp"
 
+std::vector<Watcher*> Watchdog::watchers;
+
 Watcher::Watcher (std::string name) {
   Watcher::name = name;
+  Watcher::currentTimeout = 0;
+}
+
+void Watcher::timeout(int cycles) {
+  Watcher::currentTimeout += cycles;
 }
 
 MotorWatcher::MotorWatcher(std::string name, pros::Mutex & motorLock, pros::Motor & motor) : Watcher::Watcher(name) {
@@ -19,19 +26,45 @@ void MotorWatcher::notify(std::string identifier) {
 }
 
 BatteryWatcher::BatteryWatcher(std::string name, Battery battery) : Watcher::Watcher(name) {
+  Watchdog::alert(LOG_INFO, "Watching " + name + " battery. Current capacity: " + std::to_string(battery.capacity()));
+
   BatteryWatcher::battery = battery;
+  BatteryWatcher::level = 0;
 }
 
 void BatteryWatcher::runChecks() {
-
+  double capacity = BatteryWatcher::battery.capacity();
+  if (capacity < VERY_LOW_BATTERY_THRESHOLD && BatteryWatcher::level < 2) {
+    BatteryWatcher::level = 2;
+    Watchdog::alert(LOG_ERROR, name + " battery is very low! Current capacity: " + std::to_string(capacity));
+    return;
+  }
+  if (capacity < LOW_BATTERY_THRESHOLD && BatteryWatcher::level < 1) {
+    BatteryWatcher::level = 1;
+    Watchdog::alert(LOG_WARNING, name + " battery is low. Current capacity: " + std::to_string(capacity));
+    return;
+  }
 }
 
 TaskWatcher::TaskWatcher(std::string name, int target_hz) : Watcher::Watcher(name) {
+  Watchdog::alert(LOG_INFO, "Watching " + name + " task");
+
   TaskWatcher::target = target_hz;
 }
 
 void TaskWatcher::runChecks() {
-
+  double ttarget = TaskWatcher::target / TASK_WATCHDOG_HZ;
+  double pct = static_cast<double>(TaskWatcher::count) / ttarget;
+  if (pct < TASK_HANG_THRESHOLD) {
+    Watchdog::alert(LOG_ERROR, name + " task is hanging! Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)");
+    this->timeout(3 * TASK_WATCHDOG_HZ);
+    return;
+  }
+  if (pct < TASK_SLOW_THRESHOLD) {
+    Watchdog::alert(LOG_WARNING, name + " task is slow. Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)");
+    this->timeout(3 * TASK_WATCHDOG_HZ);
+    return;
+  }
 }
 
 void TaskWatcher::notify() {
@@ -58,13 +91,20 @@ void Watchdog::addWatcher(Watcher * watch) {
 
 void Watchdog::task(void *param) {
   while (flags::watchdogAlive) {
-    for (const auto & watch : Watchdog::watchers)
+    for (Watcher * watch : Watchdog::watchers) {
+      if (watch->currentTimeout > 0) {
+        watch->currentTimeout--;
+        continue;
+      }
       watch->runChecks();
+    }
     pros::c::delay(1000 / TASK_WATCHDOG_HZ);
   }
 }
 
 void Watchdog::start() {
+  if (TASK_WATCHDOG_HZ == 0)
+    return;
   Watchdog::stopped = false;
   pros::Task task = new pros::Task(Watchdog::task);
   Watchdog::watchTask = &task;
