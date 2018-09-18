@@ -1,8 +1,9 @@
 #include "main.h"
 #include "balllauncher.hpp"
 
-BallLauncher::BallLauncher() {
+BallLauncher::BallLauncher(TaskWatcher * watcher) {
   BallLauncher::stopped = true;
+  BallLauncher::watcher = watcher;
 }
 
 void BallLauncher::start() {
@@ -41,9 +42,11 @@ void BallLauncher::stop() {
 void BallLauncher::task(void* param) {
   BallLauncher bl = *(static_cast<BallLauncher*>(param));
   while (flags::generalAlive) {
-    int tstate = bl.launchTask->notify_take(true, TIMEOUT_MAX);
-    if (tstate == bl.state)
+    bl.watcher->notify();
+    int tstate = bl.launchTask->notify_take(true, 1000 / TASK_BALLLAUNCHER_HZ);
+    if (tstate == bl.state || tstate == 0)
       continue;
+    bl.watcher->timeout(2 * TASK_WATCHDOG_HZ);
     if (tstate == 1) {
       bl._load();
     } else if (tstate == 2) {
@@ -56,7 +59,7 @@ void BallLauncher::task(void* param) {
 }
 
 
-PneumaticLauncher::PneumaticLauncher(pros::Mutex & pistonLock, pros::ADIDigitalOut & piston) {
+PneumaticLauncher::PneumaticLauncher(TaskWatcher * watcher, pros::Mutex & pistonLock, pros::ADIDigitalOut & piston) : BallLauncher::BallLauncher(watcher) {
   PneumaticLauncher::lock = &pistonLock;
   PneumaticLauncher::piston = &piston;
 }
@@ -69,7 +72,7 @@ void PneumaticLauncher::_load() {
   PneumaticLauncher::piston->set_value(false);
 }
 
-ElasticLauncher::ElasticLauncher(pros::Mutex & motorLock, pros::Motor & motor) {
+ElasticLauncher::ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor & motor) : BallLauncher::BallLauncher(watcher) {
   motor.set_brake_mode(BRAKE_HOLD);
   ElasticLauncher::motors.push_back(motor);
 }

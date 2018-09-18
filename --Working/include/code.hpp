@@ -38,6 +38,8 @@ void autonomous();
 
 void autonomousSafe();
 
+extern TaskWatcher * opcontrolTaskwatcher;
+
 void operatorControl();
 
 void operatorControlSafe();

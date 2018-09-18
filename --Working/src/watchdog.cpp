@@ -49,10 +49,13 @@ void BatteryWatcher::runChecks() {
 TaskWatcher::TaskWatcher(std::string name, int target_hz) : Watcher::Watcher(name) {
   Watchdog::alert(LOG_INFO, "Watching " + name + " task");
 
+  TaskWatcher::enabled = false;
   TaskWatcher::target = target_hz;
 }
 
 void TaskWatcher::runChecks() {
+  if (!TaskWatcher::enabled)
+    return;
   double ttarget = TaskWatcher::target / TASK_WATCHDOG_HZ;
   double pct = static_cast<double>(TaskWatcher::count) / ttarget;
   if (pct < TASK_HANG_THRESHOLD) {
@@ -69,6 +72,14 @@ void TaskWatcher::runChecks() {
 
 void TaskWatcher::notify() {
   TaskWatcher::count++;
+}
+
+void TaskWatcher::enable() {
+  TaskWatcher::enabled = true;
+}
+
+void TaskWatcher::disable() {
+  TaskWatcher::enabled = false;
 }
 
 ControllerWatcher::ControllerWatcher(std::string name, pros::Controller & controller) : Watcher::Watcher(name) {

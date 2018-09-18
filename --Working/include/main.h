@@ -63,17 +63,17 @@
  */
 //#include <iostream>
 
+#include "logger.hpp"
+#include "battery.hpp"
+#include "watchdog.hpp"
 #include "armcontrol.hpp"
 #include "balllauncher.hpp"
-#include "battery.hpp"
 #include "claw.hpp"
 #include "code.hpp"
 #include "constants.hpp"
 #include "definitions.hpp"
 #include "drivecontrol.hpp"
 #include "emath.hpp"
-#include "logger.hpp"
-#include "watchdog.hpp"
 #include "xdrivecontrol.hpp"
 
 #endif

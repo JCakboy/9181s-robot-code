@@ -13,6 +13,8 @@ void flags::killAll() {
   flags::watchdogAlive = false;
 }
 
+TaskWatcher * opcontrolTaskWatcher;
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -113,6 +115,7 @@ void operatorControlSafe() {
 
 	DriveControl drivecontrol (driveMotorsMutex, leftFrontDriveMotor, leftRearDriveMotor, rightFrontDriveMotor, rightRearDriveMotor);
 	while (flags::opcontrolAlive) {
+    opcontrolTaskWatcher->notify();
 
 		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), false, true, 1, 1);
 

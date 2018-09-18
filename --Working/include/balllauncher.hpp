@@ -19,13 +19,14 @@
 class BallLauncher {
   private:
     bool stopped;
+    TaskWatcher * watcher;
 
   protected:
     pros::Task* launchTask;
     int state;
 
     // Initializes the launcher
-    BallLauncher();
+    BallLauncher(TaskWatcher * watcher);
 
     // The task to control the launcher. Should never be called
     static void task(void* param);
@@ -66,12 +67,12 @@ class PneumaticLauncher : public BallLauncher {
     pros::ADIDigitalOut* piston;
 
   protected:
-    void _load();
+    void _load() override;
 
-    void _launch();
+    void _launch() override;
 
   public:
-    explicit PneumaticLauncher(pros::Mutex & pistonLock, pros::ADIDigitalOut & pneumaticPort);
+    explicit PneumaticLauncher(TaskWatcher * watcher, pros::Mutex & pistonLock, pros::ADIDigitalOut & pneumaticPort);
 };
 
 /*
@@ -86,12 +87,12 @@ class ElasticLauncher : public BallLauncher {
     std::vector<pros::Motor> motors;
 
   protected:
-    void _load();
+    void _load() override;
 
-    void _launch();
+    void _launch() override;
 
   public:
-    explicit ElasticLauncher(pros::Mutex & motorLock, pros::Motor & motor);
+    explicit ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor & motor);
 
     // Adds a motor to the motor list
     void addMotor(pros::Motor & motor);

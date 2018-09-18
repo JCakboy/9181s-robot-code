@@ -8,9 +8,12 @@ class Watchdog;
 
 /*
  * A base class meant to watch and/or run checks on a specific object
-
+ *
  * Meant to be inherited and have the following methods overriden:
  *    - runChecks(): checks the object
+ *
+ * The following methods should be called from tasks when necessary:
+ *    - timeout(): prevent checking for the number of watchdog cycles
  */
 
 class Watcher {
@@ -21,9 +24,9 @@ class Watcher {
 
     explicit Watcher (std::string name);
 
+  public:
     void timeout(int cycles);
 
-  public:
     virtual void runChecks();
 };
 
@@ -42,7 +45,7 @@ class MotorWatcher : public Watcher {
   public:
     explicit MotorWatcher (std::string name, pros::Mutex & motorLock, pros::Motor & motor);
 
-    void runChecks();
+    void runChecks() override;
 
     void notify(std::string identifier);
 };
@@ -61,7 +64,7 @@ class BatteryWatcher : public Watcher {
   public:
     explicit BatteryWatcher (std::string name, Battery battery);
 
-    void runChecks();
+    void runChecks() override;
 
 };
 
@@ -73,15 +76,22 @@ class BatteryWatcher : public Watcher {
 
 class TaskWatcher : public Watcher {
   private:
+    bool enabled;
     double count;
     int target;
 
   public:
     explicit TaskWatcher (std::string name, int target_hz);
 
-    void runChecks();
+    void runChecks() override;
 
     void notify();
+
+    // Enables watching
+    void enable();
+
+    // Disables watching
+    void disable();
 
 };
 
@@ -98,7 +108,7 @@ class ControllerWatcher : public Watcher {
   public:
     explicit ControllerWatcher (std::string name, pros::Controller & controller);
 
-    void runChecks();
+    void runChecks() override;
 
 };
 
@@ -112,7 +122,7 @@ class CompetitionWatcher : public Watcher {
   public:
     CompetitionWatcher ();
 
-    void runChecks();
+    void runChecks() override;
 
 };
 

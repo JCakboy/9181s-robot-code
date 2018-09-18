@@ -7,6 +7,9 @@
  * A header file listing constant settings
  */
 
+// Refresh rate for ball launcher
+#define TASK_BALLLAUNCHER_HZ 2
+
 // Refresh rate for opcontrol
 #define TASK_OPCONTROL_HZ 50
 
