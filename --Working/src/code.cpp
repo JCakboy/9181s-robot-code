@@ -25,7 +25,8 @@ void initialize() {
   flags::aliveAll();
 
   Logger::init("/ser/sout");
-	Logger::init("/usd/" + emath::timestamp() + ".txt");
+  if (SD_INSERTED)
+	 Logger::init("/usd/logs/" + emath::timestamp() + ".txt");
 
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");

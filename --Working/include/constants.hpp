@@ -7,6 +7,10 @@
  * A header file listing constant settings
  */
 
+// Whether or not a microSD card is inserted
+#define SD_INSERTED true
+
+
 // Refresh rate for ball launcher
 #define TASK_BALLLAUNCHER_HZ 2
 
