@@ -13,7 +13,46 @@ void flags::killAll() {
   flags::watchdogAlive = false;
 }
 
-TaskWatcher * opcontrolTaskWatcher;
+Unused::Unused() {}
+
+Unused::Unused(int i) {};
+
+void ports::init() {
+  ports::opcontrolTaskWatcher = &(Watchdog::watch("Operator control", TASK_OPCONTROL_HZ));
+  ports::ballLauncherTaskWatcher = &(Watchdog::watch("Ball launcher", TASK_BALLLAUNCHER_HZ));
+
+  ports::brainBattery = new BrainBattery();
+  ports::controllerMainBattery = new ControllerBattery(CONTROLLER_MAIN);
+  ports::controllerPartnerBattery = new ControllerBattery(CONTROLLER_PARTNER);
+
+  ports::controllerMain = new RecordedController(CONTROLLER_MAIN);
+  ports::controllerPartner = new RecordedController(CONTROLLER_PARTNER);
+
+  ports::leftDriveMotor = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::rightDriveMotor = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
+  ports::elasticLaunchMotor = new pros::Motor(9, GEARSET_100, FWD, ENCODER_DEGREES);
+
+  ports::driveLock = new pros::Mutex();
+  ports::launcherLock = new pros::Mutex();
+  ports::intakeLock = new pros::Mutex();
+  ports::liftLock = new pros::Mutex();
+
+  ports::driveControl = new DriveControl(*ports::driveLock, *ports::leftDriveMotor, *ports::rightDriveMotor);
+  ports::ballLauncher = new ElasticLauncher(ports::ballLauncherTaskWatcher, *ports::launcherLock, *ports::elasticLaunchMotor);
+
+  Watchdog::watch("Brain battery", *ports::brainBattery);
+  Watchdog::watch("Main controller battery", *ports::controllerMainBattery);
+  Watchdog::watch("Partner controller battery", *ports::controllerPartnerBattery);
+
+  Watchdog::watch("Main controller", *ports::controllerMain);
+  Watchdog::watch("Partner controller", *ports::controllerPartner);
+
+  Watchdog::watch("Left drive motor", *ports::driveLock, *ports::leftDriveMotor);
+  Watchdog::watch("Right drive motor", *ports::driveLock, *ports::rightDriveMotor);
+  Watchdog::watch("Launcher motor", *ports::launcherLock, *ports::elasticLaunchMotor);
+
+  // Watchdog::watchCompetition();
+}
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -24,14 +63,19 @@ TaskWatcher * opcontrolTaskWatcher;
 void initialize() {
   flags::aliveAll();
 
+  ports::init();
+
   Logger::init("/ser/sout");
   if (SD_INSERTED)
-	 Logger::init("/usd/logs/" + emath::timestamp() + ".txt");
+	  Logger::init("/usd/logs/" + emath::timestamp() + ".txt");
+
+  Watchdog::start();
 
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 }
 
+using namespace ports;
 
 /**
  * Runs after initialize(), and before autonomous when connected to the Field
@@ -98,27 +142,10 @@ void operatorControlSafe() {
 	}
 	*/
 
-	// Setup
-	BrainBattery battery;
-	pros::Controller controller (CONTROLLER_MAIN);
-	pros::Controller controllerPartner (CONTROLLER_PARTNER);
-	pros::Motor leftFrontDriveMotor (1, GEARSET_200, REV, ENCODER_DEGREES);
-	pros::Motor leftRearDriveMotor (11, GEARSET_200, FWD, ENCODER_DEGREES);
-	pros::Motor rightFrontDriveMotor (10, GEARSET_200, REV, ENCODER_DEGREES);
-	pros::Motor rightRearDriveMotor (20, GEARSET_200, REV, ENCODER_DEGREES);
-	pros::Motor unused1 (4, GEARSET_200, FWD, ENCODER_DEGREES);
-	pros::Motor unused2 (5, GEARSET_200, FWD, ENCODER_DEGREES);
-	pros::Motor unused3 (6, GEARSET_200, FWD, ENCODER_DEGREES);
-	pros::Motor unused4 (7, GEARSET_200, FWD, ENCODER_DEGREES);
-	pros::Vision vision (8);
-
-	pros::Mutex driveMotorsMutex;
-
-	DriveControl drivecontrol (driveMotorsMutex, leftFrontDriveMotor, leftRearDriveMotor, rightFrontDriveMotor, rightRearDriveMotor);
 	while (flags::opcontrolAlive) {
     opcontrolTaskWatcher->notify();
 
-		drivecontrol.run(controller.get_analog(STICK_LEFT_X), controller.get_analog(STICK_LEFT_Y), false, true, 1, 1);
+		driveControl->run(controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_analog(STICK_LEFT_Y), false, true, 1, 1);
 
 		pros::c::delay(1000 / TASK_OPCONTROL_HZ);
 	}
