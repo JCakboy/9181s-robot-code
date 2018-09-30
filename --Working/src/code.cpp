@@ -99,7 +99,7 @@ void operatorControlSafe() {
 	*/
 
 	// Setup
-	Battery battery;
+	BrainBattery battery;
 	pros::Controller controller (CONTROLLER_MAIN);
 	pros::Controller controllerPartner (CONTROLLER_PARTNER);
 	pros::Motor leftFrontDriveMotor (1, GEARSET_200, REV, ENCODER_DEGREES);

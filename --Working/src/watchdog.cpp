@@ -2,6 +2,8 @@
 #include "watchdog.hpp"
 
 std::vector<Watcher*> Watchdog::watchers;
+bool Watchdog::stopped = false;
+pros::Task * Watchdog::watchTask;
 
 Watcher::Watcher (std::string name) {
   Watcher::name = name;
@@ -25,15 +27,17 @@ void MotorWatcher::notify(std::string identifier) {
   MotorWatcher::lastid = identifier;
 }
 
-BatteryWatcher::BatteryWatcher(std::string name, Battery battery) : Watcher::Watcher(name) {
+BatteryWatcher::BatteryWatcher(std::string name, Battery & battery) : Watcher::Watcher(name) {
   Watchdog::alert(LOG_INFO, "Watching " + name + " battery. Current capacity: " + std::to_string(battery.capacity()));
 
-  BatteryWatcher::battery = battery;
+  BatteryWatcher::battery = &battery;
   BatteryWatcher::level = 0;
 }
 
 void BatteryWatcher::runChecks() {
-  double capacity = BatteryWatcher::battery.capacity();
+  double capacity = BatteryWatcher::battery->capacity();
+  if (capacity == -1)
+    return;
   if (capacity < VERY_LOW_BATTERY_THRESHOLD && BatteryWatcher::level < 2) {
     BatteryWatcher::level = 2;
     Watchdog::alert(LOG_ERROR, name + " battery is very low! Current capacity: " + std::to_string(capacity));
@@ -82,7 +86,7 @@ void TaskWatcher::disable() {
   TaskWatcher::enabled = false;
 }
 
-ControllerWatcher::ControllerWatcher(std::string name, pros::Controller & controller) : Watcher::Watcher(name) {
+ControllerWatcher::ControllerWatcher(std::string name, RecordedController & controller) : Watcher::Watcher(name) {
   ControllerWatcher::controller = &controller;
 }
 
@@ -114,7 +118,7 @@ void Watchdog::task(void *param) {
 }
 
 void Watchdog::start() {
-  if (TASK_WATCHDOG_HZ == 0)
+  if (TASK_WATCHDOG_HZ == 0 || !Watchdog::stopped)
     return;
   Watchdog::stopped = false;
   pros::Task task = new pros::Task(Watchdog::task);
@@ -137,7 +141,7 @@ MotorWatcher & Watchdog::watch(std::string name, pros::Mutex & motorLock, pros::
   return *watch;
 }
 
-BatteryWatcher & Watchdog::watch(std::string name, Battery battery) {
+BatteryWatcher & Watchdog::watch(std::string name, Battery & battery) {
   BatteryWatcher * watch = new BatteryWatcher(name, battery);
   Watchdog::addWatcher(watch);
   return *watch;
@@ -149,7 +153,7 @@ TaskWatcher & Watchdog::watch(std::string name, int target_hz) {
   return *watch;
 }
 
-ControllerWatcher & Watchdog::watch(std::string name, pros::Controller & controller) {
+ControllerWatcher & Watchdog::watch(std::string name, RecordedController & controller) {
   ControllerWatcher * watch = new ControllerWatcher(name, controller);
   Watchdog::addWatcher(watch);
   return *watch;

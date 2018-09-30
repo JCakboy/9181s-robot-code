@@ -3,9 +3,6 @@
 
 #include "main.h"
 
-// See below for documentation
-class Watchdog;
-
 /*
  * A base class meant to watch and/or run checks on a specific object
  *
@@ -27,7 +24,7 @@ class Watcher {
   public:
     void timeout(int cycles);
 
-    virtual void runChecks();
+    virtual void runChecks() = 0;
 };
 
 /*
@@ -58,11 +55,11 @@ class MotorWatcher : public Watcher {
 
 class BatteryWatcher : public Watcher {
   private:
-    Battery battery;
+    Battery * battery;
     int level; // 0: no warning, 1: low warning, 2: very low warning
 
   public:
-    explicit BatteryWatcher (std::string name, Battery battery);
+    explicit BatteryWatcher (std::string name, Battery & battery);
 
     void runChecks() override;
 
@@ -103,10 +100,10 @@ class TaskWatcher : public Watcher {
 
 class ControllerWatcher : public Watcher {
   private:
-    pros::Controller * controller;
+    RecordedController * controller;
 
   public:
-    explicit ControllerWatcher (std::string name, pros::Controller & controller);
+    explicit ControllerWatcher (std::string name, RecordedController & controller);
 
     void runChecks() override;
 
@@ -156,13 +153,13 @@ class Watchdog {
     static MotorWatcher & watch(std::string name, pros::Mutex & motorLock, pros::Motor motor);
 
     // Watches a given battery
-    static BatteryWatcher & watch(std::string name, Battery battery);
+    static BatteryWatcher & watch(std::string name, Battery & battery);
 
     // Watches given task
     static TaskWatcher & watch(std::string name, int target_hz);
 
     // Watches a given controller
-    static ControllerWatcher & watch(std::string name, pros::Controller & controller);
+    static ControllerWatcher & watch(std::string name, RecordedController & controller);
 
     // Watches the competition
     static CompetitionWatcher & watchCompetition();

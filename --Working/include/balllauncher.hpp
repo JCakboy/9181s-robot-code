@@ -32,10 +32,10 @@ class BallLauncher {
     static void task(void* param);
 
     // Meant to be overriden to implement the loading a specific type of launcher
-    virtual void _load();
+    virtual void _load() = 0;
 
     // Meant to be overriden to implement the launching a specific type of launcher
-    virtual void _launch();
+    virtual void _launch() = 0;
 
   public:
     // Starts the launcher and its launcher task

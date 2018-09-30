@@ -65,6 +65,7 @@
 
 #include "logger.hpp"
 #include "battery.hpp"
+#include "controller.hpp"
 #include "watchdog.hpp"
 #include "arm.hpp"
 #include "balllauncher.hpp"

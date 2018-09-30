@@ -7,32 +7,34 @@
  * https://pros.purduesigbots.com/v5/api/cpp/misc.html#pros-battery
  */
 
-struct Battery {
-
-	virtual double capacity();
-
-};
-
-struct BrainBattery : public Battery {
-
-	double capacity();
-
-	double current();
-
-	double temperature();
-
-	double voltage();
+class Battery {
+	public:
+		virtual double capacity() = 0;
 
 };
 
-struct ControllerBattery : public Battery {
+class BrainBattery : public Battery {
+	public:
+		double capacity() override;
+
+		double current();
+
+		double temperature();
+
+		double voltage();
+
+};
+
+class ControllerBattery : public Battery {
 	private:
 		pros::Controller * controller;
 
 	public:
+		ControllerBattery (pros::controller_id_e_t controller);
+
 		ControllerBattery (pros::Controller & controller);
 
-		double capacity();
+		double capacity() override;
 
 		double level();
 
