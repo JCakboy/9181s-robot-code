@@ -15,13 +15,17 @@
 class RecordedController {
   private:
     pros::Controller * controller;
-    int state; // 0: standard, 1: recording, 2: playback
+    int state; // 0: standard, 1: recording, 2: playback, 3: streaming
 
     std::unordered_map<int, int> digitalLastKnown;
 
     std::string recfile;
     std::unordered_map<int, std::vector<int>> analogStack;
     std::unordered_map<int, std::vector<int>> digitalStack;
+
+    std::string streamfile;
+    std::unordered_map<int, std::string> streamFiles;
+    std::unordered_map<int, std::ofstream> streamOutput;
 
     void (*playbackComplete)();
 
@@ -30,6 +34,8 @@ class RecordedController {
     static int popFront(std::vector<int> & stack);
 
     bool readFile(std::string file);
+
+    bool readStreams(std::unordered_map<int, std::string> streams);
 
     void writeFile(std::string file);
 
@@ -60,6 +66,9 @@ class RecordedController {
 
     // Begins the recording or stops and saves the recorded inputs
     void record(bool record);
+
+    // Begins streaming to a file or stops and saves the streamed file
+    void stream(bool stream);
 
     // Plays back the given file, calling the given function when completed
     void playback(std::string file, void (*f)());

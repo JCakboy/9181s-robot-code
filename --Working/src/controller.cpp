@@ -1,4 +1,6 @@
 #include "main.h"
+#include <cstring>
+#include <regex>
 #include <stdexcept>
 #include <utility>
 #include "controller.hpp"
@@ -10,9 +12,9 @@ bool RecordedController::readFile(std::string file) {
 
   std::vector<std::string> in;
   std::string temp;
-  while (std::getline(ifs, temp)) {
-    in.insert(in.begin(), temp);
-  }
+  while (std::getline(ifs, temp))
+    in.push_back(temp);
+
   try {
     if (std::stoi(in.back()) != TASK_OPCONTROL_HZ)
       Watchdog::alert(LOG_WARNING, "The recording is at a different frequency than the one configured. Playback timings may be incorrect");
@@ -55,7 +57,7 @@ bool RecordedController::readFile(std::string file) {
       std::string add = separated.first;
       try {
         stack.push_back(std::stoi(add));
-      } catch (std::invalid_argument & e) {
+      } catch (std::exception & e) {
         stack.push_back(0);
         Watchdog::alert(LOG_WARNING, "The value \"" + add + "\" for channel" + std::to_string(i) + "could not be parsed for playback. Requesting this value will return 0");
       }
@@ -66,19 +68,60 @@ bool RecordedController::readFile(std::string file) {
         finished = true;
     }
 
-    std::pair<int, std::vector<int>> pp (i, stack);
-
-    if (i != 1)
+    if (i != -1)
       if (i < 5)
-        analogStack.insert(pp);
+        analogStack.insert(std::pair<int, std::vector<int>>(i, stack));
       else
-        digitalStack.insert(pp);
+        digitalStack.insert(std::pair<int, std::vector<int>>(i, stack));
 
     in = updated;
 
     if (finished) break;
   }
 
+  return true;
+}
+
+bool RecordedController::readStreams(std::unordered_map<int, std::string> streams) {
+  std::unordered_map<int, std::vector<std::string>> in;
+  for (auto pair : streams) {
+    std::ifstream ifs;
+    ifs.open(pair.second);
+    if (!ifs.is_open()) {
+      Watchdog::alert(LOG_WARNING, "The file \"" + pair.second + "\" could not be found for channel " + std::to_string(pair.first) + ". This channel will not be saved");
+      continue;
+    }
+    std::vector<std::string> lines;
+    std::string temp;
+    while (std::getline(ifs, temp))
+      lines.push_back(temp);
+    in.insert(std::pair<int, std::vector<std::string>>(pair.first, lines));
+  }
+
+  for (auto pair : in) {
+    std::vector<int> values;
+    for (auto s : pair.second) {
+      char * cs = new char[s.length() + 1];
+      std::strcpy(cs, s.c_str());
+      char * split;
+      split = strtok(cs, ", ");
+      while (split != NULL) {
+        std::string i = std::string(split);
+        try {
+          values.push_back(std::stoi(i));
+        } catch (std::exception & e) {
+          values.push_back(0);
+          Watchdog::alert(LOG_WARNING, "The value \"" + i + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.");
+        }
+        split = strtok(NULL, ", ");
+      }
+      delete[] cs;
+    }
+    if (pair.first < 5)
+      analogStack.insert(std::pair<int, std::vector<int>>(pair.first, values));
+    else
+      digitalStack.insert(std::pair<int, std::vector<int>>(pair.first, values));
+  }
   return true;
 }
 
@@ -183,6 +226,15 @@ int RecordedController::get_analog(pros::controller_analog_e_t channel) {
       RecordedController::analogStack.insert(std::pair<int, std::vector<int>>(channel, std::vector<int>()));
     RecordedController::analogStack.at(channel).push_back(get);
   }
+  if (state == 3) {
+    if (RecordedController::streamOutput.find(channel) == RecordedController::streamOutput.end()) {
+      std::string copy = streamfile;
+      copy = std::regex_replace(copy, std::regex("{c}"), std::to_string(channel));
+      RecordedController::streamFiles.insert(std::pair<int, std::string>(channel, copy));
+      RecordedController::streamOutput.insert(std::pair<int, std::ofstream>(channel, std::ofstream(copy)));
+    }
+    RecordedController::streamOutput.at(channel) << std::to_string(get) << ",";
+  }
   return get;
 }
 
@@ -219,6 +271,15 @@ int RecordedController::get_digital(pros::controller_digital_e_t button) {
       RecordedController::digitalStack.insert(std::pair<int, std::vector<int>>(button, std::vector<int>()));
     RecordedController::digitalStack.at(button).push_back(get);
   }
+  if (state == 3) {
+    if (RecordedController::streamOutput.find(button) == RecordedController::streamOutput.end()) {
+      std::string copy = streamfile;
+      copy = std::regex_replace(copy, std::regex("{c}"), std::to_string(button));
+      RecordedController::streamFiles.insert(std::pair<int, std::string>(button, copy));
+      RecordedController::streamOutput.insert(std::pair<int, std::ofstream>(button, std::ofstream(copy)));
+    }
+    RecordedController::streamOutput.at(button) << std::to_string(get) << ",";
+  }
   return get;
 }
 
@@ -235,7 +296,7 @@ int RecordedController::set_text(std::uint8_t line, std::uint8_t col, const char
 }
 
 void RecordedController::record(bool record) {
-  if (state == 2 || !SD_INSERTED)
+  if (!SD_INSERTED)
     return;
   if (state == 0 && record) {
     RecordedController::analogStack.clear();
@@ -244,9 +305,29 @@ void RecordedController::record(bool record) {
     Watchdog::alert(LOG_INFO, "Now recording to: " + recfile);
     RecordedController::state = 1;
   } else if (state == 1 && !record) {
-    RecordedController::writeFile(recfile);
-    Watchdog::alert(LOG_INFO, "Recording stopped");
     RecordedController::state = 0;
+    Watchdog::alert(LOG_INFO, "Recording stopped, saving...");
+    RecordedController::writeFile(recfile);
+    Watchdog::alert(LOG_INFO, "Recording saved");
+  }
+}
+
+void RecordedController::stream(bool stream) {
+  if (!SD_INSERTED)
+    return;
+  if (state == 0 && stream) {
+    RecordedController::streamOutput.clear();
+    recfile = "/usd/recordings/" + emath::timestamp() + "-stream.csv";
+    streamfile = "/usd/recordings/" + emath::timestamp() + "-c{c}-unsaved.cstream";
+    Watchdog::alert(LOG_INFO, "Now streaming");
+    RecordedController::state = 3;
+  } else if (state == 3 && !stream) {
+    RecordedController::state = 0;
+    Watchdog::alert(LOG_INFO, "Streaming stopped, saving...");
+    RecordedController::streamOutput.clear();
+    RecordedController::readStreams(streamFiles);
+    RecordedController::writeFile(recfile);
+    Watchdog::alert(LOG_INFO, "Stream saved");
   }
 }
 
