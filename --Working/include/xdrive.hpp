@@ -1,5 +1,5 @@
-#ifndef __XDRIVECONTROL_HPP_
-#define __XDRIVECONTROL_HPP_
+#ifndef __XDRIVE_HPP_
+#define __XDRIVE_HPP_
 
 #include "main.h"
 #include <vector>

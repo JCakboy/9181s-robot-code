@@ -1,6 +1,6 @@
 #include "main.h"
 #include <vector>
-#include "drivecontrol.hpp"
+#include "drive.hpp"
 
 void DriveControl::runLeftMotors(int voltage) {
   for (const auto & motor : DriveControl::leftMotors)

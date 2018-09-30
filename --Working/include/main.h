@@ -66,15 +66,15 @@
 #include "logger.hpp"
 #include "battery.hpp"
 #include "watchdog.hpp"
-#include "armcontrol.hpp"
+#include "arm.hpp"
 #include "balllauncher.hpp"
 #include "claw.hpp"
 #include "code.hpp"
 #include "constants.hpp"
 #include "definitions.hpp"
-#include "drivecontrol.hpp"
+#include "drive.hpp"
 #include "emath.hpp"
-#include "xdrivecontrol.hpp"
+#include "xdrive.hpp"
 
 #endif
 

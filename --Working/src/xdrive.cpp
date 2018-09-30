@@ -1,5 +1,5 @@
 #include "main.h"
-#include "xdrivecontrol.hpp"
+#include "xdrive.hpp"
 #include <cmath>
 
 void XDriveControl::runFrontLeftMotors(int voltage) {

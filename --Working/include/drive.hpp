@@ -1,5 +1,5 @@
-#ifndef _DRIVECONTROL_HPP_
-#define _DRIVECONTROL_HPP_
+#ifndef _DRIVE_HPP_
+#define _DRIVE_HPP_
 
 #include "main.h"
 #include <vector>

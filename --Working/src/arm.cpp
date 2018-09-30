@@ -1,5 +1,5 @@
 #include "main.h"
-#include "armcontrol.hpp"
+#include "arm.hpp"
 
 void ArmControl::runXMotors(int voltage) {
   for (const auto & motor : ArmControl::xMotors)
