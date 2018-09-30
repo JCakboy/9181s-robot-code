@@ -6,7 +6,7 @@ std::vector<Logger*> Logger::loggers;
 Logger::Logger (logging_levels mLevel, std::string filename) {
   logfile.open(filename);
 }
- 
+
 void Logger::_log(logging_levels level, std::string message) {
   if (minLevel == 0 || level > minLevel)
     return;

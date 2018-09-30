@@ -115,10 +115,10 @@ class ClawArmControl {
     explicit ClawArmControl (ArmControl & ac, Claw & c);
 
     // Returns the claw object
-    Claw getClaw();
+    Claw & getClaw();
 
     // Returns the arm control object
-    ArmControl getArm();
+    ArmControl & getArm();
 
     // Runs the Claw Arm Control with the claw at a neutral position, see below
     void run(bool clawPull, double armXVoltage, double armYVoltage, bool armTankScale, double armXSensitivity, double armYSensitivity);

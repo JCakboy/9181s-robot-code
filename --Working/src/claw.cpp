@@ -113,11 +113,11 @@ ClawArmControl::ClawArmControl (ArmControl & ac, Claw & c) {
   ClawArmControl::claw = &c;
 }
 
-Claw ClawArmControl::getClaw() {
+Claw & ClawArmControl::getClaw() {
   return *ClawArmControl::claw;
 }
 
-ArmControl ClawArmControl::getArm() {
+ArmControl & ClawArmControl::getArm() {
   return *ClawArmControl::arm;
 }
 

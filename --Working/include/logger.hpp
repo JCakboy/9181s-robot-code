@@ -31,7 +31,7 @@ typedef enum logging_levels_e {
  * Log to a micro SD card by placing a "/usd/" prefix to your file name
  */
 
-struct Logger {
+class Logger {
   private:
     static std::vector<Logger*> loggers;
     int minLevel;
