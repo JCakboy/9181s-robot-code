@@ -24,7 +24,7 @@ bool RecordedController::readFile(std::string file) {
 
   class nest {
     public:
-      static std::pair<std::string, std::string> seperateFirst(std::string s) {
+      static std::pair<std::string, std::string> separateFirst(std::string s) {
         if (s.find(",") == std::string::npos)
           return std::pair(s, std::string());
         std::string first = s.substr(0, s.find(","));
@@ -36,7 +36,7 @@ bool RecordedController::readFile(std::string file) {
   std::string header = std::string(in.front());
   std::vector<int> keys;
   while (header.size() != 0) {
-    std::pair<std::string, std::string> separated = nest::seperateFirst(header);
+    std::pair<std::string, std::string> separated = nest::separateFirst(header);
     std::string add = separated.first;
     header = separated.second;
     try {
@@ -53,11 +53,11 @@ bool RecordedController::readFile(std::string file) {
     std::vector<int> stack;
     bool finished = false;
     for (auto s : in) {
-      std::pair<std::string, std::string> separated = nest::seperateFirst(s);
+      std::pair<std::string, std::string> separated = nest::separateFirst(s);
       std::string add = separated.first;
       try {
         stack.push_back(std::stoi(add));
-      } catch (std::exception & e) {
+      } catch (std::invalid_argument & e) {
         stack.push_back(0);
         Watchdog::alert(LOG_WARNING, "The value \"" + add + "\" for channel" + std::to_string(i) + "could not be parsed for playback. Requesting this value will return 0");
       }
@@ -98,24 +98,33 @@ bool RecordedController::readStreams(std::unordered_map<int, std::string> stream
     in.insert(std::pair<int, std::vector<std::string>>(pair.first, lines));
   }
 
+  class nest {
+    public:
+      static std::pair<std::string, std::string> separateFirst(std::string s) {
+        if (s.find(",") == std::string::npos)
+          return std::pair(s, std::string());
+        std::string first = s.substr(0, s.find(","));
+        s.erase(0, s.find(",") + 1);
+        return std::pair(first, s);
+      }
+  };
+
   for (auto pair : in) {
     std::vector<int> values;
     for (auto s : pair.second) {
-      char * cs = new char[s.length() + 1];
-      std::strcpy(cs, s.c_str());
-      char * split;
-      split = strtok(cs, ", ");
-      while (split != NULL) {
-        std::string i = std::string(split);
+      std::string sFirst = nest::separateFirst(s).first;
+      std::string sSecond = nest::separateFirst(s).second;
+      while (sFirst.size() != 0) {
         try {
-          values.push_back(std::stoi(i));
+          values.push_back(std::stoi(sFirst));
         } catch (std::exception & e) {
           values.push_back(0);
-          Watchdog::alert(LOG_WARNING, "The value \"" + i + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.");
+          Watchdog::alert(LOG_WARNING, "The value \"" + sFirst + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.");
         }
-        split = strtok(NULL, ", ");
+        std::pair<std::string, std::string> newPair = nest::separateFirst(sSecond);
+        sFirst = newPair.first;
+        sSecond = newPair.second;
       }
-      delete[] cs;
     }
     if (pair.first < 5)
       analogStack.insert(std::pair<int, std::vector<int>>(pair.first, values));

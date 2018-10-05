@@ -32,6 +32,9 @@
 // Whether the ball launcher should automatically load after a launch
 #define BALL_LAUNCHER_AUTO_LOAD true
 
+// How long to wait between pneumatic updates
+#define PNEUMATIC_LAUNCHER_WAIT_TIME 250 // in ms
+
 // How long to run the elastic launcher loading motor
 #define ELASTIC_LAUNCHER_MOTOR_TIME 1000 // in ms
 

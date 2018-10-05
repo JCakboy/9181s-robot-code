@@ -9,7 +9,7 @@ class Battery;
 class BrainBattery;
 class ControllerBattery;
 class Claw;
-class ClawArmControl;
+class ClawLiftControl;
 class Unused;
 class RecordedController;
 class DriveControl;

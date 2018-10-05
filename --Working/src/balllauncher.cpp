@@ -65,10 +65,12 @@ PneumaticLauncher::PneumaticLauncher(TaskWatcher * watcher, pros::Mutex & piston
 }
 
 void PneumaticLauncher::_launch() {
+  pros::delay(PNEUMATIC_LAUNCHER_WAIT_TIME);
   PneumaticLauncher::piston->set_value(true);
 }
 
 void PneumaticLauncher::_load() {
+  pros::delay(PNEUMATIC_LAUNCHER_WAIT_TIME);
   PneumaticLauncher::piston->set_value(false);
 }
 
