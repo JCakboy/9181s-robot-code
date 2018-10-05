@@ -60,7 +60,7 @@ namespace ports {
   static RecordedController * controllerPartner;
 
   static pros::Motor * leftDriveMotor;
-  static Unused * port2;
+  static pros::Motor * intakeMotor;
   static Unused * port3;
   static Unused * port4;
   static Unused * port5;
@@ -69,7 +69,7 @@ namespace ports {
   static Unused * port8;
   static pros::Motor * elasticLaunchMotor;
   static pros::Motor * rightDriveMotor;
-  static Unused * port11;
+  static pros::Motor * leftLiftMotor;
   static Unused * port12;
   static Unused * port13;
   static Unused * port14;
@@ -79,7 +79,7 @@ namespace ports {
   static Unused * port18;
   static Unused * port19;
   static Unused * port20;
-  static Unused * port21;
+  static pros::Motor * rightLiftMotor;
 
   static pros::Mutex * driveLock;
   static pros::Mutex * launcherLock;
@@ -88,7 +88,7 @@ namespace ports {
 
   static DriveControl * driveControl;
   static BallLauncher * ballLauncher;
-  static ArmControl * LiftControl;
+  static LiftControl * liftControl;
 
   static void init();
 
@@ -105,6 +105,8 @@ void autonomousSafe();
 void operatorControl();
 
 void operatorControlSafe();
+
+void operatorControlBackup();
 
 void disabled();
 

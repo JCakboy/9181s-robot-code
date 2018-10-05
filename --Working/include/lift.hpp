@@ -1,11 +1,11 @@
-#ifndef _ARM_HPP_
-#define _ARM_HPP_
+#ifndef _LIFT_HPP_
+#define _LIFT_HPP_
 
 #include "main.h"
 #include <vector>
 
 /*
- * Class meant to control a robot arm
+ * Class meant to control a robot arm or lift
  *
  * The current implementation supports horizontal and vertical movement,
  * multiple motors for each of the two axes and will respect the given mutex
@@ -14,7 +14,7 @@
  * approx. every 20 ms
  */
 
-class ArmControl {
+class LiftControl {
   private:
     std::vector<pros::Motor> xMotors;
     std::vector<pros::Motor> yMotors;
@@ -26,30 +26,30 @@ class ArmControl {
 
 
   public:
-    // Creates the Arm Control object without an x motor, see below
-    explicit ArmControl(pros::Mutex & motorLock, pros::Motor yMotor);
+    // Creates the Lift Control object without an x motor, see below
+    explicit LiftControl(pros::Mutex & motorLock, pros::Motor yMotor);
 
     /*
-     * Creates the Arm Control object
+     * Creates the Lift Control object
      *
      * motorLock: the mutex it will attempt to take when accessing the motors
-     * xMotor: the motor to move the arm left or right
-     * yMotor: the motor to move the arm up or down
+     * xMotor: the motor to move the arm or lift left or right
+     * yMotor: the motor to move the arm or lift up or down
      */
-    explicit ArmControl(pros::Mutex & motorLock, pros::Motor xMotor, pros::Motor yMotor);
+    explicit LiftControl(pros::Mutex & motorLock, pros::Motor xMotor, pros::Motor yMotor);
 
-    // Adds a motor to the list to move the arm left or right
+    // Adds a motor to the list to move the arm or lift left or right
     void addXMotor(pros::Motor motor);
 
-    // Adds a motor to the list to move the arm up or down
+    // Adds a motor to the list to move the arm or lift up or down
     void addYMotor(pros::Motor motor);
 
 /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 
-    // Removes a motor from the list to move the arm left or right
+    // Removes a motor from the list to move the arm or lift left or right
     bool removeXMotor(pros::Motor motor);
 
-    // Removes a motor from the list to move the arm up or down
+    // Removes a motor from the list to move the arm or lift up or down
     bool removeYMotor(pros::Motor motor);
 
 */
@@ -57,16 +57,16 @@ class ArmControl {
     // Clears all motors from the motor lists
     void clearMotors();
 
-    // Clears all motors from the list to move the arm left or right
+    // Clears all motors from the list to move the arm or lift left or right
     void clearXMotors();
 
-    // Clears all motors from the list to move the arm up or down
+    // Clears all motors from the list to move the arm or lift up or down
     void clearYMotors();
 
-    /* Runs the Arm Control by calculating the values for the x and y motors
+    /* Runs the Lift Control by calculating the values for the x and y motors
      *
-     * xVoltage: the movement voltage to move the arm left or right, ranging from -127 to 127
-     * yVoltage: the movement voltage to move the arm up or down, ranging from -127 to 127
+     * xVoltage: the movement voltage to move the arm or lift left or right, ranging from -127 to 127
+     * yVoltage: the movement voltage to move the arm or lift up or down, ranging from -127 to 127
      * tankScale: whether to scale voltages by cos(45°)*100, used for single joystick movement
      * xSensitivity: the multiplier used to make movement left or right more or less sensitive. Output voltages will still be in valid ranges
      * ySensitivity: the multiplier used to make movement up or down more or less sensitive. Output voltages will still be in valid ranges

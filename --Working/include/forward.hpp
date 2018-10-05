@@ -1,10 +1,10 @@
 #ifndef _FORWARD_HPP_
 #define _FORWARD_HPP_
 
-class ArmControl;
 class BallLauncher;
 class PneumaticLauncher;
 class ElasticLauncher;
+class ElasticSlipGearLauncher;
 class Battery;
 class BrainBattery;
 class ControllerBattery;
@@ -13,6 +13,7 @@ class ClawArmControl;
 class Unused;
 class RecordedController;
 class DriveControl;
+class LiftControl;
 class Logger;
 class Watcher;
 class MotorWatcher;

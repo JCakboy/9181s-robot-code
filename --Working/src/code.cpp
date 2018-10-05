@@ -31,6 +31,9 @@ void ports::init() {
   ports::leftDriveMotor = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
   ports::rightDriveMotor = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
   ports::elasticLaunchMotor = new pros::Motor(9, GEARSET_100, FWD, ENCODER_DEGREES);
+  ports::intakeMotor = new pros::Motor(2, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::leftLiftMotor = new pros::Motor(11, GEARSET_100, FWD, ENCODER_DEGREES);
+  ports::rightLiftMotor = new pros::Motor(20, GEARSET_100, REV, ENCODER_DEGREES);
 
   ports::driveLock = new pros::Mutex();
   ports::launcherLock = new pros::Mutex();
@@ -38,7 +41,7 @@ void ports::init() {
   ports::liftLock = new pros::Mutex();
 
   ports::driveControl = new DriveControl(*ports::driveLock, *ports::leftDriveMotor, *ports::rightDriveMotor);
-  ports::ballLauncher = new ElasticLauncher(ports::ballLauncherTaskWatcher, *ports::launcherLock, *ports::elasticLaunchMotor);
+  ports::ballLauncher = new ElasticSlipGearLauncher(ports::ballLauncherTaskWatcher, *ports::launcherLock, *ports::elasticLaunchMotor);
 
   Watchdog::watch("Brain battery", *ports::brainBattery);
   Watchdog::watch("Main controller battery", *ports::controllerMainBattery);
@@ -121,7 +124,23 @@ void autonomousSafe() {}
  * task, not resume it from where it left off.
  */
 void operatorControl() {
-	operatorControlSafe();
+  try {
+  	operatorControlSafe();
+  } catch (std::exception & e) {
+    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN OPERATOR CONTROL METHOD: " + std::string(e.what()));
+    Watchdog::alert(LOG_SEVERE, "Initializing backup code...");
+    ballLauncher->stop();
+    Watchdog::stop();
+  }
+  try {
+  	operatorControlBackup();
+  } catch (std::exception & e) {
+    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN BACKUP CONTROL METHOD: " + std::string(e.what()));
+    Watchdog::alert(LOG_SEVERE, "Robot will now enter sleep state...");
+    while (true) {
+      pros::Task::delay(TASK_OPCONTROL_HZ);
+    }
+  }
 }
 
 void operatorControlSafe() {
@@ -149,6 +168,10 @@ void operatorControlSafe() {
 
 		pros::c::delay(1000 / TASK_OPCONTROL_HZ);
 	}
+}
+
+void operatorControlBackup() {
+
 }
 
 

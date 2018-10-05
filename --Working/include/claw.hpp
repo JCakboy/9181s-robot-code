@@ -97,45 +97,45 @@ class Claw {
 };
 
 /*
- * Class meant to control a robot claw arm
+ * Class meant to control a robot claw lift
  *
- * See Claw and ArmControl for documentation
+ * See Claw and LiftControl for documentation
  *
  * Meant to have its run() method caleld each pass of the opcontrol while loop
  * approx. every 20 ms
  */
 
-class ClawArmControl {
+class ClawLiftControl {
   private:
     Claw* claw;
-    ArmControl* arm;
+    LiftControl* lift;
 
   public:
-    // Creates the Claw ARm Control object with the spcified arm control and claw
-    explicit ClawArmControl (ArmControl & ac, Claw & c);
+    // Creates the Claw Lift Control object with the spcified lift control and claw
+    explicit ClawLiftControl (LiftControl & ac, Claw & c);
 
-    // Returns the claw object
+    // Returns the Claw object
     Claw & getClaw();
 
-    // Returns the arm control object
-    ArmControl & getArm();
+    // Returns the Lift Control object
+    LiftControl & getLift();
 
-    // Runs the Claw Arm Control with the claw at a neutral position, see below
-    void run(bool clawPull, double armXVoltage, double armYVoltage, bool armTankScale, double armXSensitivity, double armYSensitivity);
+    // Runs the Claw Lift Control with the claw at a neutral position, see below
+    void run(bool clawPull, double liftXVoltage, double liftYVoltage, bool liftTankScale, double liftXSensitivity, double liftYSensitivity);
 
     /*
-     * Runs Claw Arm Control by distributing the given values
+     * Runs Claw Lift Control by distributing the given values
      *
      * clawClamp: whether to clamp the claw
      * clawPull: whether to pull the claw back
-     * armXVoltage: the movement voltage to move the arm left or right, ranging from -127 to 127
-     * armYVoltage: the movement voltage to move the arm up or down, ranging from -127 to 127
-     * armYankScale: whether to scale arm voltages by cos(45°)*100, used for single joystick movement
-     * armXSensitivity: the multiplier used to make arm movement left or right more or less sensitive. Output voltages will still be in valid ranges
-     * armYSensitivity: the multiplier used to make arm movement up or down more or less sensitive. Output voltages will still be in valid ranges
+     * liftXVoltage: the movement voltage to move the lift left or right, ranging from -127 to 127
+     * liftYVoltage: the movement voltage to move the lift up or down, ranging from -127 to 127
+     * liftYankScale: whether to scale lift voltages by cos(45°)*100, used for single joystick movement
+     * liftXSensitivity: the multiplier used to make lift movement left or right more or less sensitive. Output voltages will still be in valid ranges
+     * liftYSensitivity: the multiplier used to make lift movement up or down more or less sensitive. Output voltages will still be in valid ranges
      *
      */
-    void run(bool clawClamp, bool clawPull, double armXVoltage, double armYVoltage, bool armTankScale, double armXSensitivity, double armYSensitivity);
+    void run(bool clawClamp, bool clawPull, double liftXVoltage, double liftYVoltage, bool liftTankScale, double liftXSensitivity, double liftYSensitivity);
 
 };
 

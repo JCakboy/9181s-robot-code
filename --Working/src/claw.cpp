@@ -108,20 +108,20 @@ void Claw::flip() {
   }
 }
 
-ClawArmControl::ClawArmControl (ArmControl & ac, Claw & c) {
-  ClawArmControl::arm = &ac;
-  ClawArmControl::claw = &c;
+ClawLiftControl::ClawLiftControl (LiftControl & lc, Claw & c) {
+  ClawLiftControl::lift = &lc;
+  ClawLiftControl::claw = &c;
 }
 
-Claw & ClawArmControl::getClaw() {
-  return *ClawArmControl::claw;
+Claw & ClawLiftControl::getClaw() {
+  return *ClawLiftControl::claw;
 }
 
-ArmControl & ClawArmControl::getArm() {
-  return *ClawArmControl::arm;
+LiftControl & ClawLiftControl::getLift() {
+  return *ClawLiftControl::lift;
 }
 
-void ClawArmControl::run(bool clawClamp, bool clawPull, double armXVoltage, double armYVoltage, bool armTankScale, double armXSensitivity, double armYSensitivity) {
+void ClawLiftControl::run(bool clawClamp, bool clawPull, double liftXVoltage, double liftYVoltage, bool liftTankScale, double liftXSensitivity, double liftYSensitivity) {
   if (clawClamp)
     claw->clamp();
   else
@@ -130,14 +130,14 @@ void ClawArmControl::run(bool clawClamp, bool clawPull, double armXVoltage, doub
     claw->pull();
   else
     claw->push();
-  arm->run(armXVoltage, armYVoltage, armTankScale, armXSensitivity, armYSensitivity);
+  lift->run(liftXVoltage, liftYVoltage, liftTankScale, liftXSensitivity, liftYSensitivity);
 }
 
-void ClawArmControl::run(bool clawPull, double armXVoltage, double armYVoltage, bool armTankScale, double armXSensitivity, double armYSensitivity) {
+void ClawLiftControl::run(bool clawPull, double liftXVoltage, double liftYVoltage, bool liftTankScale, double liftXSensitivity, double liftYSensitivity) {
   claw->coast();
   if (clawPull)
     claw->pull();
   else
     claw->push();
-  arm->run(armXVoltage, armYVoltage, armTankScale, armXSensitivity, armYSensitivity);
+  lift->run(liftXVoltage, liftYVoltage, liftTankScale, liftXSensitivity, liftYSensitivity);
 }
