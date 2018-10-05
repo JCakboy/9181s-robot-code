@@ -40,20 +40,23 @@
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
 
 // Minimum alert level
-#define ALERT_LEVEL E_LOGGING_WARNING
+#define ALERT_LEVEL E_LOGGING_INFO
+
+// Minimum level to vibrate controller on alert
+#define VIBRATE_LEVEL E_LOGGING_WARNING
 
 
 // Threshold for low battery alert
-#define LOW_BATTERY_THRESHOLD 0
+#define LOW_BATTERY_THRESHOLD 0 // unknown units
 
 // Threshold for very low battery alert
-#define VERY_LOW_BATTERY_THRESHOLD 0
+#define VERY_LOW_BATTERY_THRESHOLD 0 // unknown units
 
 // Threshold for slow task alert
-#define TASK_SLOW_THRESHOLD 0.10
+#define TASK_SLOW_THRESHOLD 0.10 // unknown units
 
 // Threshold for hanging task alert
-#define TASK_HANG_THRESHOLD 0
+#define TASK_HANG_THRESHOLD 0 // unknown units
 
 
 #endif

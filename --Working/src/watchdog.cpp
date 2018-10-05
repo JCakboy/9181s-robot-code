@@ -167,4 +167,10 @@ CompetitionWatcher & Watchdog::watchCompetition() {
 
 void Watchdog::alert(logging_levels level, std::string message) {
   Logger::log(level, message);
+  if (ALERT_LEVEL == 0 || level > ALERT_LEVEL)
+    return;
+  // set controller text
+  if (VIBRATE_LEVEL == 0 || level > VIBRATE_LEVEL)
+    return;
+  // vibrate controller
 }
