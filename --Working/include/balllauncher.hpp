@@ -2,6 +2,7 @@
 #define _BALLLAUNCHER_HPP_
 
 #include "main.h"
+#include <vector>
 
 /*
  * A base class meant to interface a ball launcher to the opcontrol task
@@ -92,10 +93,43 @@ class ElasticLauncher : public BallLauncher {
     void _launch() override;
 
   public:
-    explicit ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor & motor);
+    explicit ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor);
 
     // Adds a motor to the motor list
-    void addMotor(pros::Motor & motor);
+    void addMotor(pros::Motor motor);
+
+    /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
+
+    // Removes a motor from the motor list
+    void removeMotor(pros::Motor motor);
+    */
+
+    // Clears all motors from the motor list
+    void clearMotors();
+
+};
+
+/*
+ * An implementation of a ball launcher using tension stored by elastics and a slip gear
+ *
+ * See the base class for documentation
+ */
+
+class ElasticSlipGearLauncher : public BallLauncher {
+  private:
+    pros::Mutex * lock;
+    std::vector<pros::Motor> motors;
+
+  protected:
+    void _load() override;
+
+    void _launch() override;
+
+  public:
+    explicit ElasticSlipGearLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor);
+
+    // Adds a motor to the motor list
+    void addMotor(pros::Motor motor);
 
     /* may be implemented in the future in conjunction with DriveControl::remove*Motor()
 

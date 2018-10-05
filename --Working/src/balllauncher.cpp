@@ -72,9 +72,9 @@ void PneumaticLauncher::_load() {
   PneumaticLauncher::piston->set_value(false);
 }
 
-ElasticLauncher::ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor & motor) : BallLauncher::BallLauncher(watcher) {
+ElasticLauncher::ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
   motor.set_brake_mode(BRAKE_HOLD);
-  ElasticLauncher::motors.push_back(motor);
+  ElasticLauncher::addMotor(motor);
 }
 
 void ElasticLauncher::_launch() {
@@ -90,4 +90,32 @@ void ElasticLauncher::_load() {
   pros::delay(ELASTIC_LAUNCHER_MOTOR_TIME);
   for (const auto & motor : ElasticLauncher::motors)
     motor.move(0);
+}
+
+void ElasticLauncher::addMotor(pros::Motor motor) {
+  ElasticLauncher::motors.push_back(motor);
+}
+
+void ElasticLauncher::clearMotors() {
+  ElasticLauncher::motors.clear();
+}
+
+ElasticSlipGearLauncher::ElasticSlipGearLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
+  motor.set_brake_mode(BRAKE_HOLD);
+  ElasticSlipGearLauncher::addMotor(motor);
+}
+
+void ElasticSlipGearLauncher::_launch() {
+  for (const auto & motor : ElasticSlipGearLauncher::motors)
+    motor.move(127);
+}
+
+void ElasticSlipGearLauncher::_load() {}
+
+void ElasticSlipGearLauncher::addMotor(pros::Motor motor) {
+  ElasticSlipGearLauncher::motors.push_back(motor);
+}
+
+void ElasticSlipGearLauncher::clearMotors() {
+  ElasticSlipGearLauncher::motors.clear();
 }
