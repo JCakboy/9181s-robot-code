@@ -20,11 +20,55 @@ MotorWatcher::MotorWatcher(std::string name, pros::Mutex & motorLock, pros::Moto
 }
 
 void MotorWatcher::runChecks() {
+  if (MOTORWATCHER_MUTEX_WAIT_TIME == -1 || MOTOR_LOCKED_UP_THRESHOLD == -1)
+    return;
 
+  if (lock->take(MOTORWATCHER_MUTEX_WAIT_TIME)) {
+    MotorWatcher::locked = 0;
+    MotorWatcher::lockupCandidate = "";
+    if (motor->get_temperature() >= MOTOR_OVERHEATING_THRESHOLD)
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is overheating! Power from this motor will be reduced");
+    else if (motor->get_temperature() >= MOTOR_HOT_THRESHOLD)
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is hot. Power will be reduced if the motor does not cool down");
+    if (motor->is_over_current())
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is over current!");
+    if (motor->get_efficiency() <= MOTOR_OVERLOAD_THRESHOLD)
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being overloaded!");
+    else if (motor->get_efficiency() <= MOTOR_HIGH_LOAD_THRESHOLD)
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under high load");
+    else if (motor->get_efficiency() >= MOTOR_LOW_LOAD_THRESHOLD)
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under low load");
+    lock->give();
+  } else if (MotorWatcher::locked >= (MOTOR_LOCKED_UP_THRESHOLD * TASK_WATCHDOG_HZ)) {
+    Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being locked up! Candidate: " + MotorWatcher::lockupCandidate);
+  } else {
+     MotorWatcher::locked++;
+     if (MotorWatcher::lockupCandidate.size() == 0)
+       MotorWatcher::lockupCandidate = MotorWatcher::lastid.substr(1);
+    }
 }
 
 void MotorWatcher::notify(std::string identifier) {
-  MotorWatcher::lastid = identifier;
+  start:
+    if (identifier.rfind("g", 0) == 0) {
+      if (identifier.substr(1) == MotorWatcher::lastid.substr(1) && MotorWatcher::lastid.rfind("t", 0) == 0)
+        MotorWatcher::lastid = "gUnknown";
+      else
+        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was released by " + identifier.substr(1) + " when it was never taken by them");
+    } else if (identifier.rfind("t", 0) == 0) {
+      if (MotorWatcher::lastid == "gUnknown")
+        MotorWatcher::lastid = identifier;
+      else
+        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was taken by " + identifier.substr(1) + " when it has already been taken by " + MotorWatcher::lastid.substr(1));
+    } else if (identifier.rfind("a", 0) == 0) {
+        if (identifier.substr(1) == MotorWatcher::lastid.substr(1)) {
+          if (MotorWatcher::lastid.rfind("t", 0) == 0)
+            identifier = "g" + MotorWatcher::lastid.substr(1);
+          else
+            identifier = "t" + MotorWatcher::lastid.substr(1);
+          goto start;
+        }
+    } else goto start;
 }
 
 BatteryWatcher::BatteryWatcher(std::string name, Battery & battery) : Watcher::Watcher(name) {
@@ -91,13 +135,16 @@ ControllerWatcher::ControllerWatcher(std::string name, RecordedController & cont
 }
 
 void ControllerWatcher::runChecks() {
-
+  if (!ControllerWatcher::controller->is_connected()) {
+    Watchdog::alert(LOG_ERROR, ControllerWatcher::name + " has been disconnected!");
+    ControllerWatcher::timeout(3 * TASK_WATCHDOG_HZ);
+  }
 }
 
 CompetitionWatcher::CompetitionWatcher() : Watcher::Watcher("Competition") {}
 
 void CompetitionWatcher::runChecks() {
-
+  // Checks to run if competition is connected
 }
 
 void Watchdog::addWatcher(Watcher * watch) {
@@ -121,7 +168,7 @@ void Watchdog::start() {
   if (TASK_WATCHDOG_HZ == 0 || !Watchdog::stopped)
     return;
   Watchdog::stopped = false;
-  pros::Task task = new pros::Task(Watchdog::task);
+  pros::Task task = new pros::Task(Watchdog::task, NULL, 10, TASK_STACK_DEPTH_DEFAULT, "Watchdog");
   Watchdog::watchTask = &task;
   Watchdog::watchTask->resume();
 }

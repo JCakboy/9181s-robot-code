@@ -10,7 +10,7 @@ void BallLauncher::start() {
   if (!BallLauncher::stopped)
     return;
   BallLauncher::stopped = false;
-  pros::Task * lt = new pros::Task(BallLauncher::task, this);
+  pros::Task * lt = new pros::Task(BallLauncher::task, this, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Ball launcher");
   BallLauncher::launchTask = lt;
   BallLauncher::launchTask->resume();
   BallLauncher::load();

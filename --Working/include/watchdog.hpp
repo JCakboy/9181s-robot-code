@@ -39,6 +39,9 @@ class MotorWatcher : public Watcher {
     pros::Mutex * lock;
     std::string lastid;
 
+    int locked;
+    std::string lockupCandidate;
+
   public:
     explicit MotorWatcher (std::string name, pros::Mutex & motorLock, pros::Motor & motor);
 
