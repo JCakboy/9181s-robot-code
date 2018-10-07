@@ -53,12 +53,12 @@ bool LiftControl::removeYMotor(pros::Motor motor) {
 */
 void LiftControl::run(double xVoltage, double yVoltage, bool tankScale, double xSensitivity, double ySensitivity) {
   if (tankScale) {
-    xVoltage = emath::tankScaleJoystick(xVoltage);
-    yVoltage = emath::tankScaleJoystick(yVoltage);
+    xVoltage = util::tankScaleJoystick(xVoltage);
+    yVoltage = util::tankScaleJoystick(yVoltage);
   }
 
-  xVoltage = emath::limit127(xVoltage * xSensitivity);
-  yVoltage = emath::limit127(yVoltage * ySensitivity);
+  xVoltage = util::limit127(xVoltage * xSensitivity);
+  yVoltage = util::limit127(yVoltage * ySensitivity);
 
   if (lock->take(MUTEX_WAIT_TIME)) {
     LiftControl::runXMotors(xVoltage);

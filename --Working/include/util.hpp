@@ -1,15 +1,16 @@
-#ifndef _EMATH_HPP_
-#define _EMATH_HPP_
+#ifndef _UTIL_HPP_
+#define _UTIL_HPP_
 
 #include "main.h"
+#include <utility>
 #include "time.h"
 
 /*
- * An extended math namespace to perform common robot math functions
+ * A utility namespace to perform common robot functions
  *
  */
 
-namespace emath {
+namespace util {
 
 	// Returns the lesser of the two values
 	double min(double a, double b);
@@ -34,6 +35,12 @@ namespace emath {
 
 	// Returns a timestamp in the format: YYYY-MM-DD hh:mm:ss
 	std::string timestamp();
+
+	// Splits a string at the first occurance of regex
+	std::pair<std::string, std::string> separateFirst(std::string s, std::string regex);
+
+	// Gets the name of the given logging level
+	std::string getLoggingLevelName(logging_levels level);
 
 }
 

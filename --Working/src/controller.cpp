@@ -22,21 +22,10 @@ bool RecordedController::readFile(std::string file) {
 
   in.erase(in.end() - 1);
 
-  class nest {
-    public:
-      static std::pair<std::string, std::string> separateFirst(std::string s) {
-        if (s.find(",") == std::string::npos)
-          return std::pair(s, std::string());
-        std::string first = s.substr(0, s.find(","));
-        s.erase(0, s.find(",") + 1);
-        return std::pair(first, s);
-      }
-  };
-
   std::string header = std::string(in.front());
   std::vector<int> keys;
   while (header.size() != 0) {
-    std::pair<std::string, std::string> separated = nest::separateFirst(header);
+    std::pair<std::string, std::string> separated = util::separateFirst(header, ",");
     std::string add = separated.first;
     header = separated.second;
     try {
@@ -53,7 +42,7 @@ bool RecordedController::readFile(std::string file) {
     std::vector<int> stack;
     bool finished = false;
     for (auto s : in) {
-      std::pair<std::string, std::string> separated = nest::separateFirst(s);
+      std::pair<std::string, std::string> separated = util::separateFirst(s, ",");
       std::string add = separated.first;
       try {
         stack.push_back(std::stoi(add));
@@ -98,22 +87,11 @@ bool RecordedController::readStreams(std::unordered_map<int, std::string> stream
     in.insert(std::pair<int, std::vector<std::string>>(pair.first, lines));
   }
 
-  class nest {
-    public:
-      static std::pair<std::string, std::string> separateFirst(std::string s) {
-        if (s.find(",") == std::string::npos)
-          return std::pair(s, std::string());
-        std::string first = s.substr(0, s.find(","));
-        s.erase(0, s.find(",") + 1);
-        return std::pair(first, s);
-      }
-  };
-
   for (auto pair : in) {
     std::vector<int> values;
     for (auto s : pair.second) {
-      std::string sFirst = nest::separateFirst(s).first;
-      std::string sSecond = nest::separateFirst(s).second;
+      std::string sFirst = util::separateFirst(s, ",").first;
+      std::string sSecond = util::separateFirst(s, ",").second;
       while (sFirst.size() != 0) {
         try {
           values.push_back(std::stoi(sFirst));
@@ -121,7 +99,7 @@ bool RecordedController::readStreams(std::unordered_map<int, std::string> stream
           values.push_back(0);
           Watchdog::alert(LOG_WARNING, "The value \"" + sFirst + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.");
         }
-        std::pair<std::string, std::string> newPair = nest::separateFirst(sSecond);
+        std::pair<std::string, std::string> newPair = util::separateFirst(sSecond, ",");
         sFirst = newPair.first;
         sSecond = newPair.second;
       }
@@ -138,9 +116,9 @@ void RecordedController::writeFile(std::string file) {
   int maxsize = 0;
 
   for (auto pair : RecordedController::analogStack)
-    maxsize = emath::max(maxsize, pair.second.size());
+    maxsize = util::max(maxsize, pair.second.size());
   for (auto pair : RecordedController::digitalStack)
-    maxsize = emath::max(maxsize, pair.second.size());
+    maxsize = util::max(maxsize, pair.second.size());
 
   for (auto pair : RecordedController::analogStack)
     while (pair.second.size() < maxsize)
@@ -310,7 +288,7 @@ void RecordedController::record(bool record) {
   if (state == 0 && record) {
     RecordedController::analogStack.clear();
     RecordedController::digitalStack.clear();
-    recfile = "/usd/recordings/" + emath::timestamp() + ".csv";
+    recfile = "/usd/recordings/" + util::timestamp() + ".csv";
     Watchdog::alert(LOG_INFO, "Now recording to: " + recfile);
     RecordedController::state = 1;
   } else if (state == 1 && !record) {
@@ -326,8 +304,8 @@ void RecordedController::stream(bool stream) {
     return;
   if (state == 0 && stream) {
     RecordedController::streamOutput.clear();
-    recfile = "/usd/recordings/" + emath::timestamp() + "-stream.csv";
-    streamfile = "/usd/recordings/" + emath::timestamp() + "-c{c}-unsaved.cstream";
+    recfile = "/usd/recordings/" + util::timestamp() + "-stream.csv";
+    streamfile = "/usd/recordings/" + util::timestamp() + "-c{c}-unsaved.cstream";
     Watchdog::alert(LOG_INFO, "Now streaming");
     RecordedController::state = 3;
   } else if (state == 3 && !stream) {

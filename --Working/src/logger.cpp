@@ -10,25 +10,7 @@ Logger::Logger (logging_levels mLevel, std::string filename) {
 void Logger::_log(logging_levels level, std::string message) {
   if (minLevel == 0 || level > minLevel)
     return;
-  std::string levelmsg = "";
-  switch (level) {
-    case LOG_SEVERE:
-      levelmsg = "SEVERE: ";
-      break;
-    case LOG_ERROR:
-      levelmsg = "ERROR: ";
-      break;
-    case LOG_WARNING:
-      levelmsg = "WARNING: ";
-      break;
-    case LOG_INFO:
-      levelmsg = "INFO: ";
-      break;
-    default:
-      levelmsg = "DEBUG: ";
-      break;
-  }
-  logfile << "[" << emath::timestamp() << "] " << levelmsg << message;
+  logfile << "[" << util::timestamp() << "] " << util::getLoggingLevelName(level) << ": " << message;
 }
 
 void Logger::init(std::string filename) {

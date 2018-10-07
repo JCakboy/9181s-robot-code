@@ -70,7 +70,7 @@ void initialize() {
 
   Logger::init("/ser/sout");
   if (SD_INSERTED)
-	  Logger::init("/usd/logs/" + emath::timestamp() + ".txt");
+	  Logger::init("/usd/logs/" + util::timestamp() + ".txt");
 
   Watchdog::start();
 

@@ -118,36 +118,36 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
   strafeVoltage *= strafeSensitivity;
   turnVoltage *= turnSensitivity;
 
-  int frontLeftVoltage = emath::limit127(moveVoltage + strafeVoltage);
-  int frontRightVoltage = emath::limit127(moveVoltage - strafeVoltage);
-  int rearLeftVoltage = emath::limit127(moveVoltage - strafeVoltage);
-  int rearRightVoltage = emath::limit127(moveVoltage + strafeVoltage);
+  int frontLeftVoltage = util::limit127(moveVoltage + strafeVoltage);
+  int frontRightVoltage = util::limit127(moveVoltage - strafeVoltage);
+  int rearLeftVoltage = util::limit127(moveVoltage - strafeVoltage);
+  int rearRightVoltage = util::limit127(moveVoltage + strafeVoltage);
 
   class nest {
     public:
       static int distribute(int & turn, int & frontVoltage, int & rearVoltage) {
         int overflow = 0;
-        for (; turn != 0; turn = emath::step0(turn)) {
-          int ftemp = std::round(frontVoltage + turn - emath::step0(turn));
-          int rtemp = std::round(rearVoltage + turn - emath::step0(turn));
+        for (; turn != 0; turn = util::step0(turn)) {
+          int ftemp = std::round(frontVoltage + turn - util::step0(turn));
+          int rtemp = std::round(rearVoltage + turn - util::step0(turn));
 
-          if (emath::within127(ftemp))
+          if (util::within127(ftemp))
             frontVoltage = ftemp;
           else {
-            int rtt = rtemp + turn - emath::step0(turn);
-            if (emath::within127(rtt))
+            int rtt = rtemp + turn - util::step0(turn);
+            if (util::within127(rtt))
               rtemp = rtt;
-            else if (!emath::within127(rtemp)) {
-              overflow = overflow - turn + emath::step0(turn);
+            else if (!util::within127(rtemp)) {
+              overflow = overflow - turn + util::step0(turn);
               continue;
             }
           }
 
-          if (emath::within127(rtemp))
+          if (util::within127(rtemp))
             rearVoltage = rtemp;
           else {
-            int ftt = rtemp + turn - emath::step0(turn);
-            if (emath::within127(ftt))
+            int ftt = rtemp + turn - util::step0(turn);
+            if (util::within127(ftt))
               frontVoltage = ftt;
           }
         }
