@@ -164,7 +164,7 @@ void operatorControlSafe() {
 	while (flags::opcontrolAlive) {
     opcontrolTaskWatcher->notify();
 
-		driveControl->run(controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_analog(STICK_LEFT_Y), false, true, 1, 1);
+		driveControl->run(controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_analog(STICK_LEFT_Y), false, false, true, 1, 1);
 
 		pros::c::delay(1000 / TASK_OPCONTROL_HZ);
 	}

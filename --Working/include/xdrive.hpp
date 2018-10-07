@@ -83,7 +83,7 @@ class XDriveControl {
     void clearRearRightMotors();
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
-    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake);
+    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool leftBrake, bool rightBrake);
 
     /**
      * Runs the Drive Control by calculating the values for all four motor positions
@@ -96,7 +96,7 @@ class XDriveControl {
      * strafeSensitivity: multiplier to make movement right or left move or less sensitive. Output voltages will still be in valid ranges
      * turnSensitivity: multiplier to make movement forward or backward move or less sensitive. Output voltages will still be in valid ranges, however, it is recommended to stay at 1.0
      */
-    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
+    void run(double moveVoltage, double strafeVoltage, double turnVoltage, bool leftBrake, bool rightBrake, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
 
 };
 

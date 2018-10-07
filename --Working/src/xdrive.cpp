@@ -109,11 +109,11 @@ void XDriveControl::clearRearRightMotors() {
   XDriveControl::rearRightMotors.clear();
 }
 
-void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake) {
-  XDriveControl::run(moveVoltage, strafeVoltage, turnVoltage, brake, 1.0, 1.0, 1.0);
+void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool leftBrake, bool rightBrake) {
+  XDriveControl::run(moveVoltage, strafeVoltage, turnVoltage, leftBrake, rightBrake, 1.0, 1.0, 1.0);
 }
 
-void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
+void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVoltage, bool leftBrake, bool rightBrake, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
   moveVoltage *= moveSensitivity;
   strafeVoltage *= strafeSensitivity;
   turnVoltage *= turnSensitivity;
@@ -169,14 +169,14 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
 	overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
   if (lock->take(MUTEX_WAIT_TIME)) {
-    XDriveControl::setFrontLeftBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
-    XDriveControl::setFrontRightBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
-    XDriveControl::setRearLeftBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
-    XDriveControl::setRearRightBrake(brake ? BRAKE_BRAKE : BRAKE_HOLD);
-    XDriveControl::runFrontLeftMotors(frontLeftVoltage);
-    XDriveControl::runFrontRightMotors(frontRightVoltage);
-    XDriveControl::runRearLeftMotors(rearLeftVoltage);
-    XDriveControl::runRearRightMotors(rearRightVoltage);
+    XDriveControl::setFrontLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setFrontRightBrake(rightBrake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setRearLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::setRearRightBrake(rightBrake ? BRAKE_BRAKE : BRAKE_HOLD);
+    XDriveControl::runFrontLeftMotors(leftBrake ? 0 : frontLeftVoltage);
+    XDriveControl::runFrontRightMotors(rightBrake ? 0 : frontRightVoltage);
+    XDriveControl::runRearLeftMotors(leftBrake ? 0 : rearLeftVoltage);
+    XDriveControl::runRearRightMotors(rightBrake ? 0 : rearRightVoltage);
     lock->give();
   }
 
