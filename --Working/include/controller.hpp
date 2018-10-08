@@ -15,7 +15,12 @@
 class RecordedController {
   private:
     pros::Controller * controller;
+    std::string name;
     int state; // 0: standard, 1: recording, 2: playback, 3: streaming
+
+    TaskWatcher * watcher;
+    int textTime;
+    std::vector<std::string> textBuffer;
 
     std::unordered_map<int, int> digitalLastKnown;
 
@@ -29,7 +34,7 @@ class RecordedController {
 
     void (*playbackComplete)();
 
-    static void pbf();
+    static void task(void* param);
 
     static int popFront(std::vector<int> & stack);
 
@@ -40,11 +45,8 @@ class RecordedController {
     void writeFile(std::string file);
 
   public:
-    // Wraps the specified controller
-    explicit RecordedController(pros::Controller & controller);
-
     // Creates and wraps the specified controller
-    explicit RecordedController(pros::controller_id_e_t id);
+    explicit RecordedController(std::string name, pros::controller_id_e_t id);
 
     int clear();
 
@@ -62,7 +64,9 @@ class RecordedController {
 
     int get_digital_new_press(pros::controller_digital_e_t button);
 
-    int set_text(std::uint8_t line, std::uint8_t col, const char* str);
+    int set_text(std::uint8_t line, std::string str);
+
+    int set_text(std::vector<std::string> text);
 
     // Begins the recording or stops and saves the recorded inputs
     void record(bool record);

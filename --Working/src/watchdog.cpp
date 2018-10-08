@@ -15,6 +15,8 @@ void Watcher::timeout(int cycles) {
 }
 
 MotorWatcher::MotorWatcher(std::string name, pros::Mutex & motorLock, pros::Motor & motor) : Watcher::Watcher(name) {
+  Watchdog::alert(LOG_INFO, "Watching " + name + " motor. Selected gearset: " + (motor.get_gearing() == GEARSET_100 ? "6:1 (100 RPM)" : (motor.get_gearing() == GEARSET_200 ? "1:18 (200 RPM)" : "1:36 (600 RPM)")), "MOTOR WATCH|" + MotorWatcher::name);
+
   MotorWatcher::lock = &motorLock;
   MotorWatcher::motor = &motor;
 }
@@ -27,20 +29,20 @@ void MotorWatcher::runChecks() {
     MotorWatcher::locked = 0;
     MotorWatcher::lockupCandidate = "";
     if (motor->get_temperature() >= MOTOR_OVERHEATING_THRESHOLD)
-      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is overheating! Power from this motor will be reduced");
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is overheating! Power from this motor will be reduced", "MOTOR OVERHEAT|" + MotorWatcher::name);
     else if (motor->get_temperature() >= MOTOR_HOT_THRESHOLD)
-      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is hot. Power will be reduced if the motor does not cool down");
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is hot. Power will be reduced if the motor does not cool down", "MOTOR HOT|" + MotorWatcher::name);
     if (motor->is_over_current())
-      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is over current!");
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is over current!", "MOTOR OVERCURR|" + MotorWatcher::name);
     if (motor->get_efficiency() <= MOTOR_OVERLOAD_THRESHOLD)
-      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being overloaded!");
+      Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being overloaded!", "MOTOR OVERLOAD|" + MotorWatcher::name);
     else if (motor->get_efficiency() <= MOTOR_HIGH_LOAD_THRESHOLD)
-      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under high load");
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under high load", "MOTOR HIGH LOAD|" + MotorWatcher::name);
     else if (motor->get_efficiency() >= MOTOR_LOW_LOAD_THRESHOLD)
-      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under low load");
+      Watchdog::alert(LOG_WARNING, MotorWatcher::name + " motor is under low load", "MOTOR LOW LOAD|" + MotorWatcher::name);
     lock->give();
   } else if (MotorWatcher::locked >= (MOTOR_LOCKED_UP_THRESHOLD * TASK_WATCHDOG_HZ)) {
-    Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being locked up! Candidate: " + MotorWatcher::lockupCandidate);
+    Watchdog::alert(LOG_ERROR, MotorWatcher::name + " motor is being locked up! Candidate: " + MotorWatcher::lockupCandidate, "MOTOR LOCKUP|" + MotorWatcher::name);
   } else {
      MotorWatcher::locked++;
      if (MotorWatcher::lockupCandidate.size() == 0)
@@ -54,12 +56,12 @@ void MotorWatcher::notify(std::string identifier) {
       if (identifier.substr(1) == MotorWatcher::lastid.substr(1) && MotorWatcher::lastid.rfind("t", 0) == 0)
         MotorWatcher::lastid = "gUnknown";
       else
-        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was released by " + identifier.substr(1) + " when it was never taken by them");
+        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was released by " + identifier.substr(1) + " when it was never taken by them", "MUTEX ID GIVE|" + identifier.substr(1));
     } else if (identifier.rfind("t", 0) == 0) {
       if (MotorWatcher::lastid == "gUnknown")
         MotorWatcher::lastid = identifier;
       else
-        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was taken by " + identifier.substr(1) + " when it has already been taken by " + MotorWatcher::lastid.substr(1));
+        Watchdog::alert(LOG_WARNING, MotorWatcher::name + " mutex was taken by " + identifier.substr(1) + " when it has already been taken by " + MotorWatcher::lastid.substr(1), "MUTEX DB TAKE|" + identifier.substr(1));
     } else if (identifier.rfind("a", 0) == 0) {
         if (identifier.substr(1) == MotorWatcher::lastid.substr(1)) {
           if (MotorWatcher::lastid.rfind("t", 0) == 0)
@@ -72,7 +74,7 @@ void MotorWatcher::notify(std::string identifier) {
 }
 
 BatteryWatcher::BatteryWatcher(std::string name, Battery & battery) : Watcher::Watcher(name) {
-  Watchdog::alert(LOG_INFO, "Watching " + name + " battery. Current capacity: " + std::to_string(battery.capacity()));
+  Watchdog::alert(LOG_INFO, "Watching " + name + " battery. Current capacity: " + std::to_string(battery.capacity()), "BATTERY WATCH|" + BatteryWatcher::name);
 
   BatteryWatcher::battery = &battery;
   BatteryWatcher::level = 0;
@@ -84,18 +86,18 @@ void BatteryWatcher::runChecks() {
     return;
   if (capacity < VERY_LOW_BATTERY_THRESHOLD && BatteryWatcher::level < 2) {
     BatteryWatcher::level = 2;
-    Watchdog::alert(LOG_ERROR, name + " battery is very low! Current capacity: " + std::to_string(capacity));
+    Watchdog::alert(LOG_ERROR, name + " battery is very low! Current capacity: " + std::to_string(capacity), "BATTERY LOW|" + BatteryWatcher::name);
     return;
   }
   if (capacity < LOW_BATTERY_THRESHOLD && BatteryWatcher::level < 1) {
     BatteryWatcher::level = 1;
-    Watchdog::alert(LOG_WARNING, name + " battery is low. Current capacity: " + std::to_string(capacity));
+    Watchdog::alert(LOG_WARNING, name + " battery is low. Current capacity: " + std::to_string(capacity), "BATTERY VLOW|" + BatteryWatcher::name);
     return;
   }
 }
 
 TaskWatcher::TaskWatcher(std::string name, int target_hz) : Watcher::Watcher(name) {
-  Watchdog::alert(LOG_INFO, "Watching " + name + " task");
+  Watchdog::alert(LOG_INFO, "Watching " + name + " task", "TASK WATCH|" + TaskWatcher::name);
 
   TaskWatcher::enabled = false;
   TaskWatcher::target = target_hz;
@@ -107,12 +109,12 @@ void TaskWatcher::runChecks() {
   double ttarget = TaskWatcher::target / TASK_WATCHDOG_HZ;
   double pct = static_cast<double>(TaskWatcher::count) / ttarget;
   if (pct < TASK_HANG_THRESHOLD) {
-    Watchdog::alert(LOG_ERROR, name + " task is hanging! Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)");
+    Watchdog::alert(LOG_ERROR, name + " task is hanging! Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)", "TASK HANG|" + TaskWatcher::name);
     this->timeout(3 * TASK_WATCHDOG_HZ);
     return;
   }
   if (pct < TASK_SLOW_THRESHOLD) {
-    Watchdog::alert(LOG_WARNING, name + " task is slow. Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)");
+    Watchdog::alert(LOG_WARNING, name + " task is slow. Current speed: " + std::to_string(TaskWatcher::count) + " hz (target: " + std::to_string(TaskWatcher::target) + " hz)", "TASK SLOW|" + TaskWatcher::name);
     this->timeout(3 * TASK_WATCHDOG_HZ);
     return;
   }
@@ -131,17 +133,21 @@ void TaskWatcher::disable() {
 }
 
 ControllerWatcher::ControllerWatcher(std::string name, RecordedController & controller) : Watcher::Watcher(name) {
+  Watchdog::alert(LOG_INFO, "Watching " + name + " controller", "CONTROL WATCH|" + ControllerWatcher::name);
+
   ControllerWatcher::controller = &controller;
 }
 
 void ControllerWatcher::runChecks() {
   if (!ControllerWatcher::controller->is_connected()) {
-    Watchdog::alert(LOG_ERROR, ControllerWatcher::name + " has been disconnected!");
+    Watchdog::alert(LOG_ERROR, ControllerWatcher::name + " has been disconnected!", "CONTROLLER DCON|" + ControllerWatcher::name);
     ControllerWatcher::timeout(3 * TASK_WATCHDOG_HZ);
   }
 }
 
-CompetitionWatcher::CompetitionWatcher() : Watcher::Watcher("Competition") {}
+CompetitionWatcher::CompetitionWatcher() : Watcher::Watcher("Competition") {
+  Watchdog::alert(LOG_INFO, "Watching competition", "COMP WATCH| ");
+}
 
 void CompetitionWatcher::runChecks() {
   // Checks to run if competition is connected
@@ -214,9 +220,23 @@ CompetitionWatcher & Watchdog::watchCompetition() {
 
 void Watchdog::alert(logging_levels level, std::string message) {
   Logger::log(level, message);
+}
+
+void Watchdog::alert(logging_levels level, std::string message, std::string controllerText) {
+  Logger::log(level, message);
   if (ALERT_LEVEL == 0 || level > ALERT_LEVEL)
     return;
-  // set controller text
+
+  std::vector<std::string> text;
+  std::pair<std::string, std::string> pair = util::separateFirst(controllerText, "|");
+  text.push_back("[{timediff}]" + util::getLoggingLevelName(level));
+  text.push_back(pair.first);
+  text.push_back(pair.second);
+
+  ports::controllerMain->set_text(text);
+  if (ALERT_MIRROR_PARTNER)
+    ports::controllerPartner->set_text(text);
+
   if (VIBRATE_LEVEL == 0 || level > VIBRATE_LEVEL)
     return;
   // vibrate controller

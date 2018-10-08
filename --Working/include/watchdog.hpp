@@ -167,9 +167,11 @@ class Watchdog {
     // Watches the competition
     static CompetitionWatcher & watchCompetition();
 
-    // Alerts the user and logs an event
-    static void alert(logging_levels level, std::string message);
+    // Alerts the user and logs an event, setting controller text
+    static void alert(logging_levels level, std::string message, std::string controllerText);
 
+    // Alerts the user and logs an event, setting controller text
+    static void alert(logging_levels level, std::string message);
 };
 
 #endif

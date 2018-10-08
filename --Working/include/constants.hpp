@@ -14,6 +14,9 @@
 // Refresh rate for ball launcher
 #define TASK_BALLLAUNCHER_HZ 2
 
+// Refresh rate for controller text setting
+#define TASK_CONTROLLER_TEXT_HZ 10
+
 // Refresh rate for opcontrol
 #define TASK_OPCONTROL_HZ 50
 
@@ -47,6 +50,9 @@
 
 // Minimum level to vibrate controller on alert
 #define VIBRATE_LEVEL E_LOGGING_WARNING
+
+// Whether to mirror alerts to the partner controller
+#define ALERT_MIRROR_PARTNER true
 
 
 // For the following constants, use -1 if alerts should be disabled for that category

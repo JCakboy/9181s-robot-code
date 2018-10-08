@@ -5,6 +5,27 @@
 #include <utility>
 #include "controller.hpp"
 
+void RecordedController::task(void* param) {
+  RecordedController * rc = static_cast<RecordedController*>(param);
+  unsigned long prev_time = pros::millis();
+  while (flags::generalAlive) {
+    int millis = pros::millis();
+    std::string curr_time = std::to_string(std::floor(millis / 60)) + ":" + std::to_string(std::floor(millis % 60));
+    std::string time_diff = std::to_string(std::floor((millis - rc->textTime) / 60)) + ":" + std::to_string(std::floor((millis - rc->textTime) % 60));
+    for (unsigned int i = 0; i < 3; i++) {
+      rc->watcher->notify();
+      rc->controller->set_text(i, 0, std::regex_replace(std::regex_replace(rc->textBuffer.at(i), std::regex("{time}"), curr_time), std::regex("{timediff}"), time_diff).c_str());
+      pros::Task::delay_until(&prev_time, 1000 / TASK_CONTROLLER_TEXT_HZ);
+    }
+  }
+}
+
+int RecordedController::popFront(std::vector<int> & stack) {
+  int get = stack.front();
+  stack.erase(stack.begin());
+  return get;
+}
+
 bool RecordedController::readFile(std::string file) {
   std::ifstream ifs;
   ifs.open(file);
@@ -17,7 +38,7 @@ bool RecordedController::readFile(std::string file) {
 
   try {
     if (std::stoi(in.back()) != TASK_OPCONTROL_HZ)
-      Watchdog::alert(LOG_WARNING, "The recording is at a different frequency than the one configured. Playback timings may be incorrect");
+      Watchdog::alert(LOG_WARNING, "The recording is at a different frequency than the one configured. Playback timings may be incorrect", "PLAYBACK FREQ|" + RecordedController::name + ": " + in.back() + " >> " + std::to_string(TASK_OPCONTROL_HZ));
   } catch (std::invalid_argument & e) {}
 
   in.erase(in.end() - 1);
@@ -32,7 +53,7 @@ bool RecordedController::readFile(std::string file) {
       keys.push_back(std::stoi(add));
     } catch (std::invalid_argument & e) {
       keys.push_back(-1);
-      Watchdog::alert(LOG_WARNING, "The channel \"" + add + "\" could not be parsed for playback. Any associated values to this channel will be ignored");
+      Watchdog::alert(LOG_WARNING, "The channel \"" + add + "\" could not be parsed for playback. Any associated values to this channel will be ignored", "PLAYBACK IHEAD|" + RecordedController::name + ": " + add);
     }
   }
   in.erase(in.begin());
@@ -48,7 +69,7 @@ bool RecordedController::readFile(std::string file) {
         stack.push_back(std::stoi(add));
       } catch (std::invalid_argument & e) {
         stack.push_back(0);
-        Watchdog::alert(LOG_WARNING, "The value \"" + add + "\" for channel" + std::to_string(i) + "could not be parsed for playback. Requesting this value will return 0");
+        Watchdog::alert(LOG_WARNING, "The value \"" + add + "\" for channel" + std::to_string(i) + "could not be parsed for playback. Requesting this value will return 0", "PLAYBACK IVALUE|" + RecordedController::name + "(" + std::to_string(i) + "): " + add);
       }
 
       if (separated.second.size() != 0)
@@ -77,7 +98,7 @@ bool RecordedController::readStreams(std::unordered_map<int, std::string> stream
     std::ifstream ifs;
     ifs.open(pair.second);
     if (!ifs.is_open()) {
-      Watchdog::alert(LOG_WARNING, "The file \"" + pair.second + "\" could not be found for channel " + std::to_string(pair.first) + ". This channel will not be saved");
+      Watchdog::alert(LOG_WARNING, "The file \"" + pair.second + "\" could not be found for channel " + std::to_string(pair.first) + ". This channel will not be saved", "STREAM SAVE NF|" + pair.second);
       continue;
     }
     std::vector<std::string> lines;
@@ -97,7 +118,7 @@ bool RecordedController::readStreams(std::unordered_map<int, std::string> stream
           values.push_back(std::stoi(sFirst));
         } catch (std::exception & e) {
           values.push_back(0);
-          Watchdog::alert(LOG_WARNING, "The value \"" + sFirst + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.");
+          Watchdog::alert(LOG_WARNING, "The value \"" + sFirst + "\" for channel" + std::to_string(pair.first) + "could not be parsed. 0 will be saved instead.", "STREAM IVALUE|" + sFirst);
         }
         std::pair<std::string, std::string> newPair = util::separateFirst(sSecond, ",");
         sFirst = newPair.first;
@@ -159,22 +180,9 @@ void RecordedController::writeFile(std::string file) {
   of.close();
 }
 
-void RecordedController::pbf() {
-  Watchdog::alert(LOG_INFO, "Playback finished");
-}
-
-int RecordedController::popFront(std::vector<int> & stack) {
-  int get = stack.front();
-  stack.erase(stack.begin());
-  return get;
-}
-
-RecordedController::RecordedController(pros::Controller & controller) {
-  RecordedController::controller = &controller;
-}
-
-RecordedController::RecordedController(pros::controller_id_e_t id) {
+RecordedController::RecordedController(std::string name, pros::controller_id_e_t id) {
   pros::Controller * c = new pros::Controller(id);
+  RecordedController::name = name;
   RecordedController::controller = c;
 }
 
@@ -198,12 +206,12 @@ int RecordedController::get_analog(pros::controller_analog_e_t channel) {
       analogStack[channel] = stack;
       if (stack.size() == 0) {
         RecordedController::playbackComplete();
-        RecordedController::pbf();
+        Watchdog::alert(LOG_INFO, "Playback complete", "PLAYBACK COMP|" + RecordedController::name);
         RecordedController::state = 0;
       }
       return get;
     } else {
-      Watchdog::alert(LOG_ERROR, "Requested value for undefined channel \"" + std::to_string(channel) + "\"");
+      Watchdog::alert(LOG_ERROR, "Requested value for undefined channel \"" + std::to_string(channel) + "\"", "PLAYBACK ICHA|" + RecordedController::name + ": " + std::to_string(channel));
       RecordedController::playback();
     }
   }
@@ -241,7 +249,7 @@ int RecordedController::get_digital(pros::controller_digital_e_t button) {
       digitalStack[button] = stack;
       if (stack.size() == 0) {
         RecordedController::playbackComplete();
-        RecordedController::pbf();
+        Watchdog::alert(LOG_INFO, "Playback complete", "PLAYBACK COMP|" + RecordedController::name);
         RecordedController::state = 0;
       }
       RecordedController::digitalLastKnown[button] = get;
@@ -278,8 +286,18 @@ int RecordedController::get_digital_new_press(pros::controller_digital_e_t butto
   return lk == RecordedController::get_digital(button);
 }
 
-int RecordedController::set_text(std::uint8_t line, std::uint8_t col, const char* str) {
-  return controller->set_text(line, col, str);
+int RecordedController::set_text(std::uint8_t line, std::string str) {
+  RecordedController::textTime = pros::millis();
+  while (RecordedController::textBuffer.size() < 3)
+    RecordedController::textBuffer.push_back("");
+  line = util::min(line, 2);
+  RecordedController::textBuffer.assign(line, str);
+}
+
+int RecordedController::set_text(std::vector<std::string> text) {
+  RecordedController::textTime = pros::millis();
+  RecordedController::textBuffer = text;
+  return 1;
 }
 
 void RecordedController::record(bool record) {
@@ -289,13 +307,13 @@ void RecordedController::record(bool record) {
     RecordedController::analogStack.clear();
     RecordedController::digitalStack.clear();
     recfile = "/usd/recordings/" + util::timestamp() + ".csv";
-    Watchdog::alert(LOG_INFO, "Now recording to: " + recfile);
+    Watchdog::alert(LOG_INFO, "Now recording to: " + recfile, "RECORD START|" + RecordedController::name);
     RecordedController::state = 1;
   } else if (state == 1 && !record) {
     RecordedController::state = 0;
-    Watchdog::alert(LOG_INFO, "Recording stopped, saving...");
+    Watchdog::alert(LOG_INFO, "Recording stopped, saving...", "RECORD STOP|" + RecordedController::name);
     RecordedController::writeFile(recfile);
-    Watchdog::alert(LOG_INFO, "Recording saved");
+    Watchdog::alert(LOG_INFO, "Recording saved", "RECORD SAVED|" + RecordedController::name);
   }
 }
 
@@ -306,15 +324,15 @@ void RecordedController::stream(bool stream) {
     RecordedController::streamOutput.clear();
     recfile = "/usd/recordings/" + util::timestamp() + "-stream.csv";
     streamfile = "/usd/recordings/" + util::timestamp() + "-c{c}-unsaved.cstream";
-    Watchdog::alert(LOG_INFO, "Now streaming");
+    Watchdog::alert(LOG_INFO, "Now streaming", "STREAM START|" + RecordedController::name);
     RecordedController::state = 3;
   } else if (state == 3 && !stream) {
     RecordedController::state = 0;
-    Watchdog::alert(LOG_INFO, "Streaming stopped, saving...");
+    Watchdog::alert(LOG_INFO, "Streaming stopped, saving...", "STREAM STOP|" + RecordedController::name);
     RecordedController::streamOutput.clear();
     RecordedController::readStreams(streamFiles);
     RecordedController::writeFile(recfile);
-    Watchdog::alert(LOG_INFO, "Stream saved");
+    Watchdog::alert(LOG_INFO, "Stream saved", "STREAM SAVED|" + RecordedController::name);
   }
 }
 
@@ -322,10 +340,10 @@ void RecordedController::playback(std::string file, void (*f)()) {
   if (state == 1)
     return;
   if (!RecordedController::readFile(file)) {
-    Watchdog::alert(LOG_ERROR, "Recording file at \"" + file + "\" could not be found. Playback aborted");
+    Watchdog::alert(LOG_ERROR, "Recording file at \"" + file + "\" could not be found. Playback aborted", "PLAYBACK NF|" + file);
     return;
   }
-  Watchdog::alert(LOG_INFO, "Recording stopped");
+  Watchdog::alert(LOG_INFO, "Playback started", "PLAYBACK START|" + RecordedController::name);
 
   RecordedController::playbackComplete = f;
   RecordedController::state = 2;
@@ -336,6 +354,6 @@ void RecordedController::playback() {
     return;
   RecordedController::analogStack.clear();
   RecordedController::digitalStack.clear();
-  Watchdog::alert(LOG_WARNING, "Playback aborted");
+  Watchdog::alert(LOG_WARNING, "Playback aborted", "PLAYBACK ABORT|" + RecordedController::name);
   RecordedController::state = 0;
 }

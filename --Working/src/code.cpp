@@ -25,8 +25,8 @@ void ports::init() {
   ports::controllerMainBattery = new ControllerBattery(CONTROLLER_MAIN);
   ports::controllerPartnerBattery = new ControllerBattery(CONTROLLER_PARTNER);
 
-  ports::controllerMain = new RecordedController(CONTROLLER_MAIN);
-  ports::controllerPartner = new RecordedController(CONTROLLER_PARTNER);
+  ports::controllerMain = new RecordedController("Main", CONTROLLER_MAIN);
+  ports::controllerPartner = new RecordedController("Partner", CONTROLLER_PARTNER);
 
   ports::leftDriveMotor = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
   ports::rightDriveMotor = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
@@ -124,19 +124,20 @@ void autonomousSafe() {}
  * task, not resume it from where it left off.
  */
 void operatorControl() {
+  Watchdog::alert(LOG_INFO, "Initializing operator control code...", "TASK INIT|Operator task");
   try {
   	operatorControlSafe();
   } catch (std::exception & e) {
-    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN OPERATOR CONTROL METHOD: " + std::string(e.what()));
-    Watchdog::alert(LOG_SEVERE, "Initializing backup code...");
+    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN OPERATOR CONTROL METHOD: " + std::string(e.what()), "TASK EXCEPTION|Operator task");
+    Watchdog::alert(LOG_SEVERE, "Initializing backup control code...", "TASK INIT|Backup task");
     ballLauncher->stop();
     Watchdog::stop();
   }
   try {
   	operatorControlBackup();
   } catch (std::exception & e) {
-    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN BACKUP CONTROL METHOD: " + std::string(e.what()));
-    Watchdog::alert(LOG_SEVERE, "Robot will now enter sleep state...");
+    Watchdog::alert(LOG_SEVERE, "EXCEPTION CAUGHT IN BACKUP CONTROL METHOD: " + std::string(e.what()), "TASK EXCEPTION|Backup task");
+    Watchdog::alert(LOG_SEVERE, "Robot will now enter sleep state...", "TASK INIT|Sleep task");
     while (true) {
       pros::Task::delay(TASK_OPCONTROL_HZ);
     }
