@@ -48,6 +48,11 @@ class MotorWatcher : public Watcher {
     void runChecks() override;
 
     void notify(std::string identifier);
+
+    bool takeMutex(std::string identifier, unsigned long waitTime);
+
+    bool giveMutex(std::string identifier);
+
 };
 
 /*

@@ -84,7 +84,7 @@ class PneumaticLauncher : public BallLauncher {
 
 class ElasticLauncher : public BallLauncher {
   private:
-    pros::Mutex * lock;
+    MotorWatcher * lock;
     std::vector<pros::Motor> motors;
 
   protected:
@@ -93,7 +93,7 @@ class ElasticLauncher : public BallLauncher {
     void _launch() override;
 
   public:
-    explicit ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor);
+    explicit ElasticLauncher(TaskWatcher * watcher, MotorWatcher & motorLock, pros::Motor motor);
 
     // Adds a motor to the motor list
     void addMotor(pros::Motor motor);
@@ -117,7 +117,7 @@ class ElasticLauncher : public BallLauncher {
 
 class ElasticSlipGearLauncher : public BallLauncher {
   private:
-    pros::Mutex * lock;
+    MotorWatcher * lock;
     std::vector<pros::Motor> motors;
 
   protected:
@@ -126,7 +126,7 @@ class ElasticSlipGearLauncher : public BallLauncher {
     void _launch() override;
 
   public:
-    explicit ElasticSlipGearLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor);
+    explicit ElasticSlipGearLauncher(TaskWatcher * watcher, MotorWatcher & motorLock, pros::Motor motor);
 
     // Adds a motor to the motor list
     void addMotor(pros::Motor motor);

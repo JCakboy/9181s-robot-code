@@ -11,12 +11,16 @@ void LiftControl::runYMotors(int voltage) {
     motor.move(voltage);
 }
 
-LiftControl::LiftControl(pros::Mutex & motorLock, pros::Motor yMotor) {
+LiftControl::LiftControl(MotorWatcher & motorLock) {
+  LiftControl::lock = &motorLock;
+}
+
+LiftControl::LiftControl(MotorWatcher & motorLock, pros::Motor yMotor) {
   LiftControl::lock = &motorLock;
   LiftControl::yMotors.push_back(yMotor);
 }
 
-LiftControl::LiftControl(pros::Mutex & motorLock, pros::Motor xMotor, pros::Motor yMotor) {
+LiftControl::LiftControl(MotorWatcher & motorLock, pros::Motor xMotor, pros::Motor yMotor) {
   LiftControl::lock = &motorLock;
   LiftControl::xMotors.push_back(xMotor);
   LiftControl::yMotors.push_back(yMotor);
@@ -60,9 +64,9 @@ void LiftControl::run(double xVoltage, double yVoltage, bool tankScale, double x
   xVoltage = util::limit127(xVoltage * xSensitivity);
   yVoltage = util::limit127(yVoltage * ySensitivity);
 
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Lift control", MUTEX_WAIT_TIME)) {
     LiftControl::runXMotors(xVoltage);
     LiftControl::runYMotors(yVoltage);
-    lock->give();
+    lock->giveMutex("Lift control");
   }
 }

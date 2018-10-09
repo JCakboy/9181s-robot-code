@@ -10,7 +10,7 @@ class XDriveControl {
     std::vector<pros::Motor> frontRightMotors;
     std::vector<pros::Motor> rearLeftMotors;
     std::vector<pros::Motor> rearRightMotors;
-    pros::Mutex * lock;
+    MotorWatcher * lock;
     void runFrontLeftMotors(int voltage);
 
     void runFrontRightMotors(int voltage);
@@ -37,7 +37,7 @@ class XDriveControl {
      * frontRightMotor: a motor on the front right side of the robot
      * rearRightMotor: a motor on the rear right side of the robot
      */
-    explicit XDriveControl (pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
+    explicit XDriveControl (MotorWatcher & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
 
     // Adds a motor to the front left position list
     void addFrontLeftMotor(pros::Motor motor);

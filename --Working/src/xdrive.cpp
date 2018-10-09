@@ -46,7 +46,7 @@ void XDriveControl::setRearRightBrake(pros::motor_brake_mode_e_t mode) {
       motor.set_brake_mode(mode);
 }
 
-XDriveControl::XDriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
+XDriveControl::XDriveControl(MotorWatcher & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
   XDriveControl::lock = &motorLock;
   XDriveControl::addFrontLeftMotor(frontLeftMotor);
   XDriveControl::addFrontRightMotor(frontRightMotor);
@@ -168,7 +168,7 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
 	lt += overflow;
 	overflow = nest::distribute(lt, frontLeftVoltage, rearLeftVoltage);
 
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("X-Drive control", MUTEX_WAIT_TIME)) {
     XDriveControl::setFrontLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_HOLD);
     XDriveControl::setFrontRightBrake(rightBrake ? BRAKE_BRAKE : BRAKE_HOLD);
     XDriveControl::setRearLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_HOLD);
@@ -177,7 +177,7 @@ void XDriveControl::run(double moveVoltage, double strafeVoltage, double turnVol
     XDriveControl::runFrontRightMotors(rightBrake ? 0 : frontRightVoltage);
     XDriveControl::runRearLeftMotors(leftBrake ? 0 : rearLeftVoltage);
     XDriveControl::runRearRightMotors(rightBrake ? 0 : rearRightVoltage);
-    lock->give();
+    lock->giveMutex("X-Drive control");
   }
 
 }

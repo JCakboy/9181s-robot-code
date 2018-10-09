@@ -46,7 +46,7 @@ void MotorWatcher::runChecks() {
   } else {
      MotorWatcher::locked++;
      if (MotorWatcher::lockupCandidate.size() == 0)
-       MotorWatcher::lockupCandidate = MotorWatcher::lastid.substr(1);
+       MotorWatcher::lockupCandidate = MotorWatcher::lastid;
     }
 }
 
@@ -71,6 +71,23 @@ void MotorWatcher::notify(std::string identifier) {
           goto start;
         }
     } else goto start;
+}
+
+bool MotorWatcher::takeMutex(std::string identifier, unsigned long waitTime) {
+  if (MotorWatcher::lock->take(waitTime)) {
+    MotorWatcher::lastid = identifier;
+    return true;
+  }
+  return false;
+}
+
+bool MotorWatcher::giveMutex(std::string identifier) {
+  if (identifier == MotorWatcher::lastid) {
+    MotorWatcher::lock->give();
+    MotorWatcher::lastid = "Unknown";
+    return true;
+  }
+  return false;
 }
 
 BatteryWatcher::BatteryWatcher(std::string name, Battery & battery) : Watcher::Watcher(name) {

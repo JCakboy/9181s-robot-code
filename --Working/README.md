@@ -7,11 +7,11 @@ Changes to this folder on the `master` branch should include output binaries
 
 ## Main Files
 
-Initialization: `src\initialize.cpp`
+Initialization: `src\code.cpp - ::initialize()`
 
-Autonomous: `src\autonomous.cpp`
+Autonomous: `src\code.cpp - ::autonomous()`
 
-Operator control: `src\opcontrol.cpp`
+Operator control: `src\code.cpp - ::operatorControl()`
 
 
 Output binary: `bin\output.bin` or `bin\output.elf`

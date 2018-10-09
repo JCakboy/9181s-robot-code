@@ -6,18 +6,18 @@ void Claw::runActiveMotors(int voltage) {
     motor.move(voltage);
 }
 
-Claw::Claw (pros::Mutex & motorLock, pros::Motor flipMotor) {
+Claw::Claw (MotorWatcher & motorLock, pros::Motor flipMotor) {
   Claw::lock = &motorLock;
   Claw::addFlipMotor(flipMotor);
 }
 
-Claw::Claw (pros::Mutex & motorLock, pros::Motor pullMotor, pros::Motor activeMotor) {
+Claw::Claw (MotorWatcher & motorLock, pros::Motor pullMotor, pros::Motor activeMotor) {
   Claw::lock = &motorLock;
   Claw::addPullMotor(pullMotor);
   Claw::addActiveMotor(activeMotor);
 }
 
-Claw::Claw (pros::Mutex & motorLock, pros::Motor flipMotor, pros::Motor pullMotor, pros::Motor activeMotor) {
+Claw::Claw (MotorWatcher & motorLock, pros::Motor flipMotor, pros::Motor pullMotor, pros::Motor activeMotor) {
   Claw::lock = &motorLock;
   Claw::addFlipMotor(flipMotor);
   Claw::addPullMotor(pullMotor);
@@ -64,47 +64,47 @@ void Claw::clearPullMotors() {
 }
 
 void Claw::clamp() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     Claw::runActiveMotors(127);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 
 void Claw::coast() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     Claw::runActiveMotors(0);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 
 void Claw::release() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     Claw::runActiveMotors(-127);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 
 void Claw::pull() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     for (const auto & motor : Claw::pullMotors)
       motor.move_absolute(180, 127);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 
 void Claw::push() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     for (const auto & motor : Claw::pullMotors)
       motor.move_absolute(0, 127);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 
 void Claw::flip() {
-  if (lock->take(MUTEX_WAIT_TIME)) {
+  if (lock->takeMutex("Claw", MUTEX_WAIT_TIME)) {
     for (const auto & motor : Claw::flipMotors)
       motor.move_relative(180, 127);
-    lock->give();
+    lock->giveMutex("Claw");
   }
 }
 

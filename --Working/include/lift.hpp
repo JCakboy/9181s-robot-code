@@ -18,7 +18,7 @@ class LiftControl {
   private:
     std::vector<pros::Motor> xMotors;
     std::vector<pros::Motor> yMotors;
-    pros::Mutex * lock;
+    MotorWatcher * lock;
 
     void runXMotors(int voltage);
 
@@ -26,8 +26,11 @@ class LiftControl {
 
 
   public:
+    // Creates the Lift Control object without any motors, see below
+    explicit LiftControl(MotorWatcher & motorLock);
+
     // Creates the Lift Control object without an x motor, see below
-    explicit LiftControl(pros::Mutex & motorLock, pros::Motor yMotor);
+    explicit LiftControl(MotorWatcher & motorLock, pros::Motor yMotor);
 
     /*
      * Creates the Lift Control object
@@ -36,7 +39,7 @@ class LiftControl {
      * xMotor: the motor to move the arm or lift left or right
      * yMotor: the motor to move the arm or lift up or down
      */
-    explicit LiftControl(pros::Mutex & motorLock, pros::Motor xMotor, pros::Motor yMotor);
+    explicit LiftControl(MotorWatcher & motorLock, pros::Motor xMotor, pros::Motor yMotor);
 
     // Adds a motor to the list to move the arm or lift left or right
     void addXMotor(pros::Motor motor);

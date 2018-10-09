@@ -11,7 +11,7 @@
  *    - clamp(): clamps the launcher
  *    - coast(): coasts the claw
  *    - release(): releases the claw
- *    - pull(): pulls the claw push_back
+ *    - pull(): pulls the claw back
  *    - push(): returns the claw to its un-pulled position
  *    - flip(): flips the claw 180°
  */
@@ -21,16 +21,16 @@ class Claw {
     std::vector<pros::Motor> activeMotors;
     std::vector<pros::Motor> flipMotors;
     std::vector<pros::Motor> pullMotors;
-    pros::Mutex * lock;
+    MotorWatcher * lock;
 
     void runActiveMotors(int voltage);
 
   public:
     // Creates the claw object without an active claw motor. See below
-    explicit Claw (pros::Mutex & motorLock, pros::Motor flipMotor);
+    explicit Claw (MotorWatcher & motorLock, pros::Motor flipMotor);
 
     // Creates the claw object without a claw flip motor. See below
-    explicit Claw (pros::Mutex & motorLock, pros::Motor pullMotor, pros::Motor activeMotor);
+    explicit Claw (MotorWatcher & motorLock, pros::Motor pullMotor, pros::Motor activeMotor);
 
     /*
      * Creates the claw object
@@ -40,7 +40,7 @@ class Claw {
      * pullMotor: the motor to pull the claw back
      * activeMotor: the motor to use to clamp the claw
      */
-    explicit Claw (pros::Mutex & motorLock, pros::Motor flipMotor, pros::Motor pullMotor, pros::Motor activeMotor);
+    explicit Claw (MotorWatcher & motorLock, pros::Motor flipMotor, pros::Motor pullMotor, pros::Motor activeMotor);
 
     // Adds a motor to the list to clamp the claw
     void addActiveMotor(pros::Motor motor);

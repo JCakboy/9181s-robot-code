@@ -40,9 +40,6 @@ void ports::init() {
   ports::intakeLock = new pros::Mutex();
   ports::liftLock = new pros::Mutex();
 
-  ports::driveControl = new DriveControl(*ports::driveLock, *ports::leftDriveMotor, *ports::rightDriveMotor);
-  ports::ballLauncher = new ElasticSlipGearLauncher(ports::ballLauncherTaskWatcher, *ports::launcherLock, *ports::elasticLaunchMotor);
-
   Watchdog::watch("Brain battery", *ports::brainBattery);
   Watchdog::watch("Main controller battery", *ports::controllerMainBattery);
   Watchdog::watch("Partner controller battery", *ports::controllerPartnerBattery);
@@ -50,11 +47,20 @@ void ports::init() {
   Watchdog::watch("Main controller", *ports::controllerMain);
   Watchdog::watch("Partner controller", *ports::controllerPartner);
 
-  Watchdog::watch("Left drive motor", *ports::driveLock, *ports::leftDriveMotor);
-  Watchdog::watch("Right drive motor", *ports::driveLock, *ports::rightDriveMotor);
-  Watchdog::watch("Launcher motor", *ports::launcherLock, *ports::elasticLaunchMotor);
+  ports::leftDriveMotorWatcher = &(Watchdog::watch("Left drive motor", *ports::driveLock, *ports::leftDriveMotor));
+  ports::rightDriveMotorWatcher = &(Watchdog::watch("Right drive motor", *ports::driveLock, *ports::rightDriveMotor));
+  ports::elasticLaunchMotorWatcher = &(Watchdog::watch("Launcher motor", *ports::launcherLock, *ports::elasticLaunchMotor));
+  ports::intakeMotorWatcher = &(Watchdog::watch("Intake motor", *ports::intakeLock, *ports::intakeMotor));
+  ports::leftLiftMotorWatcher = &(Watchdog::watch("Left lift motor", *ports::driveLock, *ports::leftLiftMotor));
+  ports::rightLiftMotorWatcher = &(Watchdog::watch("Right lift motor", *ports::driveLock, *ports::rightLiftMotor));
 
   // Watchdog::watchCompetition();
+
+  ports::driveControl = new DriveControl(*ports::leftDriveMotorWatcher, *ports::leftDriveMotor, *ports::rightDriveMotor);
+  ports::ballLauncher = new ElasticSlipGearLauncher(ports::ballLauncherTaskWatcher, *ports::elasticLaunchMotorWatcher, *ports::elasticLaunchMotor);
+  ports::liftControl = new LiftControl(*ports::leftLiftMotorWatcher);
+  ports::liftControl->addYMotor(*ports::leftLiftMotor);
+  ports::liftControl->addYMotor(*ports::rightLiftMotor);
 }
 
 /**

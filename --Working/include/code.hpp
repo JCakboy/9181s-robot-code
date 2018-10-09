@@ -52,6 +52,13 @@ namespace ports {
   static TaskWatcher * opcontrolTaskWatcher;
   static TaskWatcher * ballLauncherTaskWatcher;
 
+  static MotorWatcher * leftDriveMotorWatcher;
+  static MotorWatcher * rightDriveMotorWatcher;
+  static MotorWatcher * elasticLaunchMotorWatcher;
+  static MotorWatcher * intakeMotorWatcher;
+  static MotorWatcher * leftLiftMotorWatcher;
+  static MotorWatcher * rightLiftMotorWatcher;
+
   static Battery * brainBattery;
   static Battery * controllerMainBattery;
   static Battery * controllerPartnerBattery;

@@ -66,32 +66,44 @@ PneumaticLauncher::PneumaticLauncher(TaskWatcher * watcher, pros::Mutex & piston
 
 void PneumaticLauncher::_launch() {
   pros::delay(PNEUMATIC_LAUNCHER_WAIT_TIME);
-  PneumaticLauncher::piston->set_value(true);
+  if (lock->take(MUTEX_WAIT_TIME)) {
+    PneumaticLauncher::piston->set_value(true);
+    lock->give();
+  }
 }
 
 void PneumaticLauncher::_load() {
   pros::delay(PNEUMATIC_LAUNCHER_WAIT_TIME);
-  PneumaticLauncher::piston->set_value(false);
-}
+  if (lock->take(MUTEX_WAIT_TIME)) {
+    PneumaticLauncher::piston->set_value(false);
+    lock->give();
+  }}
 
-ElasticLauncher::ElasticLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
+ElasticLauncher::ElasticLauncher(TaskWatcher * watcher, MotorWatcher & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
   motor.set_brake_mode(BRAKE_HOLD);
   ElasticLauncher::addMotor(motor);
+  ElasticLauncher::lock = &motorLock;
 }
 
 void ElasticLauncher::_launch() {
-  for (const auto & motor : ElasticLauncher::motors)
-    motor.set_brake_mode(BRAKE_COAST);
+  if (lock->takeMutex("Elastic ball launcher", MUTEX_WAIT_TIME)) {
+    for (const auto & motor : ElasticLauncher::motors)
+      motor.set_brake_mode(BRAKE_COAST);
+    lock->giveMutex("Elastic ball launcher");
+  }
 }
 
 void ElasticLauncher::_load() {
-  for (const auto & motor : ElasticLauncher::motors) {
-    motor.set_brake_mode(BRAKE_HOLD);
-    motor.move(127);
+  if (lock->takeMutex("Elastic ball launcher", MUTEX_WAIT_TIME)) {
+    for (const auto & motor : ElasticLauncher::motors) {
+      motor.set_brake_mode(BRAKE_HOLD);
+      motor.move(127);
+    }
+    pros::delay(ELASTIC_LAUNCHER_MOTOR_TIME);
+    for (const auto & motor : ElasticLauncher::motors)
+      motor.move(0);
+    lock->giveMutex("Elastic ball launcher");
   }
-  pros::delay(ELASTIC_LAUNCHER_MOTOR_TIME);
-  for (const auto & motor : ElasticLauncher::motors)
-    motor.move(0);
 }
 
 void ElasticLauncher::addMotor(pros::Motor motor) {
@@ -102,14 +114,18 @@ void ElasticLauncher::clearMotors() {
   ElasticLauncher::motors.clear();
 }
 
-ElasticSlipGearLauncher::ElasticSlipGearLauncher(TaskWatcher * watcher, pros::Mutex & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
+ElasticSlipGearLauncher::ElasticSlipGearLauncher(TaskWatcher * watcher, MotorWatcher & motorLock, pros::Motor motor) : BallLauncher::BallLauncher(watcher) {
   motor.set_brake_mode(BRAKE_HOLD);
   ElasticSlipGearLauncher::addMotor(motor);
+  ElasticSlipGearLauncher::lock = &motorLock;
 }
 
 void ElasticSlipGearLauncher::_launch() {
-  for (const auto & motor : ElasticSlipGearLauncher::motors)
-    motor.move(127);
+  if (lock->takeMutex("Elastic slip gear ball launcher", MUTEX_WAIT_TIME)) {
+    for (const auto & motor : ElasticSlipGearLauncher::motors)
+      motor.move(127);
+    lock->giveMutex("Elastic slip gear ball launcher");
+  }
 }
 
 void ElasticSlipGearLauncher::_load() {}
