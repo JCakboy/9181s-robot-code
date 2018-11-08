@@ -18,7 +18,7 @@ class DriveControl {
   private:
     std::vector<pros::Motor> leftMotors;
     std::vector<pros::Motor> rightMotors;
-    MotorWatcher * lock;
+    pros::Mutex * lock;
     void runLeftMotors(int voltage);
 
     void runRightMotors(int voltage);
@@ -29,7 +29,7 @@ class DriveControl {
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
-    explicit DriveControl(MotorWatcher & motorLock, pros::Motor leftMotor, pros::Motor rightMotor);
+    explicit DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor);
 
     /*
      * Creates the Drive Control object
@@ -40,7 +40,7 @@ class DriveControl {
      * frontRightMotor: a motor on the right side of the robot
      * rearRightMotor: a motor on the right side of the robot
      */
-    explicit DriveControl(MotorWatcher & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
+    explicit DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
 
     // Adds a motor to the left position list
     void addLeftMotor(pros::Motor motor);

@@ -24,13 +24,13 @@ void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
       motor.set_brake_mode(mode);
 }
 
-DriveControl::DriveControl(MotorWatcher & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
+DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
   DriveControl::lock = &motorLock;
   DriveControl::leftMotors.push_back(leftMotor);
   DriveControl::rightMotors.push_back(rightMotor);
 }
 
-DriveControl::DriveControl(MotorWatcher & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
+DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
   DriveControl::lock = &motorLock;
   DriveControl::addLeftMotor(frontLeftMotor);
   DriveControl::addLeftMotor(rearLeftMotor);
@@ -99,11 +99,11 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, b
   int leftVoltage = util::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
   int rightVoltage = util::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
 
-  if (lock->takeMutex("Drive control", MUTEX_WAIT_TIME)) {
+  if (lock->take(MUTEX_WAIT_TIME)) {
     DriveControl::setLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_COAST);
     DriveControl::setRightBrake(rightBrake ? BRAKE_BRAKE : BRAKE_COAST);
     DriveControl::runLeftMotors(leftBrake ? 0 : leftVoltage);
     DriveControl::runRightMotors(rightBrake ? 0 : rightVoltage);
-    lock->giveMutex("Drive control");
+    lock->give();
   }
 }

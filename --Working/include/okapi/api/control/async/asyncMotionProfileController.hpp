@@ -5,14 +5,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-#ifndef _OKAPI_ASYNCMOTIONPROFILECONTROLLER_HPP_
-#define _OKAPI_ASYNCMOTIONPROFILECONTROLLER_HPP_
+#pragma once
 
 #include "okapi/api/chassis/controller/chassisScales.hpp"
 #include "okapi/api/chassis/model/skidSteerModel.hpp"
 #include "okapi/api/control/async/asyncPositionController.hpp"
 #include "okapi/api/units/QAngle.hpp"
+#include "okapi/api/units/QAngularSpeed.hpp"
 #include "okapi/api/units/QLength.hpp"
+#include "okapi/api/units/QSpeed.hpp"
 #include "okapi/api/util/logging.hpp"
 #include "okapi/api/util/timeUtil.hpp"
 #include <atomic>
@@ -32,11 +33,12 @@ struct Point {
 class AsyncMotionProfileController : public AsyncPositionController<std::string, Point> {
   public:
   /**
-   * An Async Controller which generates and follows 2D motion profiles.
+   * An Async Controller which generates and follows 2D motion profiles. Throws a
+   * std::invalid_argument exception if the gear ratio is zero.
    *
-   * @param imaxVel The maximum possible velocity.
-   * @param imaxAccel The maximum possible acceleration.
-   * @param imaxJerk The maximum possible jerk.
+   * @param imaxVel The maximum possible velocity in m/s.
+   * @param imaxAccel The maximum possible acceleration in m/s/s.
+   * @param imaxJerk The maximum possible jerk in m/s/s/s.
    * @param imodel The chassis model to control.
    * @param iwidth The chassis wheelbase width.
    */
@@ -44,8 +46,9 @@ class AsyncMotionProfileController : public AsyncPositionController<std::string,
                                double imaxVel,
                                double imaxAccel,
                                double imaxJerk,
-                               std::shared_ptr<ChassisModel> imodel,
-                               QLength iwidth);
+                               const std::shared_ptr<ChassisModel> &imodel,
+                               const ChassisScales &iscales,
+                               AbstractMotor::GearsetRatioPair ipair);
 
   AsyncMotionProfileController(AsyncMotionProfileController &&other) noexcept;
 
@@ -87,6 +90,12 @@ class AsyncMotionProfileController : public AsyncPositionController<std::string,
   void setTarget(std::string ipathId) override;
 
   /**
+   * Writes the value of the controller output. This method might be automatically called in another
+   * thread by the controller. This just calls setTarget().
+   */
+  void controllerSet(std::string ivalue) override;
+
+  /**
    * Gets the last set target, or the default target if none was set.
    *
    * @return the last target
@@ -120,9 +129,7 @@ class AsyncMotionProfileController : public AsyncPositionController<std::string,
 
   /**
    * Resets the controller so it can start from 0 again properly. Keeps configuration from
-   * before.
-   *
-   * This implementation does nothing.
+   * before. This implementation also stops movement.
    */
   void reset() override;
 
@@ -166,12 +173,13 @@ class AsyncMotionProfileController : public AsyncPositionController<std::string,
   double maxAccel{0};
   double maxJerk{0};
   std::shared_ptr<ChassisModel> model;
-  QLength width{11_in};
+  ChassisScales scales;
+  AbstractMotor::GearsetRatioPair pair;
   TimeUtil timeUtil;
 
   std::string currentPath{""};
-  bool isRunning{false};
-  bool disabled{false};
+  std::atomic_bool isRunning{false};
+  std::atomic_bool disabled{false};
   std::atomic_bool dtorCalled{false};
   CrossplatformThread *task{nullptr};
 
@@ -182,7 +190,13 @@ class AsyncMotionProfileController : public AsyncPositionController<std::string,
    * Follow the supplied path. Must follow the disabled lifecycle.
    */
   virtual void executeSinglePath(const TrajectoryPair &path, std::unique_ptr<AbstractRate> rate);
+
+  /**
+   * Converts linear chassis speed to rotational motor speed.
+   *
+   * @param linear chassis frame speed
+   * @return motor frame speed
+   */
+  QAngularSpeed convertLinearToRotational(QSpeed linear) const;
 };
 } // namespace okapi
-
-#endif
