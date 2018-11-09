@@ -17,15 +17,6 @@ namespace util {
 		return degrees * PI / 180.0;
 	}
 
-	double inch_to_meter(double value) {
-		return inch_to_metre(value);
-	}
-
-	double inch_to_metre(double value)
-	{
-		return value / 39.37;
-	}
-
 	double tankScaleJoystick(double amt) {
 		return amt / std::cos(degrees_to_radians(45));
 	}
