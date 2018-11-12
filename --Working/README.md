@@ -1,9 +1,9 @@
-# Untested/Graveyard Code
+# In Progress Robot Code
 
 **Started on:** September 7, 2018
 
 This folder contains a PROS 3 project.
-This is an archived folder; changes should not be made to this folder on the `master` branch
+Changes to this folder on the `master` branch should include output binaries
 
 ## Main Files
 
