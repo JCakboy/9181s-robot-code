@@ -30,12 +30,17 @@ namespace util {
 		return amt / std::cos(degrees_to_radians(45));
 	}
 
+	int limitX(int x, int a) {
+		x = std::abs(x);
+		return util::max(util::min(a, x), -x);
+	}
+
 	bool within127(int a) {
 		return limit127(a) == a;
 	}
 
 	int limit127(int a) {
-		return util::max(util::min(a, 127), -127);
+		return limitX(127, a);
 	}
 
 	int step0(int a) {

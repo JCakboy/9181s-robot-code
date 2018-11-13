@@ -79,12 +79,12 @@ Logger::log(LOG_INFO, "test!");
 
 	int launcherAngle = 30;
 	int rpm = 200 * 21;
-  double wheelDiameter = util::int_to_metre(4.0);
+  double wheelDiameter = util::inch_to_metre(4.0);
   double circumference = wheelDiameter * PI;
 	double distanceToFlag = 0;
 	double flagHeight = 0;
 	//double initialVelocity = rpm / 60 * circumference;
-  //double initialVelocity = 
+  //double initialVelocity =
 
 	while (true) {
 		dc.run(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_LEFT_X), false, false, true);

@@ -19,6 +19,10 @@ class DriveControl {
     std::vector<pros::Motor> leftMotors;
     std::vector<pros::Motor> rightMotors;
     pros::Mutex * lock;
+
+    bool usePID;
+    PID * pid;
+
     void runLeftMotors(int voltage);
 
     void runRightMotors(int voltage);
@@ -66,6 +70,29 @@ class DriveControl {
 
     // Clears all motors from the right position list
     void clearRightMotors();
+
+    // Sets PID constants
+    void setPID(int dt, double kp, double ki, double kd, int limit);
+
+    // Returns a reference to PID constants
+    PID & getPID();
+
+    // Clears PID constants
+    void clearPID();
+
+    /*
+     * Runs the Drive Control relative to the current position
+     * This method pauses execution until the desired sensor value is reached
+     * Given both revolutions and degrees, this method will take into account both values
+     * If PID consants have been set, PID will control this operation
+     *
+     * revolutions: the amount of revolutions to move the motor forward
+     * degrees: the amount of degrees to move the motor forward
+     * threshold: the maximum allowable difference between the desired and the actual motor position
+     * moveLeft: whether to move the left motors during this operation
+     * moveRight: whether to move the right motors during this operation
+     */
+    void moveRelative(double revolutions, int degrees, int threshold, bool moveLeft, bool moveRight);
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
