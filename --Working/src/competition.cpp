@@ -66,8 +66,8 @@ void opcontrol() {
 	pros::Motor backLeftDrive(4, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
 	pros::Motor lift(5, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
 	pros::Motor intakeMotor(6, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor frontLauncherMotor(9, MOTOR_GEARSET_36, false, MOTOR_ENCODER_ROTATIONS);
-  pros::Motor backLauncherMotor(10, MOTOR_GEARSET_36, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontLauncherMotor(9, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
+  pros::Motor backLauncherMotor(10, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
 
 	pros::Mutex driveMutex;
 
@@ -79,7 +79,7 @@ Logger::log(LOG_INFO, "test!");
 
 	int launcherAngle = 30;
 	int rpm = 200 * 21;
-  double wheelDiameter = util::inch_to_metre(4.0);
+  double wheelDiameter = util::int_to_metre(4.0);
   double circumference = wheelDiameter * PI;
 	double distanceToFlag = 0;
 	double flagHeight = 0;
