@@ -217,8 +217,8 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, b
   moveVoltage *= moveSensitivity;
   turnVoltage *= turnSensitivity;
 
-  int leftVoltage = util::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
-  int rightVoltage = util::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
+  int leftVoltage = util::limit127(!flip ? moveVoltage + turnVoltage : moveVoltage - turnVoltage);
+  int rightVoltage = util::limit127(!flip ? moveVoltage - turnVoltage : moveVoltage + turnVoltage);
 
   if (lock->take(MUTEX_WAIT_TIME)) {
     setLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_COAST);

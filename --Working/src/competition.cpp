@@ -8,7 +8,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-  if (SD_INSERTED)
+  if (false)
 	  Logger::init("/usd/logs/" + util::timestamp() + ".txt");
 
 
@@ -60,50 +60,35 @@ void opcontrol() {
   pros::lcd::set_text(1, "op started");
 
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor frontRightDrive(1, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor frontLeftDrive(2, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor backRightDrive(3, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor backLeftDrive(4, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor lift(5, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor intakeMotor(6, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor frontLauncherMotor(9, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
-  pros::Motor backLauncherMotor(10, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontRightDrive(19, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontLeftDrive(12, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor backRightDrive(20, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor backLeftDrive(11, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor lift(18, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor intakeMotor(13, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontLauncherMotor(14, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
+  pros::Motor backLauncherMotor(15, MOTOR_GEARSET_36, false, MOTOR_ENCODER_ROTATIONS);
 
 	pros::Mutex driveMutex;
 
-  int thisisstupid = std::cos(util::degrees_to_radians(90));
-
 	DriveControl dc (driveMutex, frontLeftDrive, backLeftDrive, frontRightDrive, backRightDrive);
 
-Logger::log(LOG_INFO, "test!");
+  Logger::log(LOG_INFO, "test!");
 
-	int launcherAngle = 30;
-	int rpm = 200 * 21;
-  double wheelDiameter = util::int_to_metre(4.0);
-  double circumference = wheelDiameter * PI;
-	double distanceToFlag = 0;
-	double flagHeight = 0;
-	//double initialVelocity = rpm / 60 * circumference;
-  //double initialVelocity =
+  lift.set_brake_mode(BRAKE_BRAKE);
 
 	while (true) {
 		dc.run(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_LEFT_X), false, false, true);
 
 		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-    {
       intakeMotor.move(127);
+    else
+      intakeMotor.move(0);
+
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
       frontLauncherMotor.move(127);
       backLauncherMotor.move(127);
-    }
-    else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-    {
-      intakeMotor.move(127);
-      frontLauncherMotor.move(100);
-      backLauncherMotor.move(100);
-    }
-		else
-    {
-      intakeMotor.move(0);
+    } else {
       frontLauncherMotor.move(0);
       backLauncherMotor.move(0);
     }
