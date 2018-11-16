@@ -57,6 +57,21 @@ class PID {
 
     // Adds the given value to limit
     void modifylimit(int delta);
+
+    // Returns the set dt
+    double getdt();
+
+    // Returns the set kp
+    double getkp();
+
+    // Returns the set ki
+    double getki();
+
+    // Returns the set kd
+    double getkd();
+
+    // Returns the set limit
+    double getlimit();
 };
 
 #endif

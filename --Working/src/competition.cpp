@@ -10,6 +10,7 @@
 void initialize() {
   if (false)
 	  Logger::init("/usd/logs/" + util::timestamp() + ".txt");
+  Logger::init("/usd/logs/test.txt");
 
 
 	pros::lcd::initialize();
@@ -73,25 +74,100 @@ void opcontrol() {
 
 	DriveControl dc (driveMutex, frontLeftDrive, backLeftDrive, frontRightDrive, backRightDrive);
 
-  Logger::log(LOG_INFO, "test!");
+  Logger::log(LOG_ERROR, "test!");
 
   lift.set_brake_mode(BRAKE_BRAKE);
 
-	while (true) {
-		dc.run(master.get_analog(ANALOG_LEFT_Y), master.get_analog(ANALOG_LEFT_X), false, false, true);
+  dc.setPID(20, .5, .1, .2, 50);
 
-		if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+	while (true) {
+		dc.run(master.get_analog(STICK_LEFT_Y), master.get_analog(STICK_LEFT_X), false, false, true);
+
+		if (master.get_digital(BUTTON_R1))
       intakeMotor.move(127);
     else
       intakeMotor.move(0);
 
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+    if (master.get_digital(BUTTON_R2)) {
       frontLauncherMotor.move(127);
       backLauncherMotor.move(127);
     } else {
       frontLauncherMotor.move(0);
       backLauncherMotor.move(0);
     }
+
+    if (master.get_digital(BUTTON_B)) {
+      if (master.get_digital(BUTTON_UP))
+        dc.getPID().modifykd(0.01);
+      if (master.get_digital(BUTTON_DOWN))
+        dc.getPID().modifykd(-0.01);
+      if (master.get_digital(BUTTON_LEFT))
+        dc.getPID().modifykd(0.1);
+      if (master.get_digital(BUTTON_RIGHT))
+        dc.getPID().modifykd(-0.1);
+    }
+
+    if (master.get_digital(BUTTON_X)) {
+      if (master.get_digital(BUTTON_UP))
+        dc.getPID().modifykp(0.01);
+      if (master.get_digital(BUTTON_DOWN))
+        dc.getPID().modifykp(-0.01);
+      if (master.get_digital(BUTTON_LEFT))
+        dc.getPID().modifykp(0.1);
+      if (master.get_digital(BUTTON_RIGHT))
+        dc.getPID().modifykp(-0.1);
+    }
+
+    if (master.get_digital(BUTTON_Y)) {
+      if (master.get_digital(BUTTON_UP))
+        dc.getPID().modifyki(0.01);
+      if (master.get_digital(BUTTON_DOWN))
+        dc.getPID().modifyki(-0.01);
+      if (master.get_digital(BUTTON_LEFT))
+        dc.getPID().modifyki(0.1);
+      if (master.get_digital(BUTTON_RIGHT))
+        dc.getPID().modifyki(-0.1);
+    }
+
+    if (master.get_digital(BUTTON_A)) {
+      pros::lcd::set_text(4, "running pid");
+      dc.moveRelative(0, 1000, 10, true, true);
+    }
+
+    pros::lcd::set_text(1, "kp = " + std::to_string(dc.getPID().getkp()));
+    pros::lcd::set_text(2, "ki = " + std::to_string(dc.getPID().getki()));
+    pros::lcd::set_text(3, "kd = " + std::to_string(dc.getPID().getkd()));
+
+    std::string hiheat = "";
+    std::string overheat = "";
+
+    if (backLeftDrive.get_temperature() > 55) overheat += "bldrive ";
+    else if (backLeftDrive.get_temperature() > 45) hiheat += "bldrive ";
+
+    if (backRightDrive.get_temperature() > 55) overheat += "brdrive ";
+    else if (backLeftDrive.get_temperature() > 45) hiheat += "brdrive ";
+
+    if (frontLeftDrive.get_temperature() > 55) overheat += "fldrive ";
+    else if (frontLeftDrive.get_temperature() > 45) hiheat += "fldrive ";
+
+    if (frontRightDrive.get_temperature() > 55) overheat += "frdrive ";
+    else if (frontRightDrive.get_temperature() > 45) hiheat += "frdrive ";
+
+    if (lift.get_temperature() > 55) overheat += "lift ";
+    else if (lift.get_temperature() > 45) hiheat += "lift ";
+
+    if (intakeMotor.get_temperature() > 55) overheat += "intake ";
+    else if (intakeMotor.get_temperature() > 45) hiheat += "intake ";
+
+    if (frontLauncherMotor.get_temperature() > 55) overheat += "frontfw ";
+    else if (frontLauncherMotor.get_temperature() > 45) hiheat += "frontfw ";
+
+    if (backLauncherMotor.get_temperature() > 55) overheat += "backfw ";
+    else if (backLauncherMotor.get_temperature() > 45) hiheat += "backfw ";
+
+    if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
+    //if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
+
 
 		lift.move(master.get_analog(ANALOG_RIGHT_Y) * 3 / 4);
 

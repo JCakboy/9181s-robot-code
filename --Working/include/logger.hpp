@@ -35,7 +35,7 @@ class Logger {
   private:
     static std::vector<Logger*> loggers;
     int minLevel;
-    std::ofstream logfile;
+    FILE * logfile;
 
     explicit Logger(logging_levels mLevel, std::string filename);
 

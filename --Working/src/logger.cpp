@@ -4,13 +4,18 @@
 std::vector<Logger*> Logger::loggers;
 
 Logger::Logger (logging_levels mLevel, std::string filename) {
-  logfile.open(filename);
+  logfile = fopen(filename.c_str(), "w");
 }
 
 void Logger::_log(logging_levels level, std::string message) {
-  if (minLevel == 0 || level > minLevel)
+  if (logfile == NULL)     pros::lcd::set_text(6, "not logging cause null" + message);
+  if (minLevel == 0)pros::lcd::set_text(6, "not logging cause disable" + message);
+  if (level > minLevel)pros::lcd::set_text(6, "not logging cause level" + message);
+  if (minLevel == 0 || level >  minLevel || logfile == NULL) {
     return;
-  logfile << "[" << util::timestamp() << "] " << util::getLoggingLevelName(level) << ": " << message;
+  }
+  fputs(("[" + util::timestamp() + "] " + util::getLoggingLevelName(level) + ": " + message).c_str(), logfile);
+  pros::lcd::set_text(6, "logged " + message);
 }
 
 void Logger::init(std::string filename) {
@@ -23,6 +28,6 @@ void Logger::init(logging_levels minLevel, std::string filename) {
 }
 
 void Logger::log(logging_levels level, std::string message) {
-  for (auto & l : Logger::loggers)
+  for (const auto & l : Logger::loggers)
     l->_log(level, message);
 }

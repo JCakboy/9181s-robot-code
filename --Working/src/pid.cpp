@@ -47,3 +47,23 @@ void PID::modifykd(int delta) {
 void PID::modifylimit(int delta) {
   PID::limit = PID::limit + delta;
 }
+
+double PID::getdt() {
+  return PID::dt;
+}
+
+double PID::getkp() {
+  return PID::kp;
+}
+
+double PID::getki() {
+  return PID::ki;
+}
+
+double PID::getkd() {
+  return PID::kd;
+}
+
+double PID::getlimit() {
+  return PID::limit;
+}

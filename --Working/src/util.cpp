@@ -52,15 +52,15 @@ namespace util {
 	}
 
 	std::string timestamp() {
-	  time_t now;
-	  struct tm* timeinfo;
+		time_t rawtime;
+	  struct tm * timeinfo;
+	  char buffer[80];
 
-	  time (&now);
-	  timeinfo = localtime (&now);
+	  time (&rawtime);
+	  timeinfo = localtime(&rawtime);
 
-	  char ts [20];
-	  strftime (ts, 20, "%F %T",timeinfo);
-	  new std::string(ts);
+	  strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
+	  return std::string(buffer);
 	}
 
 	std::pair<std::string, std::string> separateFirst(std::string s, std::string regex) {
