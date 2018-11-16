@@ -39,11 +39,65 @@ void competition_initialize() {}
  * If the robot is disabled or communications is lost, the autonomous task
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
- */
-void autonomous() {
+ *//*
+void autonomous()
+{
+  	pros::Controller master(pros::E_CONTROLLER_MASTER);
+  	pros::Motor frontRightDrive(19, GEARSET_200, true, ENCODER_DEGREES);
+  	pros::Motor frontLeftDrive(12, GEARSET_200, false, ENCODER_DEGREES);
+  	pros::Motor backRightDrive(20, GEARSET_200, true, ENCODER_DEGREES);
+  	pros::Motor backLeftDrive(11, GEARSET_200, false, ENCODER_DEGREES);
+  	pros::Motor lift(18, GEARSET_200, false, ENCODER_DEGREES);
+  	pros::Motor intakeMotor(13, GEARSET_200, true, ENCODER_DEGREES);
+  	pros::Motor frontLauncherMotor(14, GEARSET_200, true, ENCODER_DEGREES);
+    pros::Motor backLauncherMotor(15, GEARSET_200, false, ENCODER_DEGREES);
 
+    shoot();
+    drive(687, -100);
+    turn90(false);
+    drive(1000, 127);
 }
 
+void drive(int position, int velocity)
+{
+  frontRightDrive.moveRelative(position, veloctity);
+  frontLeftDrive.moveRelative(position, velocity);
+  backRightDrive.moveRelative(position, veloctiy);
+  backLeftDrive.moveRelative(position, velocity);
+
+  frontRightDrive.set_brake_mode(BRAKE_BRAKE);
+  frontLeftDrive.set_brake_mode(BRAKE_BRAKE);
+  backRightDrive.set_brake_mode(BRAKE_BRAKE);
+  backLeftDrive.set_brake_mode(BRAKE_BRAKE);
+  pros:delay(150);
+
+  frontRightDrive.set_brake_mode(BRAKE_COAST);
+  frontLeftDrive.set_brake_mode(BRAKE_COAST);
+  backRightDrive.set_brake_mode(BRAKE_COAST);
+  backLeftDrive.set_brake_mode(BRAKE_COAST);
+}
+
+void shoot()
+{
+  frontLauncherMotor.move(127);
+  backLauncherMotor.move(127);
+  pros::delay(1000);
+  intakeMotor.move(127);
+  pros::delay(100);
+  frontLauncherMotor.move(0);
+  backLauncherMotor.move(0);
+  intakeMotor.move(0);
+}
+
+void turn90(bool isClockwise)
+{
+  int power = (isClockwise) ? 100 : -100;
+  frontRightDrive.move(-power);
+  frontLeftDrive.move(power);
+  backRightDrive.move(-power);
+  backLeftDrive.move(power);
+}
+*/
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -61,14 +115,14 @@ void opcontrol() {
   pros::lcd::set_text(1, "op started");
 
 	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor frontRightDrive(19, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor frontLeftDrive(12, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor backRightDrive(20, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor backLeftDrive(11, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor lift(18, MOTOR_GEARSET_18, false, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor intakeMotor(13, MOTOR_GEARSET_18, true, MOTOR_ENCODER_ROTATIONS);
-	pros::Motor frontLauncherMotor(14, MOTOR_GEARSET_36, true, MOTOR_ENCODER_ROTATIONS);
-  pros::Motor backLauncherMotor(15, MOTOR_GEARSET_36, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontRightDrive(19, GEARSET_200, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontLeftDrive(12, GEARSET_200, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor backRightDrive(20, GEARSET_200, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor backLeftDrive(11, GEARSET_200, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor lift(18, GEARSET_200, false, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor intakeMotor(13, GEARSET_200, true, MOTOR_ENCODER_ROTATIONS);
+	pros::Motor frontLauncherMotor(14, GEARSET_200, true, MOTOR_ENCODER_ROTATIONS);
+  pros::Motor backLauncherMotor(15, GEARSET_200, false, MOTOR_ENCODER_ROTATIONS);
 
 	pros::Mutex driveMutex;
 
@@ -80,8 +134,17 @@ void opcontrol() {
 
   dc.setPID(20, .5, .1, .2, 50);
 
+  int currentFlywheelVelocity = 0;
+
 	while (true) {
-		dc.run(master.get_analog(STICK_LEFT_Y), master.get_analog(STICK_LEFT_X), false, false, true);
+
+    if(master.get_digital(BUTTON_X))
+    {
+      autonomous();
+    }
+
+    dc.run(master.get_analog(STICK_LEFT_Y), master.get_analog(STICK_LEFT_X), false, false, true);
+
 
 		if (master.get_digital(BUTTON_R1))
       intakeMotor.move(127);
@@ -89,13 +152,21 @@ void opcontrol() {
       intakeMotor.move(0);
 
     if (master.get_digital(BUTTON_R2)) {
+      frontLauncherMotor.move(-127);
+      backLauncherMotor.move(-127);
+    } else if (master.get_digital(BUTTON_L2)) {
       frontLauncherMotor.move(127);
       backLauncherMotor.move(127);
+    } else if (master.get_digital(BUTTON_L1)) {
+      frontLauncherMotor.move(100);
+      backLauncherMotor.move(100);
     } else {
       frontLauncherMotor.move(0);
       backLauncherMotor.move(0);
     }
 
+
+/* pid dynamic
     if (master.get_digital(BUTTON_B)) {
       if (master.get_digital(BUTTON_UP))
         dc.getPID().modifykd(0.01);
@@ -133,6 +204,11 @@ void opcontrol() {
       pros::lcd::set_text(4, "running pid");
       dc.moveRelative(0, 1000, 10, true, true);
     }
+*/
+
+    // flywheel dynamic
+    //if (master.get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
+    //if (master.get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
 
     pros::lcd::set_text(1, "kp = " + std::to_string(dc.getPID().getkp()));
     pros::lcd::set_text(2, "ki = " + std::to_string(dc.getPID().getki()));
@@ -169,7 +245,7 @@ void opcontrol() {
     //if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
 
 
-		lift.move(master.get_analog(ANALOG_RIGHT_Y) * 3 / 4);
+		lift.move(master.get_analog(ANALOG_RIGHT_Y));
 
 		pros::delay(20);
 	}
