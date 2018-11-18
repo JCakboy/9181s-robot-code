@@ -113,19 +113,18 @@ void DriveControl::moveRelative(double revolutions, int degrees, int threshold, 
   if (lock->take(MUTEX_WAIT_TIME)) {
     for (const auto & motor : DriveControl::leftMotors) {
       motor.set_encoder_units(ENCODER_DEGREES);
+      motor.set_brake_mode(BRAKE_BRAKE);
       motor.tare_position();
     }
     for (const auto & motor : DriveControl::rightMotors) {
       motor.set_encoder_units(ENCODER_DEGREES);
+      motor.set_brake_mode(BRAKE_BRAKE);
       motor.tare_position();
     }
     lock->give();
   } else return;
-pros::lcd::set_text(4, "finished priming");
   long target = std::lround(revolutions * 360) + degrees;
-
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
-    pros::lcd::set_text(4, "starting non pid");
     if (moveLeft)
       for (const auto & motor : DriveControl::leftMotors)
         motor.move_relative(target, 127);
@@ -146,7 +145,6 @@ pros::lcd::set_text(4, "finished priming");
     }
     lock->give();
   } else; else if (moveLeft || moveRight) {
-    pros::lcd::set_text(4, "starting pid");
     class RelevantMotors {
       public:
         std::vector<pros::Motor> relevant;
@@ -172,7 +170,6 @@ pros::lcd::set_text(4, "finished priming");
         }
 
     };
-    pros::lcd::set_text(4, "begin pid loop");
     RelevantMotors motors (moveLeft, moveRight, leftMotors, rightMotors);
 
     int error = target;
@@ -198,16 +195,12 @@ pros::lcd::set_text(4, "finished priming");
       lastError = error;
       pros::delay(pid->dt);
     }
-    pros::lcd::set_text(4, "pid complete");
-
     if (lock->take(MUTEX_WAIT_TIME)) {
       runLeftMotors(0);
       runRightMotors(0);
       lock->give();
     }
-    pros::lcd::set_text(4, "return to opcontrol");
   }
-
 }
 
 void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse) {
