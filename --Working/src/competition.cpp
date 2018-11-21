@@ -22,16 +22,16 @@ void ports::init() {
   ports::port8 = new Unused();
   ports::port9 = new Unused();
   ports::port10 = new Unused();
-  ports::backLeftDrive = new pros::Motor(11);
-  ports::frontLeftDrive = new pros::Motor(12);
-  ports::intakeMotor = new pros::Motor(13);
-  ports::frontLauncherMotor = new pros::Motor(14);
-  ports::backLauncherMotor = new pros::Motor(15);
-  ports::port16 = new Unused(16);
-  ports::port17 = new Unused(17);
-  ports::liftMotor = new pros::Motor(18);
-  ports::frontRightDrive = new pros::Motor(19);
-  ports::backRightDrive = new pros::Motor(20);
+  ports::backLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::frontLeftDrive = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::intakeMotor = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
+  ports::frontLauncherMotor = new pros::Motor(14, GEARSET_200, REV, ENCODER_DEGREES);
+  ports::backLauncherMotor = new pros::Motor(15, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::port16 = new Unused();
+  ports::port17 = new Unused();
+  ports::liftMotor = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+  ports::frontRightDrive = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
+  ports::backRightDrive = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
   ports::port21 = new Unused();
 
   ports::driveLock = new pros::Mutex();
@@ -52,14 +52,12 @@ using namespace ports;
  */
 void initialize() {
   ports::init();
+  LCD::initialize();
 
   if (false)
 	  Logger::init("/usd/logs/" + util::timestamp() + ".txt");
   Logger::init("/usd/logs/test.txt");
 
-
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "init complete");
 }
 
 /**
@@ -84,65 +82,101 @@ void competition_initialize() {}
  * If the robot is disabled or communications is lost, the autonomous task
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
- *//*
+ */
+ void drive(int degrees)
+ {
+   driveControl->moveRelative(0, degrees, 10, true, true);
+ }
+
+ void takeBall(bool stopMotor)
+ {
+   intakeMotor->move(127);
+   pros::delay(800);
+   if(stopMotor)
+   {
+     intakeMotor->move(0);
+   }
+ }
+
+ void shoot()
+ {
+   frontLauncherMotor->move(127);
+   backLauncherMotor->move(127);
+   pros::delay(4000);
+   intakeMotor->move(127);
+   pros::delay(500);
+   frontLauncherMotor->move(0);
+   backLauncherMotor->move(0);
+   intakeMotor->move(0);
+ }
+
+ void turn90(bool isClockwise)
+ {
+   int amount = 400;
+   int power = (isClockwise) ? 100 : -100;
+   frontRightDrive->tare_position();
+   frontLeftDrive->tare_position();
+   backRightDrive->tare_position();
+   backLeftDrive->tare_position();
+
+   while(std::abs(frontRightDrive->get_position()) < amount)
+   {
+     frontRightDrive->move(-power);
+     frontLeftDrive->move(power);
+     backRightDrive->move(-power);
+     backLeftDrive->move(power);
+   }
+ }
+
+int selectedAutonomous = 0;
 void autonomous()
 {
-  	pros::Controller master(pros::E_CONTROLLER_MASTER);
-  	pros::Motor frontRightDrive(19, GEARSET_200, true, ENCODER_DEGREES);
-  	pros::Motor frontLeftDrive(12, GEARSET_200, false, ENCODER_DEGREES);
-  	pros::Motor backRightDrive(20, GEARSET_200, true, ENCODER_DEGREES);
-  	pros::Motor backLeftDrive(11, GEARSET_200, false, ENCODER_DEGREES);
-  	pros::Motor lift(18, GEARSET_200, false, ENCODER_DEGREES);
-  	pros::Motor intakeMotor(13, GEARSET_200, true, ENCODER_DEGREES);
-  	pros::Motor frontLauncherMotor(14, GEARSET_200, true, ENCODER_DEGREES);
-    pros::Motor backLauncherMotor(15, GEARSET_200, false, ENCODER_DEGREES);
 
-    shoot();
-    drive(687, -100);
-    turn90(false);
-    drive(1000, 127);
+  driveControl->clearPID();
+
+  bool clockwise = (selectedAutonomous == -1) ? false : true;
+
+  LCD::setStatus("Auto Step 1");
+  drive(1350);
+  LCD::setStatus("Auto Step 2");
+  takeBall(true);
+  LCD::setStatus("Auto Step 3");
+  drive(-1100);
+  LCD::setStatus("Auto Step 4");
+  turn90(clockwise);
+  LCD::setStatus("Auto Step 5");
+  drive(400);
+  shoot();
+  drive(1200);
+
+
+  /*pros::lcd::set_text(1, "step 6");
+  turn90(true);
+  pros::lcd::set_text(1, "step 6.5");
+  drive(1830);
+/*  pros::lcd::set_text(1, "step 7");
+  turn90(false);
+  pros::lcd::set_text(1, "step 8");
+  drive(1000);*/
+  LCD::setStatus("Auto Complete");
+
+  /*
+  pros::lcd::set_text(1, "step 1");
+  drive(100, -75);
+  pros::lcd::set_text(1, "step 2");
+  shoot();
+  pros::lcd::set_text(1, "step 3");
+  drive(587, -100);
+  pros::lcd::set_text(1, "step 4");
+  turn90(false);
+  pros::lcd::set_text(1, "step 5");
+  drive(1000, 127);
+  pros::lcd::set_text(1, "auto done");
+  */
 }
 
-void drive(int position, int velocity)
-{
-  frontRightDrive->moveRelative(position, veloctity);
-  frontLeftDrive->moveRelative(position, velocity);
-  backRightDrive->moveRelative(position, veloctiy);
-  backLeftDrive->moveRelative(position, velocity);
 
-  frontRightDrive.set_brake_mode(BRAKE_BRAKE);
-  frontLeftDrive.set_brake_mode(BRAKE_BRAKE);
-  backRightDrive.set_brake_mode(BRAKE_BRAKE);
-  backLeftDrive.set_brake_mode(BRAKE_BRAKE);
-  pros:delay(150);
 
-  frontRightDrive.set_brake_mode(BRAKE_COAST);
-  frontLeftDrive.set_brake_mode(BRAKE_COAST);
-  backRightDrive.set_brake_mode(BRAKE_COAST);
-  backLeftDrive.set_brake_mode(BRAKE_COAST);
-}
-
-void shoot()
-{
-  frontLauncherMotor->move(127);
-  backLauncherMotor->move(127);
-  pros::delay(1000);
-  intakeMotor->move(127);
-  pros::delay(100);
-  frontLauncherMotor->move(0);
-  backLauncherMotor->move(0);
-  intakeMotor->move(0);
-}
-
-void turn90(bool isClockwise)
-{
-  int power = (isClockwise) ? 100 : -100;
-  frontRightDrive->move(-power);
-  frontLeftDrive->move(power);
-  backRightDrive->move(-power);
-  backLeftDrive->move(power);
-}
-*/
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -157,25 +191,24 @@ void turn90(bool isClockwise)
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-  pros::lcd::set_text(1, "op started");
+  LCD::setStatus("Operator Control");
 
   Logger::log(LOG_ERROR, "test!");
 
   liftMotor->set_brake_mode(BRAKE_BRAKE);
 
-  driveControl->setPID(20, .5, .1, .2, 50);
-
   int currentFlywheelVelocity = 0;
+
+  bool controllerDC = false;
 
 	while (true) {
 
     if(controllerMain->get_digital(BUTTON_X))
     {
       autonomous();
+      LCD::setStatus("Returning to Operator Control");
     }
-
     driveControl->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
-
 
     if (controllerMain->get_digital(BUTTON_R2)) {
       frontLauncherMotor->move(-127);
@@ -198,7 +231,15 @@ void opcontrol() {
         backLauncherMotor->move(0);
       }
     }
+    liftMotor->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
 
+    if (!controllerMain->is_connected() && !controllerDC) {
+      LCD::setStatus("Operator Controller Disconnected");
+      controllerDC = true;
+    } else if (controllerMain->is_connected() && controllerDC) {
+      LCD::setStatus("Operator Controller Reconnected");
+      controllerDC = false;
+    }
 
 /* pid dynamic
     if (controllerMain->get_digital(BUTTON_B)) {
@@ -235,18 +276,18 @@ void opcontrol() {
     }
 
     if (controllerMain->get_digital(BUTTON_A)) {
-      pros::lcd::set_text(4, "running pid");
       driveControl->moveRelative(0, 1000, 10, true, true);
     }
-*/
-
-    // flywheel dynamic
-    //if (controllerMain->get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
-    //if (controllerMain->get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
 
     pros::lcd::set_text(1, "kp = " + std::to_string(driveControl->getPID().getkp()));
     pros::lcd::set_text(2, "ki = " + std::to_string(driveControl->getPID().getki()));
     pros::lcd::set_text(3, "kd = " + std::to_string(driveControl->getPID().getkd()));
+*/
+    // flywheel dynamic
+    //if (controllerMain->get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
+    //if (controllerMain->get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
+
+
 
     std::string hiheat = "";
     std::string overheat = "";
@@ -275,11 +316,8 @@ void opcontrol() {
     if (backLauncherMotor->get_temperature() > 55) overheat += "backfw ";
     else if (backLauncherMotor->get_temperature() > 45) hiheat += "backfw ";
 
-    if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
+    //if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
     //if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
-
-
-		liftMotor->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
 
 		pros::delay(20);
 	}
@@ -290,4 +328,6 @@ void opcontrol() {
  * the VEX Competition Switch, following either autonomous or opcontrol. When
  * the robot is enabled, this task will exit.
  */
-void disabled() {}
+void disabled() {
+  LCD::setStatus("Disabled");
+}

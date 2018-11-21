@@ -25,6 +25,47 @@ void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
       motor.set_brake_mode(mode);
 }
 
+bool DriveControl::runLeftMotorsRelative(int target, int threshold) {
+  return DriveControl::runMotorsRelative(DriveControl::leftMotors, target, threshold);
+}
+
+bool DriveControl::runRightMotorsRelative(int target, int threshold) {
+  return DriveControl::runMotorsRelative(DriveControl::rightMotors, target, threshold);
+}
+
+bool DriveControl::runMotorsRelative(pros::vector<pros::Motor> motors, int target, int threshold) {
+  if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
+    for (const auto & motor : motors)
+      motor.move_relative(target, 127);
+    lock->give();
+  } else; else if (motors.size() > 0) {
+
+    // Calculate the current error
+    int error = 0;
+    for (const auto & motor : motors)
+      error += motor.get_position();
+    error = error / motors.size() - target;
+
+    se += error; // Add the current error to the sum of all errors
+    int de = (error - lastError) / pid->dt; // Calculate the change in error
+
+    if (error <= threshold) return true;
+
+    int p = error * pid->kp;
+    int i = util::limitX(pid->limit, se * pid->ki);
+    int d = de * pid->kd;
+
+    if (lock->take(MUTEX_WAIT_TIME)) {
+      for (const auto & motor : motors)
+        motors.move(p + i + d);
+      lock->give();
+    }
+    pidLastError = error;
+
+    return false;
+  }
+}
+
 DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
   DriveControl::lock = &motorLock;
   DriveControl::leftMotors.push_back(leftMotor);
@@ -109,29 +150,26 @@ void DriveControl::clearPID() {
   delete DriveControl::pid;
 }
 
-void DriveControl::moveRelative(double revolutions, int degrees, int threshold, bool moveLeft, bool moveRight) {
+void DriveControl::moveRelative(double revolutions, int degrees, int threshold) {
+  DriveControl::moveRelative(revolutions, degrees, revolutions, degrees, threshold);
+}
+
+void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees, int threshold) {
   if (lock->take(MUTEX_WAIT_TIME)) {
-    for (const auto & motor : DriveControl::leftMotors) {
-      motor.set_encoder_units(ENCODER_DEGREES);
+    for (const auto & motor : motors) {
       motor.tare_position();
-    }
-    for (const auto & motor : DriveControl::rightMotors) {
       motor.set_encoder_units(ENCODER_DEGREES);
-      motor.tare_position();
+      motor.set_brake_mode(BRAKE_BRAKE);
     }
     lock->give();
-  } else return;
-pros::lcd::set_text(4, "finished priming");
-  long target = std::lround(revolutions * 360) + degrees;
+  }
 
-  if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
-    pros::lcd::set_text(4, "starting non pid");
-    if (moveLeft)
-      for (const auto & motor : DriveControl::leftMotors)
-        motor.move_relative(target, 127);
-    if (moveRight)
-      for (const auto & motor : DriveControl::rightMotors)
-        motor.move_relative(target, 127);
+  long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
+  long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
+
+  if (!usePID) {
+    if (leftTarget != 0) DriveControl::moveLeftMotorsRelative(leftTarget, threshold);
+    if (rightTarget != 0) DriveControl::moveRightMotorsRelative(rightTarget, threshold);
     while (true) {
       bool done = true;
       if (moveLeft)
@@ -144,70 +182,15 @@ pros::lcd::set_text(4, "finished priming");
             done = false;
       if (done) break;
     }
-    lock->give();
-  } else; else if (moveLeft || moveRight) {
-    pros::lcd::set_text(4, "starting pid");
-    class RelevantMotors {
-      public:
-        std::vector<pros::Motor> relevant;
-
-        explicit RelevantMotors(bool useLeft, bool useRight, std::vector<pros::Motor> left, std::vector<pros::Motor> right) {
-          if (useLeft)
-            for (const auto & motor : left)
-              relevant.push_back(motor);
-          if (useRight)
-            for (const auto & motor : right)
-              relevant.push_back(motor);
-        }
-
-        int amount() {
-          return relevant.size();
-        }
-
-        double sum() {
-          double sum = 0;
-          for (const auto & motor : relevant)
-            sum += motor.get_position();
-          return sum;
-        }
-
-    };
-    pros::lcd::set_text(4, "begin pid loop");
-    RelevantMotors motors (moveLeft, moveRight, leftMotors, rightMotors);
-
-    int error = target;
-    int lastError = 0;
-    int se = 0;
-    while (true) {
-      error = (motors.sum() / motors.amount()) - target; // Calculate the current error
-      se += error; // Add the current error to the sum of all errors
-      int de = (error - lastError) / pid->dt; // Calculate the change in error
-
-      if (error <= threshold) break;
-
-      int p = error * pid->kp;
-      int i = util::limitX(pid->limit, se * pid->ki);
-      int d = de * pid->kd;
-
-      if (lock->take(MUTEX_WAIT_TIME)) {
-        runLeftMotors(p + i + d);
-        runRightMotors(p + i + d);
-        lock->give();
-      }
-
-      lastError = error;
+  } else {
+    bool done = false;
+    while (!done) {
+      done = true;
+      if (leftTarget != 0) done = done && DriveControl::moveLeftMotorsRelative(leftTarget, threshold);
+      if (rightTarget != 0) done = done && DriveControl::moveRightMotorsRelative(leftTarget, threshold);
       pros::delay(pid->dt);
     }
-    pros::lcd::set_text(4, "pid complete");
-
-    if (lock->take(MUTEX_WAIT_TIME)) {
-      runLeftMotors(0);
-      runRightMotors(0);
-      lock->give();
-    }
-    pros::lcd::set_text(4, "return to opcontrol");
   }
-
 }
 
 void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse) {

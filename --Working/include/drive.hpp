@@ -23,6 +23,9 @@ class DriveControl {
     bool usePID;
     PID * pid;
 
+    int pidSe;
+    int pidLastError;
+
     void runLeftMotors(int voltage);
 
     void runRightMotors(int voltage);
@@ -30,6 +33,10 @@ class DriveControl {
     void setLeftBrake(pros::motor_brake_mode_e_t mode);
 
     void setRightBrake(pros::motor_brake_mode_e_t mode);
+
+    void runLeftMotorsRelative(int target);
+
+    void runRightMotorsRelative(int target);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -80,19 +87,22 @@ class DriveControl {
     // Clears PID constants
     void clearPID();
 
+    // Runs the Drive Control relative to the current position, setting the left and right targets to the same value, see below
+    void moveRelative(double revolutions, int degrees, int threshold);
+
     /*
      * Runs the Drive Control relative to the current position
      * This method pauses execution until the desired sensor value is reached
      * Given both revolutions and degrees, this method will take into account both values
      * If PID consants have been set, PID will control this operation
      *
-     * revolutions: the amount of revolutions to move the motor forward
-     * degrees: the amount of degrees to move the motor forward
+     * leftRevolutions: the amount of revolutions to move the left motors forward
+     * leftDegrees: the amount of degrees to move the left motors forward
+     * rightRevolutions: the amount of revolutions to move the right motors forward
+     * rightDegrees: the amount of degrees to move the right motors forward
      * threshold: the maximum allowable difference between the desired and the actual motor position
-     * moveLeft: whether to move the left motors during this operation
-     * moveRight: whether to move the right motors during this operation
      */
-    void moveRelative(double revolutions, int degrees, int threshold, bool moveLeft, bool moveRight);
+    void moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees, int threshold);
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
@@ -109,6 +119,25 @@ class DriveControl {
      * turnSensitivity: multiplier to make turning move or less sensitive. Output voltages will still be in valid ranges.
      */
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
+
+};
+
+
+
+class DriveFunction {
+  private:
+    DriveControl * driveControl;
+
+  public:
+    DriveFunction(DriveControl * driveControl);
+
+    public void turn(int degrees);
+
+    public void pivot(int degrees);
+
+    public void move(double revolutions, int degrees, int threshold);
+
+    public void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
 };
 

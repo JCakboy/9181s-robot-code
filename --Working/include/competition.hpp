@@ -62,4 +62,6 @@ namespace ports {
 
 };
 
+extern int selectedAutonomous;
+
 #endif

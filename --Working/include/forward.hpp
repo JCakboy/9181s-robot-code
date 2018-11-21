@@ -7,6 +7,7 @@ class Battery;
 class BrainBattery;
 class ControllerBattery;
 class DriveControl;
+class LCD;
 class Logger;
 class PID;
 
