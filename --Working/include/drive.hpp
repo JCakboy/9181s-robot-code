@@ -34,9 +34,11 @@ class DriveControl {
 
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
-    void runLeftMotorsRelative(int target);
+    bool runLeftMotorsRelative(int target, int threshold);
 
-    void runRightMotorsRelative(int target);
+    bool runRightMotorsRelative(int target, int threshold);
+
+    bool runMotorsRelative(std::vector<pros::Motor> motors, int target, int threshold);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -122,11 +124,11 @@ class DriveControl {
 
 };
 
-
-
 class DriveFunction {
   private:
     DriveControl * driveControl;
+
+    const static int kt;
 
   public:
     DriveFunction(DriveControl * driveControl);

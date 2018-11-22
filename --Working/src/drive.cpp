@@ -33,7 +33,7 @@ bool DriveControl::runRightMotorsRelative(int target, int threshold) {
   return DriveControl::runMotorsRelative(DriveControl::rightMotors, target, threshold);
 }
 
-bool DriveControl::runMotorsRelative(pros::vector<pros::Motor> motors, int target, int threshold) {
+bool DriveControl::runMotorsRelative(std::vector<pros::Motor> motors, int target, int threshold) {
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
     for (const auto & motor : motors)
       motor.move_relative(target, 127);
@@ -46,18 +46,18 @@ bool DriveControl::runMotorsRelative(pros::vector<pros::Motor> motors, int targe
       error += motor.get_position();
     error = error / motors.size() - target;
 
-    se += error; // Add the current error to the sum of all errors
-    int de = (error - lastError) / pid->dt; // Calculate the change in error
+    pidSe += error; // Add the current error to the sum of all errors
+    int de = (error - pidLastError) / pid->dt; // Calculate the change in error
 
     if (error <= threshold) return true;
 
     int p = error * pid->kp;
-    int i = util::limitX(pid->limit, se * pid->ki);
+    int i = util::limitX(pid->limit, pidSe * pid->ki);
     int d = de * pid->kd;
 
     if (lock->take(MUTEX_WAIT_TIME)) {
       for (const auto & motor : motors)
-        motors.move(p + i + d);
+        motor.move(p + i + d);
       lock->give();
     }
     pidLastError = error;
@@ -155,39 +155,44 @@ void DriveControl::moveRelative(double revolutions, int degrees, int threshold) 
 }
 
 void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees, int threshold) {
-  if (lock->take(MUTEX_WAIT_TIME)) {
-    for (const auto & motor : motors) {
-      motor.tare_position();
-      motor.set_encoder_units(ENCODER_DEGREES);
-      motor.set_brake_mode(BRAKE_BRAKE);
-    }
-    lock->give();
-  }
-
   long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
   long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
 
+  if (lock->take(MUTEX_WAIT_TIME)) {
+    if (leftTarget != 0)
+      for (const auto & motor : DriveControl::leftMotors) {
+        motor.tare_position();
+        motor.set_encoder_units(ENCODER_DEGREES);
+        motor.set_brake_mode(BRAKE_BRAKE);
+      }
+    if (rightTarget != 0)
+      for (const auto & motor : DriveControl::rightMotors) {
+        motor.tare_position();
+        motor.set_encoder_units(ENCODER_DEGREES);
+        motor.set_brake_mode(BRAKE_BRAKE);
+      }
+    lock->give();
+  }
+
   if (!usePID) {
-    if (leftTarget != 0) DriveControl::moveLeftMotorsRelative(leftTarget, threshold);
-    if (rightTarget != 0) DriveControl::moveRightMotorsRelative(rightTarget, threshold);
+    if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
+    if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
     while (true) {
       bool done = true;
-      if (moveLeft)
-        for (const auto & motor : DriveControl::leftMotors)
-          if (std::abs(target - motor.get_position()) > threshold)
-            done = false;
-      if (moveRight)
-        for (const auto & motor : DriveControl::rightMotors)
-          if (std::abs(target - motor.get_position()) > threshold)
-            done = false;
+      for (const auto & motor : DriveControl::leftMotors)
+        if (std::abs(leftTarget - motor.get_position()) > threshold)
+          done = false;
+      for (const auto & motor : DriveControl::rightMotors)
+        if (std::abs(rightTarget - motor.get_position()) > threshold)
+          done = false;
       if (done) break;
     }
   } else {
     bool done = false;
     while (!done) {
       done = true;
-      if (leftTarget != 0) done = done && DriveControl::moveLeftMotorsRelative(leftTarget, threshold);
-      if (rightTarget != 0) done = done && DriveControl::moveRightMotorsRelative(leftTarget, threshold);
+      if (leftTarget != 0) done = done && DriveControl::runLeftMotorsRelative(leftTarget, threshold);
+      if (rightTarget != 0) done = done && DriveControl::runRightMotorsRelative(rightTarget, threshold);
       pros::delay(pid->dt);
     }
   }
