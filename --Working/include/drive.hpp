@@ -7,7 +7,7 @@
 /*
  * Class meant to control robot H-drive
  *
- * The current implementation supportsmultiple motors for
+ * The current implementation supports multiple motors for
  * each of the two axes and will respect the given mutex
  *
  * Meant to have its run() method called each pass of the opcontrol while loop
@@ -124,6 +124,13 @@ class DriveControl {
 
 };
 
+/*
+ * Class meant to wrap DriveControl
+ *
+ * Interfaces turning and pivoting to better code autonomous
+ * Passes through
+ */
+
 class DriveFunction {
   private:
     DriveControl * driveControl;
@@ -133,13 +140,15 @@ class DriveFunction {
   public:
     DriveFunction(DriveControl * driveControl);
 
-    public void turn(int degrees);
+    DriveControl & getDriveControl();
 
-    public void pivot(int degrees);
+    void turn(int degrees);
 
-    public void move(double revolutions, int degrees, int threshold);
+    void pivot(int degrees);
 
-    public void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
+    void move(double revolutions, int degrees, int threshold);
+
+    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
 };
 

@@ -219,3 +219,41 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, b
     lock->give();
   }
 }
+
+DriveFunction::DriveFunction(DriveControl * driveControl) {
+  DriveFunction::driveControl = driveControl;
+}
+
+DriveFunction::getDriveControl() {
+  return *(DriveFunction::driveControl);
+}
+
+void DriveFunction::turn(bool backward, int degrees) {
+  if (degrees > 0 && !backward)
+    DriveFunction::driveControl->moveRelative(0, degrees / 90 * kt, 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
+  else if (degrees < 0 && !backward)
+    DriveFunction::driveControl->moveRelative(0, 0, 0, degrees / 90 * kt, MOTOR_MOVE_RELATIVE_THRESHOLD);
+  else if (degrees > 0 && backward)
+    DriveFunction::driveControl->moveRelative(0, 0, 0, -(degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+  else if (degrees < 0 && backward)
+    DriveFunction::driveControl->moveRelative(0, -(degrees / 90 * kt), 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
+}
+
+void DriveFunction::pivot(int degrees) {
+  if (degrees > 0)
+    DriveFunction::driveControl->moveRelative(0, 0.5 * (degrees / 90 * kt), 0, -0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+  else if (degrees < 0)
+    DriveFunction::driveControl->moveRelative(0, -0.5 * (degrees / 90 * kt), 0, 0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+}
+
+void DriveFunction::move(double revolutions, int degrees, int threshold) {
+  DriveFunction::driveControl->moveRelative(revolutions, degrees, threshold);
+}
+
+void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse) {
+  DriveFunction::driveControl->run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse);
+}
+
+void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
+  DriveFunction::driveControl->run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse, moveSensitivity, turnSensitivity);
+}
