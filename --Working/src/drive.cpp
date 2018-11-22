@@ -224,7 +224,7 @@ DriveFunction::DriveFunction(DriveControl * driveControl) {
   DriveFunction::driveControl = driveControl;
 }
 
-DriveFunction::getDriveControl() {
+DriveControl & DriveFunction::getDriveControl() {
   return *(DriveFunction::driveControl);
 }
 

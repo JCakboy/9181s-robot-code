@@ -125,10 +125,11 @@ class DriveControl {
 };
 
 /*
- * Class meant to wrap DriveControl
+ * Class meant to wrap Drive Control
  *
  * Interfaces turning and pivoting to better code autonomous
- * Passes through
+ * Passes through necessary functions to Drive Control
+ * See Drive Control for documentation
  */
 
 class DriveFunction {
@@ -138,16 +139,25 @@ class DriveFunction {
     const static int kt;
 
   public:
+    // Creates a Drive Function object, wrapping the given Drive Control
     DriveFunction(DriveControl * driveControl);
 
+    // Returns the Drive Control
     DriveControl & getDriveControl();
 
-    void turn(int degrees);
+    // Turns the robot, specifying whether the robot turns forward or backward and how far to turn
+    void turn(bool backward, int degrees);
 
+    // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
 
+    // Moves the robot forward the given amount, see Drive Control
     void move(double revolutions, int degrees, int threshold);
 
+    // See Drive Control
+    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
+
+    // See Drive Control
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
 };
