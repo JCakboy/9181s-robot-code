@@ -26,14 +26,14 @@ void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
 }
 
 bool DriveControl::runLeftMotorsRelative(int target, int threshold) {
-  return DriveControl::runMotorsRelative(DriveControl::leftMotors, target, threshold);
+  return DriveControl::runMotorsRelative(DriveControl::leftPID, DriveControl::leftMotors, target, threshold);
 }
 
 bool DriveControl::runRightMotorsRelative(int target, int threshold) {
-  return DriveControl::runMotorsRelative(DriveControl::rightMotors, target, threshold);
+  return DriveControl::runMotorsRelative(DriveControl::rightPID, DriveControl::rightMotors, target, threshold);
 }
 
-bool DriveControl::runMotorsRelative(std::vector<pros::Motor> motors, int target, int threshold) {
+bool DriveControl::runMotorsRelative(PID * pid, std::vector<pros::Motor> motors, int target, int threshold) {
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
     for (const auto & motor : motors)
       motor.move_relative(target, 127);
@@ -46,13 +46,13 @@ bool DriveControl::runMotorsRelative(std::vector<pros::Motor> motors, int target
       error += motor.get_position();
     error = error / motors.size() - target;
 
-    pidSe += error; // Add the current error to the sum of all errors
-    int de = (error - pidLastError) / pid->dt; // Calculate the change in error
+    pid->Se += error; // Add the current error to the sum of all errors
+    int de = (error - pid->lastError) / pid->dt; // Calculate the change in error
 
     if (error <= threshold) return true;
 
     int p = error * pid->kp;
-    int i = util::limitX(pid->limit, pidSe * pid->ki);
+    int i = util::limitX(pid->limit, pid->Se * pid->ki);
     int d = de * pid->kd;
 
     if (lock->take(MUTEX_WAIT_TIME)) {
@@ -60,7 +60,7 @@ bool DriveControl::runMotorsRelative(std::vector<pros::Motor> motors, int target
         motor.move(p + i + d);
       lock->give();
     }
-    pidLastError = error;
+    pid->lastError = error;
 
     return false;
   }
@@ -72,7 +72,8 @@ DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros:
   DriveControl::rightMotors.push_back(rightMotor);
 
   DriveControl::usePID = false;
-  DriveControl::pid = NULL;
+  DriveControl::leftPID = NULL;
+  DriveControl::rightPID = NULL;
 }
 
 DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
@@ -83,7 +84,8 @@ DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, 
   DriveControl::addRightMotor(rearRightMotor);
 
   DriveControl::usePID = false;
-  DriveControl::pid = NULL;
+  DriveControl::leftPID = NULL;
+  DriveControl::rightPID = NULL;
 }
 
 void DriveControl::addLeftMotor(pros::Motor motor) {
@@ -137,17 +139,23 @@ bool DriveControl::removeRightMotor(pros::Motor motor) {
 void DriveControl::setPID(int dt, double kp, double ki, double kd, int limit) {
   if (usePID) clearPID();
   DriveControl::usePID = true;
-  DriveControl::pid = new PID(dt, kp, ki, kd, limit);
+  DriveControl::leftPID = new PID(dt, kp, ki, kd, limit);
+  DriveControl::rightPID = new PID(dt, kp, ki, kd, limit);
 }
 
-PID & DriveControl::getPID() {
-  return *(DriveControl::pid);
+PID * DriveControl::getLeftPID() {
+  return DriveControl::leftPID;
+}
+
+PID * DriveControl::getRightPID() {
+  return DriveControl::rightPID;
 }
 
 void DriveControl::clearPID() {
   if (!usePID) return;
   DriveControl::usePID = false;
-  delete DriveControl::pid;
+  delete DriveControl::leftPID;
+  delete DriveControl::rightPID;
 }
 
 void DriveControl::moveRelative(double revolutions, int degrees, int threshold) {
@@ -193,7 +201,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       done = true;
       if (leftTarget != 0) done = done && DriveControl::runLeftMotorsRelative(leftTarget, threshold);
       if (rightTarget != 0) done = done && DriveControl::runRightMotorsRelative(rightTarget, threshold);
-      pros::delay(pid->dt);
+      pros::delay((leftPID->dt + rightPID->dt) / 2);
     }
   }
 }

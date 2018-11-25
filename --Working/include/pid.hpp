@@ -16,6 +16,9 @@ class PID {
     double kd;
     int limit;
 
+    int lastError;
+    int Se;
+
   public:
     /*
      * Creates the PID object

@@ -21,7 +21,8 @@ class DriveControl {
     pros::Mutex * lock;
 
     bool usePID;
-    PID * pid;
+    PID * leftPID;
+    PID * rightPID;
 
     int pidSe;
     int pidLastError;
@@ -38,7 +39,7 @@ class DriveControl {
 
     bool runRightMotorsRelative(int target, int threshold);
 
-    bool runMotorsRelative(std::vector<pros::Motor> motors, int target, int threshold);
+    bool runMotorsRelative(PID * pid, std::vector<pros::Motor> motors, int target, int threshold);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -83,8 +84,11 @@ class DriveControl {
     // Sets PID constants
     void setPID(int dt, double kp, double ki, double kd, int limit);
 
-    // Returns a reference to PID constants
-    PID & getPID();
+    // Returns a reference to left PID constants
+    PID * getLeftPID();
+
+    // Returns a reference to right PID constants
+    PID * getRightPID();
 
     // Clears PID constants
     void clearPID();
