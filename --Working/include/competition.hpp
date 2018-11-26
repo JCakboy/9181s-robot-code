@@ -57,6 +57,7 @@ namespace ports {
   static pros::Mutex * liftLock;
 
   static DriveControl * driveControl;
+  static DriveFunction * drive;
 
   static void init();
 

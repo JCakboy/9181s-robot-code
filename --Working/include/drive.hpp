@@ -155,6 +155,9 @@ class DriveFunction {
     // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
 
+    // Moves the robot forward the given amount of degrees, using the default threshold
+    void move(int degrees);
+
     // Moves the robot forward the given amount, see Drive Control
     void move(double revolutions, int degrees, int threshold);
 

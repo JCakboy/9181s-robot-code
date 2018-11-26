@@ -40,6 +40,7 @@ void ports::init() {
   ports::liftLock = new pros::Mutex();
 
   ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
+  ports::drive = new DriveFunction(ports::driveControl);
 }
 
 using namespace ports;
@@ -83,10 +84,6 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
- void drive(int degrees)
- {
-   driveControl->moveRelative(0, degrees, 10, true, true);
- }
 
  void takeBall(bool stopMotor)
  {
@@ -137,17 +134,21 @@ void autonomous()
   bool clockwise = (selectedAutonomous == -1) ? false : true;
 
   LCD::setStatus("Auto Step 1");
-  drive(1350);
+  drive->move(1350);
+
   LCD::setStatus("Auto Step 2");
   takeBall(true);
+
   LCD::setStatus("Auto Step 3");
-  drive(-1100);
+  drive->move(-1100);
+
   LCD::setStatus("Auto Step 4");
   turn90(clockwise);
+
   LCD::setStatus("Auto Step 5");
-  drive(400);
+  drive->move(400);
   shoot();
-  drive(1200);
+  drive->move(1200);
 
 
   /*pros::lcd::set_text(1, "step 6");
@@ -195,132 +196,7 @@ void opcontrol() {
 
   Logger::log(LOG_ERROR, "test!");
 
-  liftMotor->set_brake_mode(BRAKE_BRAKE);
-
-  int currentFlywheelVelocity = 0;
-
-  bool controllerDC = false;
-
-	while (true) {
-
-    if(controllerMain->get_digital(BUTTON_X))
-    {
-      autonomous();
-      LCD::setStatus("Returning to Operator Control");
-    }
-    driveControl->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
-
-    if (controllerMain->get_digital(BUTTON_R2)) {
-      frontLauncherMotor->move(-127);
-      backLauncherMotor->move(-127);
-      intakeMotor->move(-127);
-    } else {
-  		if (controllerMain->get_digital(BUTTON_R1))
-        intakeMotor->move(127);
-      else
-        intakeMotor->move(0);
-
-      if (controllerMain->get_digital(BUTTON_L2)) {
-        frontLauncherMotor->move(127);
-        backLauncherMotor->move(127);
-      } else if (controllerMain->get_digital(BUTTON_L1)) {
-        frontLauncherMotor->move(110);
-        backLauncherMotor->move(110);
-      } else {
-        frontLauncherMotor->move(0);
-        backLauncherMotor->move(0);
-      }
-    }
-    liftMotor->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
-
-    if (!controllerMain->is_connected() && !controllerDC) {
-      LCD::setStatus("Operator Controller Disconnected");
-      controllerDC = true;
-    } else if (controllerMain->is_connected() && controllerDC) {
-      LCD::setStatus("Operator Controller Reconnected");
-      controllerDC = false;
-    }
-
-/* pid dynamic
-    if (controllerMain->get_digital(BUTTON_B)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifykd(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifykd(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifykd(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifykd(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_X)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifykp(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifykp(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifykp(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifykp(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_Y)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifyki(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifyki(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifyki(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifyki(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_A)) {
-      driveControl->moveRelative(0, 1000, 10, true, true);
-    }
-
-    pros::lcd::set_text(1, "kp = " + std::to_string(driveControl->getPID().getkp()));
-    pros::lcd::set_text(2, "ki = " + std::to_string(driveControl->getPID().getki()));
-    pros::lcd::set_text(3, "kd = " + std::to_string(driveControl->getPID().getkd()));
-*/
-    // flywheel dynamic
-    //if (controllerMain->get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
-    //if (controllerMain->get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
-
-
-
-    std::string hiheat = "";
-    std::string overheat = "";
-
-    if (backLeftDrive->get_temperature() > 55) overheat += "bldrive ";
-    else if (backLeftDrive->get_temperature() > 45) hiheat += "bldrive ";
-
-    if (backRightDrive->get_temperature() > 55) overheat += "brdrive ";
-    else if (backLeftDrive->get_temperature() > 45) hiheat += "brdrive ";
-
-    if (frontLeftDrive->get_temperature() > 55) overheat += "fldrive ";
-    else if (frontLeftDrive->get_temperature() > 45) hiheat += "fldrive ";
-
-    if (frontRightDrive->get_temperature() > 55) overheat += "frdrive ";
-    else if (frontRightDrive->get_temperature() > 45) hiheat += "frdrive ";
-
-    if (liftMotor->get_temperature() > 55) overheat += "lift ";
-    else if (liftMotor->get_temperature() > 45) hiheat += "lift ";
-
-    if (intakeMotor->get_temperature() > 55) overheat += "intake ";
-    else if (intakeMotor->get_temperature() > 45) hiheat += "intake ";
-
-    if (frontLauncherMotor->get_temperature() > 55) overheat += "frontfw ";
-    else if (frontLauncherMotor->get_temperature() > 45) hiheat += "frontfw ";
-
-    if (backLauncherMotor->get_temperature() > 55) overheat += "backfw ";
-    else if (backLauncherMotor->get_temperature() > 45) hiheat += "backfw ";
-
-    //if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
-    //if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
-
-		pros::delay(20);
-	}
+  Profiles::run();
 }
 
 /**

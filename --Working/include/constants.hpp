@@ -18,7 +18,8 @@
 // Threshold for horizontally flipping while reversing
 #define MOTOR_REVERSE_FLIP_THRESHOLD -55 // should be negative value
 
-#define MOTOR_MOVE_RELATIVE_THRESHOLD 10 // should be negative value
+// Default threshold for move relative
+#define MOTOR_MOVE_RELATIVE_THRESHOLD 10
 
 // Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO

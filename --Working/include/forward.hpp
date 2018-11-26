@@ -7,8 +7,10 @@ class Battery;
 class BrainBattery;
 class ControllerBattery;
 class DriveControl;
+class DriveFunction;
 class LCD;
 class Logger;
 class PID;
+class Profiles;
 
 #endif

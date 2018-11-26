@@ -254,6 +254,10 @@ void DriveFunction::pivot(int degrees) {
     DriveFunction::driveControl->moveRelative(0, -0.5 * (degrees / 90 * kt), 0, 0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
 }
 
+void DriveFunction::move(int degrees) {
+  DriveFunction::move(0, degrees, MOTOR_MOVE_RELATIVE_THRESHOLD);
+}
+
 void DriveFunction::move(double revolutions, int degrees, int threshold) {
   DriveFunction::driveControl->moveRelative(revolutions, degrees, threshold);
 }
