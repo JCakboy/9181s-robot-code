@@ -52,6 +52,9 @@ void profile1() {
       controllerDC = false;
     }
 
+    LCD::setText(3, "Left avg: " + std::to_string((frontLeftDrive->get_position() + backLeftDrive->get_position()) / 2));
+    LCD::setText(4, "Right avg: " + std::to_string((frontRightDrive->get_position() + backRightDrive->get_position()) / 2));
+
     /* pid dynamic
     if (controllerMain->get_digital(BUTTON_B)) {
       if (controllerMain->get_digital(BUTTON_UP))
@@ -94,12 +97,12 @@ void profile1() {
     pros::lcd::set_text(2, "ki = " + std::to_string(driveControl->getPID().getki()));
     pros::lcd::set_text(3, "kd = " + std::to_string(driveControl->getPID().getkd()));
     */
+
     // flywheel dynamic
     //if (controllerMain->get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
     //if (controllerMain->get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
 
-
-
+    /* Overheat lcd
     std::string hiheat = "";
     std::string overheat = "";
 
@@ -127,8 +130,12 @@ void profile1() {
     if (backLauncherMotor->get_temperature() > 55) overheat += "backfw ";
     else if (backLauncherMotor->get_temperature() > 45) hiheat += "backfw ";
 
-    //if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
-    //if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
+    if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
+    if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
+
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) Profiles::prev();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) Profiles::next();
+    */
 
 		pros::delay(20);
 	}
@@ -166,6 +173,7 @@ void Profiles::next() {
   if (Profiles::selectedProfile >= Profiles::profiles.size())
     Profiles::selectedProfile = 0;
   Profiles::unchangedProfile = false;
+  controllerMain->set_text(0, 0, ("Profile: " + Profiles::getSelectedName()).c_str());
 }
 
 void Profiles::prev() {
@@ -173,6 +181,7 @@ void Profiles::prev() {
   if (Profiles::selectedProfile < 0)
     Profiles::selectedProfile = (Profiles::profiles.size() - 1);
   Profiles::unchangedProfile = false;
+  controllerMain->set_text(0, 0, ("Profile: " + Profiles::getSelectedName()).c_str());
 }
 
 void Profiles::select(int index) {
