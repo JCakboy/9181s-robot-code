@@ -11,6 +11,5 @@ class DriveFunction;
 class LCD;
 class Logger;
 class PID;
-class Profiles;
 
 #endif

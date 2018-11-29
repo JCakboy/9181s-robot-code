@@ -183,16 +183,20 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   }
 
   if (!usePID) {
-    if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
-    if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
+    //if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
+    //if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
+
+    DriveControl::runLeftMotors((leftTarget > 0) ? 127 : -127);
+    DriveControl::runRightMotors((rightTarget > 0) ? 127 : -127);
+
     while (true) {
-      bool done = true;
+      bool done = false;
       for (const auto & motor : DriveControl::leftMotors)
-        if (std::abs(leftTarget - motor.get_position()) > threshold)
-          done = false;
+        if (std::abs(leftTarget - motor.get_position()) < threshold)
+          done = true;
       for (const auto & motor : DriveControl::rightMotors)
-        if (std::abs(rightTarget - motor.get_position()) > threshold)
-          done = false;
+        if (std::abs(rightTarget - motor.get_position()) < threshold)
+          done = true;
       if (done) break;
     }
   } else {
@@ -239,7 +243,7 @@ DriveControl & DriveFunction::getDriveControl() {
 void DriveFunction::turn(bool backward, int degrees) {
   if (degrees > 0 && !backward)
     DriveFunction::driveControl->moveRelative(0, degrees / 90 * kt, 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
-  else if (degrees < 0 && !backward)
+  else if (degrees > 0 && !backward)
     DriveFunction::driveControl->moveRelative(0, 0, 0, degrees / 90 * kt, MOTOR_MOVE_RELATIVE_THRESHOLD);
   else if (degrees > 0 && backward)
     DriveFunction::driveControl->moveRelative(0, 0, 0, -(degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);

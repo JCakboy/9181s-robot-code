@@ -44,6 +44,7 @@ class Profiles {
 
     // Returns the profile name of the given index
     static std::string getProfileName(int index);
+
 };
 
 #endif

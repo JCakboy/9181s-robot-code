@@ -42,10 +42,10 @@ namespace ports {
   static pros::Motor * backLeftDrive;
   static pros::Motor * frontLeftDrive;
   static pros::Motor * intakeMotor;
+  static Unused * port14;
+  static Unused * port15;
   static pros::Motor * frontLauncherMotor;
   static pros::Motor * backLauncherMotor;
-  static Unused * port16;
-  static Unused * port17;
   static pros::Motor * liftMotor;
   static pros::Motor * frontRightDrive;
   static pros::Motor * backRightDrive;

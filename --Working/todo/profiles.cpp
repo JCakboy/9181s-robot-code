@@ -132,37 +132,48 @@ void profile1() {
 
     if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
     if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
-
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) Profiles::prev();
-    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) Profiles::next();
     */
+    if (controllerMain->get_digital(BUTTON_LEFT)) Profiles::prev();
+    if (controllerMain->get_digital(BUTTON_RIGHT)) Profiles::next();
+
 
 		pros::delay(20);
 	}
 }
 
 void Profiles::empty() {
-  while (Profiles::unchangedProfile) pros::delay(20);
+  while (Profiles::unchangedProfile) {
+    if (controllerMain->get_digital(BUTTON_LEFT)) Profiles::prev();
+    if (controllerMain->get_digital(BUTTON_RIGHT)) Profiles::next();
+    pros::delay(20);
+  }
 }
 
 void Profiles::run() {
   while (true) {
-    while (Profiles::profiles.size() == 0)
+    while (Profiles::profiles.size() == 0) {
+      LCD::setText(5, "size 0, waiting");
       pros::delay(20);
+    }
     Profiles::unchangedProfile = true;
     void (*call)(void) = Profiles::profiles.at(Profiles::selectedProfile).second;
-    call();
+    LCD::setText(5, "starting call");
+    (*call)();
     pros::delay(20);
   }
 }
 
 void Profiles::registerAll() {
+  pros::delay(2000);
+  LCD::setText(3, "Registering disabled");
   Profiles::registerProfile("Disabled", &Profiles::empty);
+  pros::delay(2000);
+  LCD::setText(3, "Registering p1");
   Profiles::registerProfile("Profile 1", &profile1);
 }
 
 int Profiles::registerProfile(std::string name, profileFunction function) {
-  std::pair<std::string, profileFunction> pair (name, function);
+  std::pair<std::string, profileFunction> pair(name, function);
   int index = Profiles::profiles.size();
   Profiles::profiles.push_back(pair);
   return index;
