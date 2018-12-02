@@ -183,13 +183,20 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   }
 
   if (!usePID) {
-    //if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
-    //if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
+    if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
+    if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
 
-    DriveControl::runLeftMotors((leftTarget > 0) ? 127 : -127);
-    DriveControl::runRightMotors((rightTarget > 0) ? 127 : -127);
+    //DriveControl::runLeftMotors((leftTarget > 0) ? 127 : -127);
+    //DriveControl::runRightMotors((rightTarget > 0) ? 127 : -127);
 
     while (true) {
+      for (const auto & motor : DriveControl::leftMotors)
+        if (std::abs(motor.get_position() - leftTarget) > threshold)
+          pros::delay(1);
+      for (const auto & motor : DriveControl::rightMotors)
+        if (std::abs(motor.get_position() - rightTarget) > threshold)
+          pros::delay(1);
+      /*
       bool done = false;
       for (const auto & motor : DriveControl::leftMotors)
         if (std::abs(leftTarget - motor.get_position()) < threshold)
@@ -198,6 +205,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
         if (std::abs(rightTarget - motor.get_position()) < threshold)
           done = true;
       if (done) break;
+    }*/
     }
   } else {
     bool done = false;
@@ -240,22 +248,21 @@ DriveControl & DriveFunction::getDriveControl() {
   return *(DriveFunction::driveControl);
 }
 
+void DriveFunction::turn(int degrees) {
+  DriveFunction::turn(false, degrees);
+}
+
 void DriveFunction::turn(bool backward, int degrees) {
-  if (degrees > 0 && !backward)
-    DriveFunction::driveControl->moveRelative(0, degrees / 90 * kt, 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
-  else if (degrees > 0 && !backward)
-    DriveFunction::driveControl->moveRelative(0, 0, 0, degrees / 90 * kt, MOTOR_MOVE_RELATIVE_THRESHOLD);
-  else if (degrees > 0 && backward)
-    DriveFunction::driveControl->moveRelative(0, 0, 0, -(degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
-  else if (degrees < 0 && backward)
-    DriveFunction::driveControl->moveRelative(0, -(degrees / 90 * kt), 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
+  if (backward)
+    if (degrees > 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -(degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, degrees / 90 * kt, 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
+    else;
+  else if (degrees > 0) DriveFunction::driveControl->moveRelative(0, degrees / 90 * kt, 0, 0, MOTOR_MOVE_RELATIVE_THRESHOLD);
+  else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -(degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
 }
 
 void DriveFunction::pivot(int degrees) {
-  if (degrees > 0)
-    DriveFunction::driveControl->moveRelative(0, 0.5 * (degrees / 90 * kt), 0, -0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
-  else if (degrees < 0)
-    DriveFunction::driveControl->moveRelative(0, -0.5 * (degrees / 90 * kt), 0, 0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+  DriveFunction::driveControl->moveRelative(0, 0.5 * (degrees / 90 * kt), 0, -0.5 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
 }
 
 void DriveFunction::move(int degrees) {

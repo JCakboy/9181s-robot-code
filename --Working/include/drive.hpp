@@ -140,7 +140,7 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    const static int kt = 650;
+    const static int kt = 2500;
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
@@ -148,6 +148,9 @@ class DriveFunction {
 
     // Returns the Drive Control
     DriveControl & getDriveControl();
+
+    // Turns the robot forward, specifying how far to turn
+    void turn(int degrees);
 
     // Turns the robot, specifying whether the robot turns forward or backward and how far to turn
     void turn(bool backward, int degrees);
