@@ -13,6 +13,10 @@ namespace util {
 		return ((a > b) ? a : b);
 	}
 
+	double abs(double a) {
+		return ((a >= 0) ? a : -a);
+	}
+
 	double degrees_to_radians(double degrees) {
 		return degrees * PI / 180.0;
 	}

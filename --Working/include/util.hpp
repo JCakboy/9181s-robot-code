@@ -18,6 +18,9 @@ namespace util {
 	// Returns the greater of the two values
 	double max(double a, double b);
 
+	// Returns the absolute of the given value
+	double abs(double a);
+
 	// Converts the given degrees to radians
 	double degrees_to_radians(double degrees);
 

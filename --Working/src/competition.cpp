@@ -4,43 +4,45 @@
 Unused::Unused() {}
 Unused::Unused(int i) {}
 
-void ports::init() {
-  ports::controllerMain = new pros::Controller(CONTROLLER_MAIN);
-  ports::controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
+namespace ports {
+  void init() {
+    ports::controllerMain = new pros::Controller(CONTROLLER_MAIN);
+    ports::controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
-  ports::brainBattery = new BrainBattery();
-  ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
-  // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
+    ports::brainBattery = new BrainBattery();
+    ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
+    // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
 
-  ports::port1 = new Unused();
-  ports::port2 = new Unused();
-  ports::port3 = new Unused();
-  ports::port4 = new Unused();
-  ports::port5 = new Unused();
-  ports::port6 = new Unused();
-  ports::port7 = new Unused();
-  ports::port8 = new Unused();
-  ports::port9 = new Unused();
-  ports::port10 = new Unused();
-  ports::backLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-  ports::frontLeftDrive = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
-  ports::intakeMotor = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
-  ports::port14 = new Unused();
-  ports::port15 = new Unused();
-  ports::frontLauncherMotor = new pros::Motor(16, GEARSET_200, REV, ENCODER_DEGREES);
-  ports::backLauncherMotor = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
-  ports::liftMotor = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
-  ports::frontRightDrive = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
-  ports::backRightDrive = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
-  ports::port21 = new Unused();
+    ports::frontLeftDrive = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port2 = new Unused(2);
+    ports::port3 = new Unused(3);
+    ports::port4 = new Unused(4);
+    ports::port5 = new Unused(5);
+    ports::port6 = new Unused(6);
+    ports::port7 = new Unused(7);
+    ports::port8 = new Unused(8);
+    ports::port9 = new Unused(9);
+    ports::frontRightDrive = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::backLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::intakeMotor = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port13 = new Unused(13);
+    ports::port14 = new Unused(14);
+    ports::port15 = new Unused(15);
+    ports::port16 = new Unused(16);
+    ports::frontLauncherMotor = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::backLauncherMotor = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::liftMotor = new pros::Motor(19, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::backRightDrive = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port21 = new Unused();
 
-  ports::driveLock = new pros::Mutex();
-  ports::launcherLock = new pros::Mutex();
-  ports::intakeLock = new pros::Mutex();
-  ports::liftLock = new pros::Mutex();
+    ports::driveLock = new pros::Mutex();
+    ports::launcherLock = new pros::Mutex();
+    ports::intakeLock = new pros::Mutex();
+    ports::liftLock = new pros::Mutex();
 
-  ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
-  ports::drive = new DriveFunction(ports::driveControl);
+    ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
+    ports::drive = new DriveFunction(ports::driveControl);
+  }
 }
 
 using namespace ports;
@@ -86,46 +88,6 @@ void competition_initialize() {}
  * from where it left off.
  */
 
- void takeBall(bool stopMotor)
- {
-   intakeMotor->move(127);
-   pros::delay(800);
-   if(stopMotor)
-   {
-     intakeMotor->move(0);
-   }
- }
-
- void shoot()
- {
-   frontLauncherMotor->move(127);
-   backLauncherMotor->move(127);
-   pros::delay(4000);
-   intakeMotor->move(127);
-   pros::delay(500);
-   frontLauncherMotor->move(0);
-   backLauncherMotor->move(0);
-   intakeMotor->move(0);
- }
-
- void turn90(bool isClockwise)
- {
-   int amount = 400;
-   int power = (isClockwise) ? 100 : -100;
-   frontRightDrive->tare_position();
-   frontLeftDrive->tare_position();
-   backRightDrive->tare_position();
-   backLeftDrive->tare_position();
-
-   while(std::abs(frontRightDrive->get_position()) < amount)
-   {
-     frontRightDrive->move(-power);
-     frontLeftDrive->move(power);
-     backRightDrive->move(-power);
-     backLeftDrive->move(power);
-   }
- }
-
 int selectedAutonomous = 0;
 void autonomous() {
 
@@ -137,17 +99,17 @@ void autonomous() {
   drive->move(1350);
 
   LCD::setStatus("Auto Step 2");
-  takeBall(true);
+  //takeBall(true);
 
   LCD::setStatus("Auto Step 3");
   drive->move(-1100);
 
   LCD::setStatus("Auto Step 4");
-  turn90(clockwise);
+  //turn90(clockwise);
 
   LCD::setStatus("Auto Step 5");
   drive->move(400);
-  shoot();
+  //shoot();
   drive->move(1200);
 
 
@@ -320,9 +282,10 @@ void opcontrol() {
     if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
     if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
     */
-    if (controllerMain->get_digital(BUTTON_LEFT)) drive->turn(false, -90);
-    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->pivot(90);
-
+    if (controllerMain->get_digital(BUTTON_UP)) drive->turn(-90);
+    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->turn(90);
+    if (controllerMain->get_digital(BUTTON_DOWN)) drive->pivot(90);
+    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->pivot(-90);
 
 		pros::delay(20);
 	}

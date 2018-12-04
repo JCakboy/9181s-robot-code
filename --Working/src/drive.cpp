@@ -191,10 +191,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
 
     while (true) {
       for (const auto & motor : DriveControl::leftMotors)
-        if (std::abs(motor.get_position() - leftTarget) > threshold)
+        if (util::abs(motor.get_position() - leftTarget) > threshold)
           pros::delay(1);
       for (const auto & motor : DriveControl::rightMotors)
-        if (std::abs(motor.get_position() - rightTarget) > threshold)
+        if (util::abs(motor.get_position() - rightTarget) > threshold)
           pros::delay(1);
       /*
       bool done = false;
