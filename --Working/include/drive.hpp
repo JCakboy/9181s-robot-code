@@ -140,7 +140,7 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    const static int kt = 590;
+    const static int kt = 740;
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control

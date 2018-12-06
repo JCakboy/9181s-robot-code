@@ -159,6 +159,7 @@ void opcontrol() {
   liftMotor->set_brake_mode(BRAKE_BRAKE);
 
   bool controllerDC = false;
+  int cycle = 0;
 
 	while (true) {
 
@@ -285,9 +286,16 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_UP)) drive->turn(-90);
     if (controllerMain->get_digital(BUTTON_RIGHT)) drive->turn(90);
     if (controllerMain->get_digital(BUTTON_DOWN)) drive->pivot(90);
-    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->pivot(-90);
+    if (controllerMain->get_digital(BUTTON_LEFT)) drive->pivot(-90);
+    if (controllerMain->get_digital(BUTTON_B)) drive->move(1000);
 
 		pros::delay(20);
+
+    if (cycle == 20) {
+      cycle = 0;
+      controllerMain->set_text(0, 0, ("Flywheel RPM: " + std::to_string(frontLauncherMotor->get_actual_velocity() * 21)).c_str());
+    } else cycle++;
+
 	}
 }
 
