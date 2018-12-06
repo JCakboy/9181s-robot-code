@@ -283,11 +283,12 @@ void opcontrol() {
     if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
     if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
     */
-    if (controllerMain->get_digital(BUTTON_UP)) drive->turn(-90);
-    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->turn(90);
+    if (controllerMain->get_digital(BUTTON_UP)) drive->turn(true, -90);
+    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->turn(true, 90);
     if (controllerMain->get_digital(BUTTON_DOWN)) drive->pivot(90);
     if (controllerMain->get_digital(BUTTON_LEFT)) drive->pivot(-90);
     if (controllerMain->get_digital(BUTTON_B)) drive->move(1000);
+    if (controllerMain->get_digital(BUTTON_A)) drive->move(-1000);
 
 		pros::delay(20);
 

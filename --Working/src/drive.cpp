@@ -201,7 +201,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       if (count == DriveControl::leftMotors.size()) {
         done = false;
         DriveControl::runLeftMotorsRelative(leftTarget - (total / DriveControl::leftMotors.size()), threshold);
-      }
+      } else DriveControl::runLeftMotors(0);
 
       count = 0;
       total = 0;
@@ -215,10 +215,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       if (count == DriveControl::rightMotors.size()) {
         done = false;
         DriveControl::runRightMotorsRelative(rightTarget - (total / DriveControl::rightMotors.size()), threshold);
-      }
+      } else DriveControl::runRightMotors(0);
 
       if (done) break;
-      pros::delay(20);
+      pros::delay(10);
     }
 
   } else {
