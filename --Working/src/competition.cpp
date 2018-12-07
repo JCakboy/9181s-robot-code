@@ -91,50 +91,163 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
 
-  driveControl->clearPID();
-
-  bool clockwise = (selectedAutonomous == -1) ? false : true;
-
   LCD::setStatus("Auto Step 1");
-  drive->move(1350);
+  // Move forward
+  drive->move(1000);
 
   LCD::setStatus("Auto Step 2");
-  //takeBall(true);
+  // Get the ball
+  intakeMotor->move(127);
+  drive->move(250);
 
   LCD::setStatus("Auto Step 3");
-  drive->move(-1100);
+  // Start the flywheel
+  frontLauncherMotor->move(127);
+  backLauncherMotor->move(127);
 
   LCD::setStatus("Auto Step 4");
-  //turn90(clockwise);
+  // Move backward
+  drive->move(-1000);
+  intakeMotor->move(0);
 
   LCD::setStatus("Auto Step 5");
-  drive->move(400);
-  //shoot();
-  drive->move(1200);
+  // Reset
+  drive->move(-250);
+  drive->move(50);
+  drive->pivot(90);
 
+  LCD::setStatus("Auto Step 6");
+  // Move to high flag position
+  drive->move(50);
+  intakeMotor->move(127);
+  pros::delay(3000);
+  intakeMotor->move(0);
 
-  /*pros::lcd::set_text(1, "step 6");
-  turn90(true);
-  pros::lcd::set_text(1, "step 6.5");
-  drive(1830);
-  /*  pros::lcd::set_text(1, "step 7");
-  turn90(false);
-  pros::lcd::set_text(1, "step 8");
-  drive(1000);*/
-  LCD::setStatus("Auto Complete");
+  LCD::setStatus("Auto Step 7");
+  // Move to mid flag position
+  drive->move(750);
+  intakeMotor->move(127);
+  pros::delay(1000);
+  intakeMotor->move(0);
 
+  LCD::setStatus("Auto Step 8");
+  // Drive to platform
+  drive->move(-1800);
+  drive->pivot(-90);
+  drive->move(500);
   /*
-  pros::lcd::set_text(1, "step 1");
-  drive(100, -75);
-  pros::lcd::set_text(1, "step 2");
-  shoot();
-  pros::lcd::set_text(1, "step 3");
-  drive(587, -100);
-  pros::lcd::set_text(1, "step 4");
-  turn90(false);
-  pros::lcd::set_text(1, "step 5");
-  drive(1000, 127);
-  pros::lcd::set_text(1, "auto done");
+  if (selectedAutonomous == 0) {
+    driveControl->clearPID();
+    int speed = 110;
+
+    // Go forward, get the ball and return
+    driveControl->runLeftMotors(speed);
+    driveControl->runRightMotors(speed);
+    while (frontRightDrive->get_position() < 1050) pros::delay(1);
+    intakeMotor->move(speed);
+    while (frontRightDrive->get_position() < 1250) pros::delay(1);
+    driveControl->runLeftMotors(-speed);
+    driveControl->runRightMotors(-speed);
+
+    frontLauncherMotor->move(127);
+    backLauncherMotor->move(127);
+
+    while (frontRightDrive->get_position() > 300) pros::delay(1);
+    intakeMotor->move(0);
+    while (frontRightDrive->get_position() > -100) pros::delay(1);
+    driveControl->runLeftMotors(speed);
+    driveControl->runRightMotors(speed);
+    pros::delay(100);
+
+
+    for (const auto & motor : driveControl->rightMotors)
+      motor.tare_position();
+    for (const auto & motor : driveControl->leftMotors)
+      motor.tare_position();
+
+    intakeMotor->move(127);
+
+    // Turn right
+    driveControl->runLeftMotors(speed);
+    driveControl->runRightMotors(-speed);
+    while (frontRightDrive->get_position() > -250) pros::delay(1);
+
+    for (const auto & motor : driveControl->rightMotors)
+      motor.tare_position();
+    for (const auto & motor : driveControl->leftMotors)
+      motor.tare_position();
+
+    // Move to high flag position
+    driveControl->runLeftMotors(speed);
+    driveControl->runRightMotors(speed);
+    while (frontRightDrive->get_position() < 50) pros::delay(1);
+    driveControl->runLeftMotors(0);
+    driveControl->runRightMotors(0);
+    pros::delay(400);
+
+    // Move to mid flag position
+    driveControl->runLeftMotors(speed);
+    driveControl->runRightMotors(speed);
+    while (frontRightDrive->get_position() < 270) pros::delay(1);
+    driveControl->runLeftMotors(0);
+    driveControl->runRightMotors(0);
+    pros::delay(1000);
+  } else if (selectedAutonomous == 1) {
+    frontLauncherMotor->move(127);
+    backLauncherMotor->move(127);
+    pros::delay(2000);
+    intakeMotor->move(127);
+    pros::delay(3000);
+    frontLauncherMotor->move(0);
+    backLauncherMotor->move(0);
+    driveControl->runLeftMotors(127);
+    driveControl->runRightMotors(127);
+    pros::delay(1500);
+    driveControl->runLeftMotors(-127);
+    driveControl->runRightMotors(-127);
+    pros::delay(1750);
+    driveControl->runLeftMotors(127);
+    driveControl->runRightMotors(-127);
+    pros::delay(250);
+    driveControl->runLeftMotors(-127);
+    driveControl->runRightMotors(-127);
+    pros::delay(3000);
+  } else if (selectedAutonomous == 2) {
+    frontLauncherMotor->move(127);
+    backLauncherMotor->move(127);
+    pros::delay(2000);
+    intakeMotor->move(127);
+    pros::delay(3000);
+    frontLauncherMotor->move(0);
+    backLauncherMotor->move(0);
+    driveControl->runLeftMotors(127);
+    driveControl->runRightMotors(110);
+    pros::delay(1250);
+
+    for (const auto & motor : driveControl->rightMotors)
+      motor.tare_position();
+    for (const auto & motor : driveControl->leftMotors)
+      motor.tare_position();
+
+    driveControl->runLeftMotors(-127);
+    driveControl->runRightMotors(-127);
+    while (frontRightDrive->get_position() > -1500) pros::delay(1);
+
+    for (const auto & motor : driveControl->rightMotors)
+      motor.tare_position();
+    for (const auto & motor : driveControl->leftMotors)
+      motor.tare_position();
+
+    driveControl->runLeftMotors(-127);
+    driveControl->runRightMotors(127);
+
+    while (frontRightDrive->get_position() < 150) pros::delay(1);
+
+    driveControl->runLeftMotors(127);
+    driveControl->runRightMotors(127);
+
+    pros::delay(3000);
+  }
   */
 }
 
@@ -289,6 +402,7 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_LEFT)) drive->pivot(-90);
     if (controllerMain->get_digital(BUTTON_B)) drive->move(1000);
     if (controllerMain->get_digital(BUTTON_A)) drive->move(-1000);
+    if (controllerMain->get_digital(BUTTON_X)) autonomous();
 
 		pros::delay(20);
 

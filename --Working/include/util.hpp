@@ -21,6 +21,9 @@ namespace util {
 	// Returns the absolute of the given value
 	double abs(double a);
 
+	// Converts unsigned to signed integer
+	int sign(unsigned int n);
+
 	// Converts the given degrees to radians
 	double degrees_to_radians(double degrees);
 

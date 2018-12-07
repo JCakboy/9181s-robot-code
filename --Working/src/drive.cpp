@@ -36,7 +36,7 @@ bool DriveControl::runRightMotorsRelative(int target, int threshold) {
 bool DriveControl::runMotorsRelative(PID * pid, std::vector<pros::Motor> motors, int target, int threshold) {
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
     for (const auto & motor : motors)
-      motor.move(util::limit127(target * MOTOR_MOVE_RELATIVE_KP));
+      motor.move(util::limitX(MOTOR_MOVE_RELATIVE_MAX_SPEED, target * MOTOR_MOVE_RELATIVE_KP));
     lock->give();
   } else; else if (motors.size() > 0) {
 
@@ -166,20 +166,17 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
   long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
 
-  if (lock->take(MUTEX_WAIT_TIME)) {
-    for (const auto & motor : DriveControl::leftMotors) {
-      motor.tare_position();
-      motor.set_encoder_units(ENCODER_DEGREES);
-      motor.set_brake_mode(BRAKE_BRAKE);
-    }
-    for (const auto & motor : DriveControl::rightMotors) {
-      motor.tare_position();
-      motor.set_encoder_units(ENCODER_DEGREES);
-      motor.set_brake_mode(BRAKE_BRAKE);
-    }
-    lock->give();
+  for (const auto & motor : DriveControl::leftMotors) {
+    motor.tare_position();
+    motor.set_encoder_units(ENCODER_DEGREES);
+    motor.set_brake_mode(BRAKE_HOLD);
   }
-
+  for (const auto & motor : DriveControl::rightMotors) {
+    motor.tare_position();
+    motor.set_encoder_units(ENCODER_DEGREES);
+    motor.set_brake_mode(BRAKE_HOLD);
+  }
+  LCD::setStatus("Begin auto driving");
   if (!usePID) {
     if (leftTarget != 0) DriveControl::runLeftMotorsRelative(leftTarget, threshold);
     if (rightTarget != 0) DriveControl::runRightMotorsRelative(rightTarget, threshold);
@@ -189,8 +186,8 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
 
     while (true) {
       bool done = true;
-      int count = 0;
-      int total = 0;
+      signed int count = 0;
+      signed long total = 0;
       for (const auto & motor : DriveControl::leftMotors) {
         if (util::abs(leftTarget - motor.get_position()) > threshold) {
           count++;
@@ -200,8 +197,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       }
       if (count == DriveControl::leftMotors.size()) {
         done = false;
-        DriveControl::runLeftMotorsRelative(leftTarget - (total / DriveControl::leftMotors.size()), threshold);
+        DriveControl::runLeftMotorsRelative(leftTarget - (total / util::sign(DriveControl::leftMotors.size())), threshold);
       } else DriveControl::runLeftMotors(0);
+
+      LCD::setText(4, "Left drive avg " + std::to_string(total / util::sign(DriveControl::rightMotors.size())));
 
       count = 0;
       total = 0;
@@ -214,8 +213,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       }
       if (count == DriveControl::rightMotors.size()) {
         done = false;
-        DriveControl::runRightMotorsRelative(rightTarget - (total / DriveControl::rightMotors.size()), threshold);
+        DriveControl::runRightMotorsRelative(rightTarget - (total / util::sign(DriveControl::rightMotors.size())), threshold);
       } else DriveControl::runRightMotors(0);
+
+      LCD::setText(5, "Right drive avg " + std::to_string(total / util::sign(DriveControl::rightMotors.size())));
 
       if (done) break;
       pros::delay(10);
@@ -276,7 +277,7 @@ void DriveFunction::turn(bool backward, int degrees) {
 }
 
 void DriveFunction::pivot(int degrees) {
-  DriveFunction::driveControl->moveRelative(0, 0.6 * (degrees / 90 * kt), 0, -0.6 * (degrees / 90 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
+  DriveFunction::driveControl->moveRelative(0, 0.5 * (degrees / 90.0 * kt), 0, -0.5 * (degrees / 90.0 * kt), MOTOR_MOVE_RELATIVE_THRESHOLD);
 }
 
 void DriveFunction::move(int degrees) {

@@ -1,5 +1,6 @@
 #include "main.h"
 #include <cmath>
+#include <climits>
 #include <utility>
 #include "definitions.hpp"
 #include "util.hpp"
@@ -15,6 +16,17 @@ namespace util {
 
 	double abs(double a) {
 		return ((a >= 0) ? a : -a);
+	}
+
+	int sign(unsigned int n) {
+		if (n > INT_MAX) {
+		  if (n <= UINT_MAX + INT_MIN) {
+		    return 0;
+		  }
+		  return static_cast<int>(n + INT_MIN) - (UINT_MAX + INT_MIN + 1);
+		} else {
+		  return static_cast<int>(n);
+		}
 	}
 
 	double degrees_to_radians(double degrees) {

@@ -15,6 +15,7 @@
  */
 
 class DriveControl {
+  friend void ::autonomous();
   private:
     std::vector<pros::Motor> leftMotors;
     std::vector<pros::Motor> rightMotors;
@@ -140,7 +141,7 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    const static int kt = 740;
+    const static int kt = 775;
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
