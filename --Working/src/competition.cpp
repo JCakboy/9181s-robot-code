@@ -122,21 +122,27 @@ void autonomous() {
     // Move to high flag position
     drive->move(50);
     intakeMotor->move(127);
-    pros::delay(3000);
-    intakeMotor->move(0);
+    pros::delay(1500);
 
     LCD::setStatus("Auto Step 7");
     // Move to mid flag position
-    drive->move(750);
+    drive->move(1250);
     intakeMotor->move(127);
-    pros::delay(1000);
+    pros::delay(2000);
+
+    // Toggle the low flag and reset
+    drive->move(1000);
+
+    // Stop the launcher
     intakeMotor->move(0);
+    frontLauncherMotor->move(0);
+    backLauncherMotor->move(0);
 
     LCD::setStatus("Auto Step 8");
     // Drive to platform
-    drive->move(-1800);
+    drive->move(-2500);
     drive->pivot(-90);
-    drive->move(1300);
+    drive->move(1500);
   } else if (selectedAutonomous == 1) { // Blue side non-flags
 
     LCD::setStatus("Auto Step 1");
@@ -156,6 +162,7 @@ void autonomous() {
     // Flip the cap
     intakeMotor->move(-127);
     drive->move(500);
+    drive->move(-500);
 
     LCD::setStatus("Auto Step 5");
     // Get in position to platform
