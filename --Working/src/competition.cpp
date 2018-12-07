@@ -91,50 +91,87 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
 
-  LCD::setStatus("Auto Step 1");
-  // Move forward
-  drive->move(1000);
+  if (selectedAutonomous == 0) { // Blue side flags
 
-  LCD::setStatus("Auto Step 2");
-  // Get the ball
-  intakeMotor->move(127);
-  drive->move(250);
+    LCD::setStatus("Auto Step 1");
+    // Move forward
+    drive->move(1000);
 
-  LCD::setStatus("Auto Step 3");
-  // Start the flywheel
-  frontLauncherMotor->move(127);
-  backLauncherMotor->move(127);
+    LCD::setStatus("Auto Step 2");
+    // Get the ball
+    intakeMotor->move(127);
+    drive->move(250);
 
-  LCD::setStatus("Auto Step 4");
-  // Move backward
-  drive->move(-1000);
-  intakeMotor->move(0);
+    LCD::setStatus("Auto Step 3");
+    // Start the flywheel
+    frontLauncherMotor->move(127);
+    backLauncherMotor->move(127);
 
-  LCD::setStatus("Auto Step 5");
-  // Reset
-  drive->move(-250);
-  drive->move(50);
-  drive->pivot(90);
+    LCD::setStatus("Auto Step 4");
+    // Move backward
+    drive->move(-1000);
+    intakeMotor->move(0);
 
-  LCD::setStatus("Auto Step 6");
-  // Move to high flag position
-  drive->move(50);
-  intakeMotor->move(127);
-  pros::delay(3000);
-  intakeMotor->move(0);
+    LCD::setStatus("Auto Step 5");
+    // Reset
+    drive->move(-250);
+    drive->move(50);
+    drive->pivot(90);
 
-  LCD::setStatus("Auto Step 7");
-  // Move to mid flag position
-  drive->move(750);
-  intakeMotor->move(127);
-  pros::delay(1000);
-  intakeMotor->move(0);
+    LCD::setStatus("Auto Step 6");
+    // Move to high flag position
+    drive->move(50);
+    intakeMotor->move(127);
+    pros::delay(3000);
+    intakeMotor->move(0);
 
-  LCD::setStatus("Auto Step 8");
-  // Drive to platform
-  drive->move(-1800);
-  drive->pivot(-90);
-  drive->move(500);
+    LCD::setStatus("Auto Step 7");
+    // Move to mid flag position
+    drive->move(750);
+    intakeMotor->move(127);
+    pros::delay(1000);
+    intakeMotor->move(0);
+
+    LCD::setStatus("Auto Step 8");
+    // Drive to platform
+    drive->move(-1800);
+    drive->pivot(-90);
+    drive->move(1300);
+  } else if (selectedAutonomous == 1) { // Blue side non-flags
+
+    LCD::setStatus("Auto Step 1");
+    // Move forward
+    drive->move(1000);
+
+    LCD::setStatus("Auto Step 2");
+    // Get the ball
+    intakeMotor->move(127);
+    drive->move(250);
+
+    LCD::setStatus("Auto Step 3");
+    // Turn to face other cap
+    drive->turn(-90);
+
+    LCD::setStatus("Auto Step 4");
+    // Flip the cap
+    intakeMotor->move(-127);
+    drive->move(500);
+
+    LCD::setStatus("Auto Step 5");
+    // Get in position to platform
+    drive->pivot(-90);
+    drive->move(500);
+    drive->pivot(-90);
+
+    LCD::setStatus("Auto Step 6");
+    // Reset
+    drive->move(-150);
+
+    LCD::setStatus("Auto Step 7");
+    // Get on platform
+    drive->move(2000);
+
+  }
   /*
   if (selectedAutonomous == 0) {
     driveControl->clearPID();
