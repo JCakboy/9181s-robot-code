@@ -90,10 +90,12 @@ void competition_initialize() {}
 
 int selectedAutonomous = 0;
 void autonomous() {
-  if (selectedAutonomous == 1) {
+  if (selectedAutonomous == 1 || selectedAutonomous == 3) {
+    bool turnInvert = (selectedAutonomous == 3);
+
     LCD::setStatus("Auto Step 1");
     // Move forward
-    drive->move(1000);
+    drive->move(1100);
 
     LCD::setStatus("Auto Step 2");
     // Get the ball
@@ -103,29 +105,30 @@ void autonomous() {
     LCD::setStatus("Auto Step 3");
     // Turn to face other cap
     drive->move(-650);
-    drive->pivot(-60);
+    drive->pivot(turnInvert ? 70 : -70);
 
     LCD::setStatus("Auto Step 4");
     // Flip the cap
     intakeMotor->move(-127);
-    drive->move(700);
+    drive->move(1000);
     intakeMotor->move(0);
-    drive->move(-450);
+    drive->move(-700);
 
     LCD::setStatus("Auto Step 5");
     // Get in position to platform
-    drive->pivot(150);
+    drive->pivot(turnInvert ? -110 : 110);
 
     LCD::setStatus("Auto Step 7");
     // Get on platform
-    drive->move(1500);
+    drive->move(1700);
   }
-  else if (selectedAutonomous == 0) {/*
+  else if (selectedAutonomous == 0 || selectedAutonomous == 2) {/*
     LCD::setStatus("Auto Step 1");
     // Move forward
     drive->move(1350);
     intakeMotor->move(127);
     */
+    bool turnInvert = (selectedAutonomous == 2);
     LCD::setStatus("Auto Step 3");
     // Start the flywheel
     frontLauncherMotor->move(127);
@@ -157,13 +160,13 @@ void autonomous() {
     intakeMotor->move(0);
     */
     // Toggle low flag and reset
-    drive->pivot(27);
+    drive->pivot(turnInvert ? -27 : 27);
     drive->move(610);
 
     LCD::setStatus("Auto Step 8");
     // Drive to platform
     drive->move(-2250);
-    drive->pivot(-130);
+    drive->pivot(turnInvert ? 100 : -130);
     drive->move(1600);
   }
   /*
