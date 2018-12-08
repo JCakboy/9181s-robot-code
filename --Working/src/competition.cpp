@@ -9,8 +9,8 @@ namespace ports {
     ports::controllerMain = new pros::Controller(CONTROLLER_MAIN);
     ports::controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
-    ports::brainBattery = new BrainBattery();
-    ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
+    //ports::brainBattery = new BrainBattery();
+    //ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
     // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
 
     ports::frontLeftDrive = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
@@ -90,61 +90,7 @@ void competition_initialize() {}
 
 int selectedAutonomous = 0;
 void autonomous() {
-
-  if (selectedAutonomous == 0) { // Blue side flags
-
-    LCD::setStatus("Auto Step 1");
-    // Move forward
-    drive->move(1000);
-
-    LCD::setStatus("Auto Step 2");
-    // Get the ball
-    intakeMotor->move(127);
-    drive->move(250);
-
-    LCD::setStatus("Auto Step 3");
-    // Start the flywheel
-    frontLauncherMotor->move(127);
-    backLauncherMotor->move(127);
-
-    LCD::setStatus("Auto Step 4");
-    // Move backward
-    drive->move(-1000);
-    intakeMotor->move(0);
-
-    LCD::setStatus("Auto Step 5");
-    // Reset
-    drive->move(-250);
-    drive->move(50);
-    drive->pivot(90);
-
-    LCD::setStatus("Auto Step 6");
-    // Move to high flag position
-    drive->move(50);
-    intakeMotor->move(127);
-    pros::delay(1500);
-
-    LCD::setStatus("Auto Step 7");
-    // Move to mid flag position
-    drive->move(1250);
-    intakeMotor->move(127);
-    pros::delay(2000);
-
-    // Toggle the low flag and reset
-    drive->move(1000);
-
-    // Stop the launcher
-    intakeMotor->move(0);
-    frontLauncherMotor->move(0);
-    backLauncherMotor->move(0);
-
-    LCD::setStatus("Auto Step 8");
-    // Drive to platform
-    drive->move(-2500);
-    drive->pivot(-90);
-    drive->move(1500);
-  } else if (selectedAutonomous == 1) { // Blue side non-flags
-
+  if (selectedAutonomous == 1) {
     LCD::setStatus("Auto Step 1");
     // Move forward
     drive->move(1000);
@@ -156,28 +102,69 @@ void autonomous() {
 
     LCD::setStatus("Auto Step 3");
     // Turn to face other cap
-    drive->turn(-90);
+    drive->move(-650);
+    drive->pivot(-60);
 
     LCD::setStatus("Auto Step 4");
     // Flip the cap
     intakeMotor->move(-127);
-    drive->move(500);
-    drive->move(-500);
+    drive->move(700);
+    intakeMotor->move(0);
+    drive->move(-450);
 
     LCD::setStatus("Auto Step 5");
     // Get in position to platform
-    drive->pivot(-90);
-    drive->move(500);
-    drive->pivot(-90);
-
-    LCD::setStatus("Auto Step 6");
-    // Reset
-    drive->move(-150);
+    drive->pivot(150);
 
     LCD::setStatus("Auto Step 7");
     // Get on platform
-    drive->move(2000);
+    drive->move(1500);
+  }
+  else if (selectedAutonomous == 0) {/*
+    LCD::setStatus("Auto Step 1");
+    // Move forward
+    drive->move(1350);
+    intakeMotor->move(127);
+    */
+    LCD::setStatus("Auto Step 3");
+    // Start the flywheel
+    frontLauncherMotor->move(127);
+    backLauncherMotor->move(127);
+    /*
+    LCD::setStatus("Auto Step 4");
+    // Move backward
+    drive->move(-1350);
+    intakeMotor->move(0);
 
+    LCD::setStatus("Auto Step 5");
+    // turn right
+    drive->move(75);
+    drive->pivot(90);
+
+    LCD::setStatus("Auto Step 6");
+    // Move to high flag position
+    drive->move(200);
+    */
+    pros::delay(3000);
+    intakeMotor->move(127);
+    pros::delay(3000);
+
+    LCD::setStatus("Auto Step 7");
+    // Move to mid flag position
+    drive->move(750);/*
+    intakeMotor->move(127);
+    pros::delay(1800);
+    intakeMotor->move(0);
+    */
+    // Toggle low flag and reset
+    drive->pivot(27);
+    drive->move(610);
+
+    LCD::setStatus("Auto Step 8");
+    // Drive to platform
+    drive->move(-2250);
+    drive->pivot(-130);
+    drive->move(1600);
   }
   /*
   if (selectedAutonomous == 0) {

@@ -19,13 +19,13 @@
 #define MOTOR_REVERSE_FLIP_THRESHOLD -55 // should be negative value
 
 // Default threshold for move relative
-#define MOTOR_MOVE_RELATIVE_THRESHOLD 50
+#define MOTOR_MOVE_RELATIVE_THRESHOLD 60
 
 // Maximum speed for move relative
 #define MOTOR_MOVE_RELATIVE_MAX_SPEED 100
 
 // Proportional constant for move relative
-#define MOTOR_MOVE_RELATIVE_KP .4
+#define MOTOR_MOVE_RELATIVE_KP .43
 
 // Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO

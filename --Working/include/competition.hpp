@@ -24,8 +24,8 @@ namespace ports {
   static pros::Controller * controllerMain;
   static pros::Controller * controllerPartner;
 
-  static Battery * brainBattery;
-  static Battery * controllerMainBattery;
+  //static Battery * brainBattery;
+  //static Battery * controllerMainBattery;
   // static Battery * controllerPartnerBattery;
 
   // Ports
