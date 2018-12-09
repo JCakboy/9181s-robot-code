@@ -16,7 +16,9 @@ void LCD::onLeftButton() {
   setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
 }
 
-void LCD::onCenterButton() {}
+void LCD::onCenterButton() {
+  autonomous();
+}
 
 void LCD::onRightButton() {
   selectedAutonomous += 1;
