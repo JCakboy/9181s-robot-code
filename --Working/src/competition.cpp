@@ -90,8 +90,16 @@ void competition_initialize() {}
 
 int selectedAutonomous = 0;
 void autonomous() {
-  if (selectedAutonomous == 1 || selectedAutonomous == 3) {
-    bool turnInvert = (selectedAutonomous == 3);
+  if (selectedAutonomous == 1 || selectedAutonomous == 3 || selectedAutonomous == 4) {
+    bool turnInvert = (selectedAutonomous == 3) || selectedAutonomous == 4;
+
+    frontLauncherMotor->move(90);
+    backLauncherMotor->move(90);
+
+    pros::delay(2000);
+    intakeMotor->move(127);
+    pros::delay(2000);
+    intakeMotor->move(0);
 
     LCD::setStatus("Auto Step 1");
     // Move forward
@@ -105,34 +113,39 @@ void autonomous() {
     LCD::setStatus("Auto Step 3");
     // Turn to face other cap
     drive->move(-650);
-    drive->pivot(turnInvert ? 70 : -70);
+    drive->pivot(turnInvert ? 45 : -70);
+
 
     LCD::setStatus("Auto Step 4");
     // Flip the cap
     intakeMotor->move(-127);
-    drive->move(1000);
+    drive->move(950);
     intakeMotor->move(0);
-    drive->move(-700);
+    drive->move(-750);
 
     LCD::setStatus("Auto Step 5");
     // Get in position to platform
-    drive->pivot(turnInvert ? -110 : 110);
+    drive->pivot(turnInvert ? -140 : 110);
+
+      return;
 
     LCD::setStatus("Auto Step 7");
     // Get on platform
-    drive->move(1700);
+    drive->move(1625);
+    if (selectedAutonomous == 5) drive->move(1600);
   }
-  else if (selectedAutonomous == 0 || selectedAutonomous == 2) {/*
+  else if (selectedAutonomous == 0 || selectedAutonomous == 2 || selectedAutonomous == 5) {/*
     LCD::setStatus("Auto Step 1");
     // Move forward
     drive->move(1350);
     intakeMotor->move(127);
     */
-    bool turnInvert = (selectedAutonomous == 2);
+    bool turnInvert = (selectedAutonomous == 2) || (selectedAutonomous == 5);
     LCD::setStatus("Auto Step 3");
     // Start the flywheel
     frontLauncherMotor->move(127);
     backLauncherMotor->move(127);
+    drive->move(200);
     /*
     LCD::setStatus("Auto Step 4");
     // Move backward
@@ -154,20 +167,22 @@ void autonomous() {
 
     LCD::setStatus("Auto Step 7");
     // Move to mid flag position
-    drive->move(750);/*
+    /*drive->move(700);
     intakeMotor->move(127);
     pros::delay(1800);
     intakeMotor->move(0);
     */
     // Toggle low flag and reset
-    drive->pivot(turnInvert ? -27 : 27);
-    drive->move(610);
+    drive->pivot(turnInvert ? -21 : 21);
+    drive->move(1250);
 
     LCD::setStatus("Auto Step 8");
     // Drive to platform
-    drive->move(-2250);
-    drive->pivot(turnInvert ? 100 : -130);
+    drive->move(-2100);
+    drive->pivot(turnInvert ? 89 : -130);
     drive->move(1600);
+    if (selectedAutonomous == 5)
+      drive->move(1600);
   }
   /*
   if (selectedAutonomous == 0) {
@@ -328,15 +343,12 @@ void opcontrol() {
       else
         intakeMotor->move(0);
 
-      if (controllerMain->get_digital(BUTTON_L2)) {
+      if (controllerMain->get_digital(BUTTON_L2) || controllerMain->get_digital(BUTTON_L1)) {
         frontLauncherMotor->move(127);
         backLauncherMotor->move(127);
-      } else if (controllerMain->get_digital(BUTTON_L1)) {
-        frontLauncherMotor->move(110);
-        backLauncherMotor->move(110);
       } else {
-        frontLauncherMotor->move(0);
-        backLauncherMotor->move(0);
+        frontLauncherMotor->move(50);
+        backLauncherMotor->move(50);
       }
     }
     liftMotor->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
@@ -430,13 +442,9 @@ void opcontrol() {
     if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
     if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
     */
-    if (controllerMain->get_digital(BUTTON_UP)) drive->turn(true, -90);
-    if (controllerMain->get_digital(BUTTON_RIGHT)) drive->turn(true, 90);
-    if (controllerMain->get_digital(BUTTON_DOWN)) drive->pivot(90);
-    if (controllerMain->get_digital(BUTTON_LEFT)) drive->pivot(-90);
-    if (controllerMain->get_digital(BUTTON_B)) drive->move(1000);
-    if (controllerMain->get_digital(BUTTON_A)) drive->move(-1000);
-    if (controllerMain->get_digital(BUTTON_X)) autonomous();
+
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
 		pros::delay(20);
 
