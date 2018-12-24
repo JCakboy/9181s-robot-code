@@ -54,9 +54,6 @@ namespace util {
 	// Splits a string at the first occurance of regex
 	std::pair<std::string, std::string> separateFirst(std::string s, std::string regex);
 
-	// Gets the name of the given logging level
-	std::string getLoggingLevelName(logging_levels level);
-
 }
 
 #endif

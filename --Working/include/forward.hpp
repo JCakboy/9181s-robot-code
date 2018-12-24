@@ -11,5 +11,9 @@ class DriveFunction;
 class LCD;
 class Logger;
 class PID;
+class PIDCalc;
+class PIDCommand;
+
+enum pid_command : int;
 
 #endif

@@ -1,6 +1,7 @@
 #include "main.h"
 #include <cmath>
 #include <climits>
+#include <ctime>
 #include <utility>
 #include "definitions.hpp"
 #include "util.hpp"
@@ -87,25 +88,4 @@ namespace util {
 		return std::pair(first, s);
 	}
 
-	std::string getLoggingLevelName(logging_levels level) {
-		std::string levelmsg = "";
-	  switch (level) {
-	    case LOG_SEVERE:
-	      levelmsg = "SEVERE";
-	      break;
-	    case LOG_ERROR:
-	      levelmsg = "ERROR";
-	      break;
-	    case LOG_WARNING:
-	      levelmsg = "WARNING";
-	      break;
-	    case LOG_INFO:
-	      levelmsg = "INFO";
-	      break;
-	    default:
-	      levelmsg = "DEBUG";
-	      break;
-	  }
-		return levelmsg;
-	}
 }

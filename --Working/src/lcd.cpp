@@ -12,16 +12,17 @@ void LCD::initialize() {
 }
 
 void LCD::onLeftButton() {
-  selectedAutonomous -= 1;
+  selectedAutonomous = 1;
   setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
 }
 
 void LCD::onCenterButton() {
-  autonomous();
+  selectedAutonomous = 2;
+  setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
 }
 
 void LCD::onRightButton() {
-  selectedAutonomous += 1;
+  selectedAutonomous = 3;
   setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
 }
 

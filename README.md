@@ -1,6 +1,6 @@
 # Robot Code
 
-This repository contains 9181X robot code for the 2018-2019 Robotics competition season.
+This repository contains 9181S robot code for the 2018-2019 Robotics competition season.
 
 Current robot code: `--Working`
 
