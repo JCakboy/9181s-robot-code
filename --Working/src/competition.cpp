@@ -108,7 +108,7 @@ void opcontrol() {
 
   bool controllerDC = false;
 
-  driveControl->setPID(20, 0.718, 0.000525, 9, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 25, 100);
+  driveControl->setPID(20, 0.51, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 25, 100);
 
 	while (true) {
 
@@ -130,7 +130,7 @@ void opcontrol() {
     LCD::setText(3, "Left front: " + std::to_string((frontLeftDrive->get_position())));
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
-    LCD::setText(6, "Right back: " + std::to_string((frontRightDrive->get_position())));
+    LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
 
     /* pid dynamic
     if (controllerMain->get_digital(BUTTON_B)) {
@@ -212,13 +212,13 @@ void opcontrol() {
     */
 
     if (selectedAutonomous == 1) {
-      drive->pivot(90);
+      drive->move(100);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 2) {
-      drive->pivot(180);
+      drive->move(600);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 3) {
-      drive->pivot(-90);
+      drive->move(1200);
       selectedAutonomous = 0;
     }
 
