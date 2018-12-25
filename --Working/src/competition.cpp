@@ -14,34 +14,40 @@ namespace ports {
     // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
 
     ports::frontLeftDrive = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port2 = new Unused(2);
+    ports::frontRightDrive = new pros::Motor(2, GEARSET_200, REV, ENCODER_DEGREES);
     ports::port3 = new Unused(3);
     ports::port4 = new Unused(4);
     ports::port5 = new Unused(5);
     ports::port6 = new Unused(6);
     ports::port7 = new Unused(7);
     ports::port8 = new Unused(8);
-    ports::port9 = new Unused(9);
-    ports::frontRightDrive = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::backLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::intakeMotor = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::backRightDrive = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::backLeftDrive = new pros::Motor(10, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port11 = new Unused(11);
+    ports::port12 = new Unused(12);
     ports::port13 = new Unused(13);
     ports::port14 = new Unused(14);
     ports::port15 = new Unused(15);
     ports::port16 = new Unused(16);
-    ports::frontLauncherMotor = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::backLauncherMotor = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::liftMotor = new pros::Motor(19, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::backRightDrive = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::port21 = new Unused();
+    ports::port17 = new Unused(17);
+    ports::port18 = new Unused(18);
+    ports::port19 = new Unused(19);
+    ports::port20 = new Unused(20);
+    ports::port21 = new Unused(21);
 
     ports::driveLock = new pros::Mutex();
     ports::launcherLock = new pros::Mutex();
     ports::intakeLock = new pros::Mutex();
     ports::liftLock = new pros::Mutex();
 
+    // ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::frontRightDrive);
     ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
     ports::drive = new DriveFunction(ports::driveControl);
+
+    driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    drive->setGearRatio(1, 1, 4);
+    drive->setTurnValues(501, 50);
+
   }
 }
 
@@ -57,10 +63,6 @@ void initialize() {
   ports::init();
   LCD::initialize();
   //Profiles::registerAll();
-
-  if (false)
-	  Logger::init("/usd/logs/" + util::timestamp() + ".txt");
-  Logger::init("/usd/logs/test.txt");
 
 }
 
@@ -90,214 +92,7 @@ void competition_initialize() {}
 
 int selectedAutonomous = 0;
 void autonomous() {
-  if (selectedAutonomous == 1 || selectedAutonomous == 3 || selectedAutonomous == 4) {
-    bool turnInvert = (selectedAutonomous == 3) || selectedAutonomous == 4;
-
-    frontLauncherMotor->move(90);
-    backLauncherMotor->move(90);
-
-    pros::delay(2000);
-    intakeMotor->move(127);
-    pros::delay(2000);
-    intakeMotor->move(0);
-
-    LCD::setStatus("Auto Step 1");
-    // Move forward
-    drive->move(1100);
-
-    LCD::setStatus("Auto Step 2");
-    // Get the ball
-    intakeMotor->move(127);
-    drive->move(250);
-
-    LCD::setStatus("Auto Step 3");
-    // Turn to face other cap
-    drive->move(-650);
-    drive->pivot(turnInvert ? 45 : -70);
-
-
-    LCD::setStatus("Auto Step 4");
-    // Flip the cap
-    intakeMotor->move(-127);
-    drive->move(950);
-    intakeMotor->move(0);
-    drive->move(-750);
-
-    LCD::setStatus("Auto Step 5");
-    // Get in position to platform
-    drive->pivot(turnInvert ? -140 : 110);
-
-      return;
-
-    LCD::setStatus("Auto Step 7");
-    // Get on platform
-    drive->move(1625);
-    if (selectedAutonomous == 5) drive->move(1600);
-  }
-  else if (selectedAutonomous == 0 || selectedAutonomous == 2 || selectedAutonomous == 5) {/*
-    LCD::setStatus("Auto Step 1");
-    // Move forward
-    drive->move(1350);
-    intakeMotor->move(127);
-    */
-    bool turnInvert = (selectedAutonomous == 2) || (selectedAutonomous == 5);
-    LCD::setStatus("Auto Step 3");
-    // Start the flywheel
-    frontLauncherMotor->move(127);
-    backLauncherMotor->move(127);
-    drive->move(200);
-    /*
-    LCD::setStatus("Auto Step 4");
-    // Move backward
-    drive->move(-1350);
-    intakeMotor->move(0);
-
-    LCD::setStatus("Auto Step 5");
-    // turn right
-    drive->move(75);
-    drive->pivot(90);
-
-    LCD::setStatus("Auto Step 6");
-    // Move to high flag position
-    drive->move(200);
-    */
-    pros::delay(3000);
-    intakeMotor->move(127);
-    pros::delay(3000);
-
-    LCD::setStatus("Auto Step 7");
-    // Move to mid flag position
-    /*drive->move(700);
-    intakeMotor->move(127);
-    pros::delay(1800);
-    intakeMotor->move(0);
-    */
-    // Toggle low flag and reset
-    drive->pivot(turnInvert ? -21 : 21);
-    drive->move(1250);
-
-    LCD::setStatus("Auto Step 8");
-    // Drive to platform
-    drive->move(-2100);
-    drive->pivot(turnInvert ? 89 : -130);
-    drive->move(1600);
-    if (selectedAutonomous == 5)
-      drive->move(1600);
-  }
-  /*
-  if (selectedAutonomous == 0) {
-    driveControl->clearPID();
-    int speed = 110;
-
-    // Go forward, get the ball and return
-    driveControl->runLeftMotors(speed);
-    driveControl->runRightMotors(speed);
-    while (frontRightDrive->get_position() < 1050) pros::delay(1);
-    intakeMotor->move(speed);
-    while (frontRightDrive->get_position() < 1250) pros::delay(1);
-    driveControl->runLeftMotors(-speed);
-    driveControl->runRightMotors(-speed);
-
-    frontLauncherMotor->move(127);
-    backLauncherMotor->move(127);
-
-    while (frontRightDrive->get_position() > 300) pros::delay(1);
-    intakeMotor->move(0);
-    while (frontRightDrive->get_position() > -100) pros::delay(1);
-    driveControl->runLeftMotors(speed);
-    driveControl->runRightMotors(speed);
-    pros::delay(100);
-
-
-    for (const auto & motor : driveControl->rightMotors)
-      motor.tare_position();
-    for (const auto & motor : driveControl->leftMotors)
-      motor.tare_position();
-
-    intakeMotor->move(127);
-
-    // Turn right
-    driveControl->runLeftMotors(speed);
-    driveControl->runRightMotors(-speed);
-    while (frontRightDrive->get_position() > -250) pros::delay(1);
-
-    for (const auto & motor : driveControl->rightMotors)
-      motor.tare_position();
-    for (const auto & motor : driveControl->leftMotors)
-      motor.tare_position();
-
-    // Move to high flag position
-    driveControl->runLeftMotors(speed);
-    driveControl->runRightMotors(speed);
-    while (frontRightDrive->get_position() < 50) pros::delay(1);
-    driveControl->runLeftMotors(0);
-    driveControl->runRightMotors(0);
-    pros::delay(400);
-
-    // Move to mid flag position
-    driveControl->runLeftMotors(speed);
-    driveControl->runRightMotors(speed);
-    while (frontRightDrive->get_position() < 270) pros::delay(1);
-    driveControl->runLeftMotors(0);
-    driveControl->runRightMotors(0);
-    pros::delay(1000);
-  } else if (selectedAutonomous == 1) {
-    frontLauncherMotor->move(127);
-    backLauncherMotor->move(127);
-    pros::delay(2000);
-    intakeMotor->move(127);
-    pros::delay(3000);
-    frontLauncherMotor->move(0);
-    backLauncherMotor->move(0);
-    driveControl->runLeftMotors(127);
-    driveControl->runRightMotors(127);
-    pros::delay(1500);
-    driveControl->runLeftMotors(-127);
-    driveControl->runRightMotors(-127);
-    pros::delay(1750);
-    driveControl->runLeftMotors(127);
-    driveControl->runRightMotors(-127);
-    pros::delay(250);
-    driveControl->runLeftMotors(-127);
-    driveControl->runRightMotors(-127);
-    pros::delay(3000);
-  } else if (selectedAutonomous == 2) {
-    frontLauncherMotor->move(127);
-    backLauncherMotor->move(127);
-    pros::delay(2000);
-    intakeMotor->move(127);
-    pros::delay(3000);
-    frontLauncherMotor->move(0);
-    backLauncherMotor->move(0);
-    driveControl->runLeftMotors(127);
-    driveControl->runRightMotors(110);
-    pros::delay(1250);
-
-    for (const auto & motor : driveControl->rightMotors)
-      motor.tare_position();
-    for (const auto & motor : driveControl->leftMotors)
-      motor.tare_position();
-
-    driveControl->runLeftMotors(-127);
-    driveControl->runRightMotors(-127);
-    while (frontRightDrive->get_position() > -1500) pros::delay(1);
-
-    for (const auto & motor : driveControl->rightMotors)
-      motor.tare_position();
-    for (const auto & motor : driveControl->leftMotors)
-      motor.tare_position();
-
-    driveControl->runLeftMotors(-127);
-    driveControl->runRightMotors(127);
-
-    while (frontRightDrive->get_position() < 150) pros::delay(1);
-
-    driveControl->runLeftMotors(127);
-    driveControl->runRightMotors(127);
-
-    pros::delay(3000);
-  }
-  */
+  // No autonomous
 }
 
 /**
@@ -316,42 +111,16 @@ void autonomous() {
 void opcontrol() {
   LCD::setStatus("Operator Control");
 
-  Logger::log(LOG_ERROR, "test!");
-
-  liftMotor->set_brake_mode(BRAKE_BRAKE);
-
   bool controllerDC = false;
-  int cycle = 0;
 
 	while (true) {
 
-    if(controllerMain->get_digital(BUTTON_X))
-    {
+    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
+
+    if(controllerMain->get_digital(BUTTON_X)) {
       autonomous();
       LCD::setStatus("Returning to Operator Control");
     }
-
-    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
-
-    if (controllerMain->get_digital(BUTTON_R2)) {
-      frontLauncherMotor->move(-127);
-      backLauncherMotor->move(-127);
-      intakeMotor->move(-127);
-    } else {
-  		if (controllerMain->get_digital(BUTTON_R1))
-        intakeMotor->move(127);
-      else
-        intakeMotor->move(0);
-
-      if (controllerMain->get_digital(BUTTON_L2) || controllerMain->get_digital(BUTTON_L1)) {
-        frontLauncherMotor->move(127);
-        backLauncherMotor->move(127);
-      } else {
-        frontLauncherMotor->move(50);
-        backLauncherMotor->move(50);
-      }
-    }
-    liftMotor->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
 
     if (!controllerMain->is_connected() && !controllerDC) {
       LCD::setStatus("Operator Controller Disconnected");
@@ -361,8 +130,10 @@ void opcontrol() {
       controllerDC = false;
     }
 
-    LCD::setText(3, "Left avg: " + std::to_string((frontLeftDrive->get_position() + backLeftDrive->get_position()) / 2));
-    LCD::setText(4, "Right avg: " + std::to_string((frontRightDrive->get_position() + backRightDrive->get_position()) / 2));
+    LCD::setText(3, "Left front: " + std::to_string((frontLeftDrive->get_position())));
+    LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
+    LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
+    LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
 
     /* pid dynamic
     if (controllerMain->get_digital(BUTTON_B)) {
@@ -448,11 +219,18 @@ void opcontrol() {
 
 		pros::delay(20);
 
-    if (cycle == 20) {
-      cycle = 0;
-      controllerMain->set_text(0, 0, ("Flywheel RPM: " + std::to_string(frontLauncherMotor->get_actual_velocity() * 21)).c_str());
-    } else cycle++;
+    if (selectedAutonomous == 1) {
+      drive->pivot(90);
+      selectedAutonomous = 0;
+    } else if (selectedAutonomous == 2) {
+      drive->pivot(180);
+      selectedAutonomous = 0;
+    } else if (selectedAutonomous == 3) {
+      drive->pivot(-90);
+      selectedAutonomous = 0;
+    }
 
+		pros::delay(20);
 	}
 }
 

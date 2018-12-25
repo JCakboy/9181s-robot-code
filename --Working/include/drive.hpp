@@ -2,13 +2,14 @@
 #define _DRIVE_HPP_
 
 #include "main.h"
+#include <utility>
 #include <vector>
 
 /*
  * Class meant to control robot H-drive
  *
  * The current implementation supports multiple motors for
- * each of the two axes and will respect the given mutex
+ * each of the two sides and will respect the given mutex
  *
  * Meant to have its run() method called each pass of the opcontrol while loop
  * approx. every 20 ms
@@ -22,8 +23,9 @@ class DriveControl {
     pros::Mutex * lock;
 
     bool usePID;
-    PID * leftPID;
-    PID * rightPID;
+    PID * pid;
+    PIDCalc * leftPIDCalc;
+    PIDCalc * rightPIDCalc;
 
     int pidSe;
     int pidLastError;
@@ -36,11 +38,7 @@ class DriveControl {
 
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
-    bool runLeftMotorsRelative(int target, int threshold);
-
-    bool runRightMotorsRelative(int target, int threshold);
-
-    bool runMotorsRelative(PID * pid, std::vector<pros::Motor> motors, int target, int threshold);
+    PIDCommand runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor> motors, int target);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -63,16 +61,6 @@ class DriveControl {
     // Adds a motor to the right position list
     void addRightMotor(pros::Motor motor);
 
-/* currently not working, may work when pros 3 is released
-
-    // Removes a motor from the left position list
-    bool removeLeftMotor(pros::Motor motor);
-
-    // Removes a motor from the left position list
-    bool removeRightMotor(pros::Motor motor);
-
-*/
-
     // Clears all motors from the motor lists
     void clearMotors();
 
@@ -82,20 +70,14 @@ class DriveControl {
     // Clears all motors from the right position list
     void clearRightMotors();
 
-    // Sets PID constants
-    void setPID(int dt, double kp, double ki, double kd, int limit);
+    // Sets PID constants, see PID documentation
+    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int dThreshold, int tThreshold, int de0);
 
-    // Returns a reference to left PID constants
-    PID * getLeftPID();
-
-    // Returns a reference to right PID constants
-    PID * getRightPID();
+    // Gets PID constants
+    PID * getPID();
 
     // Clears PID constants
     void clearPID();
-
-    // Runs the Drive Control relative to the current position, setting the left and right targets to the same value, see below
-    void moveRelative(double revolutions, int degrees, int threshold);
 
     /*
      * Runs the Drive Control relative to the current position
@@ -107,9 +89,8 @@ class DriveControl {
      * leftDegrees: the amount of degrees to move the left motors forward
      * rightRevolutions: the amount of revolutions to move the right motors forward
      * rightDegrees: the amount of degrees to move the right motors forward
-     * threshold: the maximum allowable difference between the desired and the actual motor position
      */
-    void moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees, int threshold);
+    void moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees);
 
     // Runs the Drive Control with a 1.0 sensitivity. See below
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
@@ -141,7 +122,11 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    const static int kt = 800;
+    // Amount of degrees per inch of movement
+    double gearRatio;
+
+    int pt;
+    int kt;
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
@@ -149,6 +134,18 @@ class DriveFunction {
 
     // Returns the Drive Control
     DriveControl & getDriveControl();
+
+    // Sets the turn porpotional value and the turn constant, used to calculate the amount to move the motors to turn the robot
+    void setTurnValues(int pt, int kt);
+
+    // Returns the turn porpotional value and the turn constant
+    std::pair<int, int> getTurnValues();
+
+    // Sets the gear ratio for the drive motors, allowing for movement given in inches
+    void setGearRatio(double in, double out, double wheelDiameter);
+
+    // Returns the gear ratio calculated for the motors;
+    double getGearRatio();
 
     // Turns the robot forward, specifying how far to turn
     void turn(int degrees);
@@ -159,11 +156,14 @@ class DriveFunction {
     // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
 
-    // Moves the robot forward the given amount of degrees, using the default threshold
-    void move(int degrees);
+    // Moves the robot forward the given amount of inches, calculated using the given gear ratio
+    void move(double inches);
 
-    // Moves the robot forward the given amount, see Drive Control
-    void move(double revolutions, int degrees, int threshold);
+    // Moves the robot forward the given amount of degrees
+    void moveDegrees(int degrees);
+
+    // Moves the robot forward the given amount of revolutions and degrees
+    void moveRevolutions(double revolutions, int degrees);
 
     // See Drive Control
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);

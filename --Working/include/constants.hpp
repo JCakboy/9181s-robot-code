@@ -19,7 +19,7 @@
 #define MOTOR_REVERSE_FLIP_THRESHOLD -55 // should be negative value
 
 // Default threshold for move relative
-#define MOTOR_MOVE_RELATIVE_THRESHOLD 60
+#define MOTOR_MOVE_RELATIVE_THRESHOLD 8
 
 // Maximum speed for move relative
 #define MOTOR_MOVE_RELATIVE_MAX_SPEED 100
