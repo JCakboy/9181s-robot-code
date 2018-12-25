@@ -2,6 +2,7 @@
 #define _DRIVE_HPP_
 
 #include "main.h"
+#include <utility>
 #include <vector>
 
 /*
@@ -121,8 +122,11 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    const static int kt = 46;
-    const static int pt = 524;
+    // Amount of degrees per inch of movement
+    double gearRatio;
+
+    int pt;
+    int kt;
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
@@ -130,6 +134,18 @@ class DriveFunction {
 
     // Returns the Drive Control
     DriveControl & getDriveControl();
+
+    // Sets the turn porpotional value and the turn constant, used to calculate the amount to move the motors to turn the robot
+    void setTurnValues(int pt, int kt);
+
+    // Returns the turn porpotional value and the turn constant
+    std::pair<int, int> getTurnValues();
+
+    // Sets the gear ratio for the drive motors, allowing for movement given in inches
+    void setGearRatio(double in, double out, double wheelDiameter);
+
+    // Returns the gear ratio calculated for the motors;
+    double getGearRatio();
 
     // Turns the robot forward, specifying how far to turn
     void turn(int degrees);
@@ -140,11 +156,14 @@ class DriveFunction {
     // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
 
-    // Moves the robot forward the given amount of degrees
-    void move(int degrees);
+    // Moves the robot forward the given amount of inches, calculated using the given gear ratio
+    void move(double inches);
 
-    // Moves the robot forward the given amount, see Drive Control
-    void move(double revolutions, int degrees);
+    // Moves the robot forward the given amount of degrees
+    void moveDegrees(int degrees);
+
+    // Moves the robot forward the given amount of revolutions and degrees
+    void moveRevolutions(double revolutions, int degrees);
 
     // See Drive Control
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);

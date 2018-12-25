@@ -43,6 +43,11 @@ namespace ports {
     // ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::frontRightDrive);
     ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
     ports::drive = new DriveFunction(ports::driveControl);
+
+    driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    drive->setGearRatio(1, 1, 4);
+    drive->setTurnValues(501, 50);
+
   }
 }
 
@@ -107,8 +112,6 @@ void opcontrol() {
   LCD::setStatus("Operator Control");
 
   bool controllerDC = false;
-
-  driveControl->setPID(20, 0.51, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 25, 100);
 
 	while (true) {
 
@@ -212,13 +215,13 @@ void opcontrol() {
     */
 
     if (selectedAutonomous == 1) {
-      drive->move(100);
+      drive->pivot(90);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 2) {
-      drive->move(600);
+      drive->pivot(180);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 3) {
-      drive->move(1200);
+      drive->pivot(-90);
       selectedAutonomous = 0;
     }
 

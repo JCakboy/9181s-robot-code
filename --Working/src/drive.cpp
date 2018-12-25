@@ -295,6 +295,23 @@ DriveControl & DriveFunction::getDriveControl() {
   return *(DriveFunction::driveControl);
 }
 
+void DriveFunction::setTurnValues(int pt, int kt) {
+  DriveFunction::pt = pt;
+  DriveFunction::kt = kt;
+}
+
+std::pair<int, int> DriveFunction::getTurnValues() {
+  return std::pair<int, int>(pt, kt);
+}
+
+void DriveFunction::setGearRatio(double in, double out, double wheelDiameter) {
+  DriveFunction::gearRatio = (360 * out) / (wheelDiameter * PI * in);
+}
+
+double DriveFunction::getGearRatio() {
+  return DriveFunction::gearRatio;
+}
+
 void DriveFunction::turn(int degrees) {
   DriveFunction::turn(false, degrees);
 }
@@ -302,11 +319,11 @@ void DriveFunction::turn(int degrees) {
 void DriveFunction::turn(bool backward, int degrees) {
   if (backward)
     if (degrees > 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -((degrees / 90 * pt) + kt));
-    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, -((degrees / 90 * pt) + kt), 0, 0);
+    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, ((degrees / 90 * pt) - kt), 0, 0);
     else;
   else
     if (degrees > 0) DriveFunction::driveControl->moveRelative(0, (degrees / 90 * pt) + kt, 0, 0);
-    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, 0, 0, (degrees / 90 * pt) + kt);
+    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -((degrees / 90 * pt) - kt));
 }
 
 void DriveFunction::pivot(int degrees) {
@@ -316,11 +333,15 @@ void DriveFunction::pivot(int degrees) {
     DriveFunction::driveControl->moveRelative(0, 0.5 * (((degrees / 90.0) * pt) - kt), 0, -0.5 * ((degrees / 90.0 * pt) - kt));
 }
 
-void DriveFunction::move(int degrees) {
+void DriveFunction::move(double inches) {
+    DriveFunction::driveControl->moveRelative(0, inches * gearRatio, 0, inches * gearRatio);
+}
+
+void DriveFunction::moveDegrees(int degrees) {
   DriveFunction::driveControl->moveRelative(0, degrees, 0, degrees);
 }
 
-void DriveFunction::move(double revolutions, int degrees) {
+void DriveFunction::moveRevolutions(double revolutions, int degrees) {
   DriveFunction::driveControl->moveRelative(revolutions, degrees, revolutions, degrees);
 }
 
