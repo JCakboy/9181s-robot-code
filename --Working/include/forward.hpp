@@ -13,6 +13,7 @@ class Logger;
 class PID;
 class PIDCalc;
 class PIDCommand;
+class Puncher;
 
 enum pid_command : int;
 

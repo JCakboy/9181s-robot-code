@@ -29,26 +29,26 @@ namespace ports {
   // static Battery * controllerPartnerBattery;
 
   // Ports
-  static pros::Motor * frontLeftDrive;
-  static pros::Motor * frontRightDrive;
+  static Unused * port1;
+  static Unused * port2;
   static Unused * port3;
   static Unused * port4;
   static Unused * port5;
   static Unused * port6;
   static Unused * port7;
   static Unused * port8;
-  static pros::Motor * backRightDrive;
-  static pros::Motor * backLeftDrive;
-  static Unused * port11;
-  static Unused * port12;
-  static Unused * port13;
+  static Unused * port9;
+  static Unused * port10;
+  static pros::Motor * frontLeftDrive;
+  static pros::Motor * frontRightDrive;
+  static pros::Motor * intake;
   static Unused * port14;
   static Unused * port15;
   static Unused * port16;
-  static Unused * port17;
-  static Unused * port18;
-  static Unused * port19;
-  static Unused * port20;
+  static pros::Motor * puncherVariable;
+  static pros::Motor * puncher;
+  static pros::Motor * backRightDrive;
+  static pros::Motor * backLeftDrive;
   static Unused * port21;
 
   static pros::Mutex * driveLock;

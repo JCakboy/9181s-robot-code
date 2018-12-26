@@ -13,26 +13,26 @@ namespace ports {
     //ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
     // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
 
-    ports::frontLeftDrive = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::frontRightDrive = new pros::Motor(2, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port1 = new Unused(1);
+    ports::port2 = new Unused(2);
     ports::port3 = new Unused(3);
     ports::port4 = new Unused(4);
     ports::port5 = new Unused(5);
     ports::port6 = new Unused(6);
     ports::port7 = new Unused(7);
     ports::port8 = new Unused(8);
-    ports::backRightDrive = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::backLeftDrive = new pros::Motor(10, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port11 = new Unused(11);
-    ports::port12 = new Unused(12);
-    ports::port13 = new Unused(13);
+    ports::port9 = new Unused(9);
+    ports::port10 = new Unused(10);
+    ports::frontLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::frontRightDrive = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::intake = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::port14 = new Unused(14);
     ports::port15 = new Unused(15);
     ports::port16 = new Unused(16);
-    ports::port17 = new Unused(17);
-    ports::port18 = new Unused(18);
-    ports::port19 = new Unused(19);
-    ports::port20 = new Unused(20);
+    ports::puncherVariable = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::puncher = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::backRightDrive = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::backLeftDrive = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::port21 = new Unused(21);
 
     ports::driveLock = new pros::Mutex();
@@ -48,6 +48,7 @@ namespace ports {
     drive->setGearRatio(1, 1, 4);
     drive->setTurnValues(501, 50);
 
+    Puncher::start(ports::launcherLock, ports::puncher);
   }
 }
 
@@ -62,7 +63,6 @@ using namespace ports;
 void initialize() {
   ports::init();
   LCD::initialize();
-  //Profiles::registerAll();
 
 }
 
@@ -93,6 +93,7 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
   // No autonomous
+  Puncher::prime();
 }
 
 /**
@@ -117,6 +118,19 @@ void opcontrol() {
 
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
 
+    puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) / 127.0 * 50);
+
+    if (controllerMain->get_digital(BUTTON_R1))
+      intake->move(127);
+    else if (controllerMain->get_digital(BUTTON_R2))
+      intake->move(-127);
+    else
+      intake->move(0);
+
+    if (controllerMain->get_digital_new_press(BUTTON_L1))
+      /* Punch */;
+
+
     if(controllerMain->get_digital(BUTTON_X)) {
       autonomous();
       LCD::setStatus("Returning to Operator Control");
@@ -134,90 +148,8 @@ void opcontrol() {
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
     LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
-
-    /* pid dynamic
-    if (controllerMain->get_digital(BUTTON_B)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifykd(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifykd(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifykd(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifykd(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_X)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifykp(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifykp(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifykp(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifykp(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_Y)) {
-      if (controllerMain->get_digital(BUTTON_UP))
-        driveControl->getPID().modifyki(0.01);
-      if (controllerMain->get_digital(BUTTON_DOWN))
-        driveControl->getPID().modifyki(-0.01);
-      if (controllerMain->get_digital(BUTTON_LEFT))
-        driveControl->getPID().modifyki(0.1);
-      if (controllerMain->get_digital(BUTTON_RIGHT))
-        driveControl->getPID().modifyki(-0.1);
-    }
-
-    if (controllerMain->get_digital(BUTTON_A)) {
-      driveControl->moveRelative(0, 1000, 10, true, true);
-    }
-
-    pros::lcd::set_text(1, "kp = " + std::to_string(driveControl->getPID().getkp()));
-    pros::lcd::set_text(2, "ki = " + std::to_string(driveControl->getPID().getki()));
-    pros::lcd::set_text(3, "kd = " + std::to_string(driveControl->getPID().getkd()));
-    */
-
-    // flywheel dynamic
-    //if (controllerMain->get_digital(BUTTON_UP)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity + 1);
-    //if (controllerMain->get_digital(BUTTON_DOWN)) currentFlywheelVelocity = util::limit127 (currentFlywheelVelocity - 1);
-
-    /* Overheat lcd
-    std::string hiheat = "";
-    std::string overheat = "";
-
-    if (backLeftDrive->get_temperature() > 55) overheat += "bldrive ";
-    else if (backLeftDrive->get_temperature() > 45) hiheat += "bldrive ";
-
-    if (backRightDrive->get_temperature() > 55) overheat += "brdrive ";
-    else if (backLeftDrive->get_temperature() > 45) hiheat += "brdrive ";
-
-    if (frontLeftDrive->get_temperature() > 55) overheat += "fldrive ";
-    else if (frontLeftDrive->get_temperature() > 45) hiheat += "fldrive ";
-
-    if (frontRightDrive->get_temperature() > 55) overheat += "frdrive ";
-    else if (frontRightDrive->get_temperature() > 45) hiheat += "frdrive ";
-
-    if (liftMotor->get_temperature() > 55) overheat += "lift ";
-    else if (liftMotor->get_temperature() > 45) hiheat += "lift ";
-
-    if (intakeMotor->get_temperature() > 55) overheat += "intake ";
-    else if (intakeMotor->get_temperature() > 45) hiheat += "intake ";
-
-    if (frontLauncherMotor->get_temperature() > 55) overheat += "frontfw ";
-    else if (frontLauncherMotor->get_temperature() > 45) hiheat += "frontfw ";
-
-    if (backLauncherMotor->get_temperature() > 55) overheat += "backfw ";
-    else if (backLauncherMotor->get_temperature() > 45) hiheat += "backfw ";
-
-    if (overheat != "") pros::lcd::set_text(5, overheat + " ovrht");
-    if (hiheat != "") pros::lcd::set_text(6, hiheat + " hiheat");
-    */
-
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-
-		pros::delay(20);
 
     if (selectedAutonomous == 1) {
       drive->pivot(90);
