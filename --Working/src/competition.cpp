@@ -91,7 +91,7 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
   // No autonomous
-  puncher->move_relative(250, 127);
+  puncher->move_relative(260, 127);
 }
 
 bool punchWaiting = false;
@@ -114,6 +114,9 @@ void opcontrol() {
 
   bool controllerDC = false;
 
+  int puncherTarget = 0;
+  bool punchWaiting = false;
+  bool punching = false;
   puncher->tare_position();
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
@@ -135,14 +138,19 @@ void opcontrol() {
     }
 
     if (punchWaiting && !punching) {
-      punching = true;
       punchWaiting = false;
-      puncher->move_relative(360, 127);
+      punching = true;
+      puncherTarget += 360;
+      puncher->move_absolute(puncherTarget, 127);
     }
-    if (puncher->get_position() > 345) punching = false;
+
+    if (std::lround(puncher->get_position()) % 360 > 345) punching = false;
 
     if(controllerMain->get_digital(BUTTON_X)) {
       autonomous();
+      pros::delay(1000);
+      puncher->tare_position();
+      puncherTarget = 0;
       LCD::setStatus("Returning to Operator Control");
     }
 
@@ -158,6 +166,7 @@ void opcontrol() {
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
     LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
+    LCD::setText(2, "Puncher: " + std::to_string((puncher->get_position())) + "(T" + std::to_string(puncher->get_temperature()) + ")");
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 

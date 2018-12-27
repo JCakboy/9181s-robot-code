@@ -38,8 +38,7 @@ namespace util {
 		return inch_to_metre(value);
 	}
 
-	double inch_to_metre(double value)
-	{
+	double inch_to_metre(double value) {
 		return value / 39.37;
 	}
 
