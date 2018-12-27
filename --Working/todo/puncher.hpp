@@ -7,7 +7,6 @@ class Puncher {
   private:
     static pros::Task * task;
     static bool stopped;
-    static bool _shoot;
 
     static pros::Mutex * lock;
     static pros::Motor * motor;
@@ -19,7 +18,7 @@ class Puncher {
 
     static void prime();
 
-    static bool shoot();
+    static void shoot();
 
     static void stop();
 

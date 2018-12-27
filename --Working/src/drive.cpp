@@ -154,12 +154,12 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   for (const auto & motor : DriveControl::leftMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode(BRAKE_BRAKE);
+    motor.set_brake_mode(BRAKE_COAST);
   }
   for (const auto & motor : DriveControl::rightMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode(BRAKE_BRAKE);
+    motor.set_brake_mode(BRAKE_COAST);
   }
 
   LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));

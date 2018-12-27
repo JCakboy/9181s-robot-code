@@ -47,8 +47,6 @@ namespace ports {
     driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     drive->setGearRatio(1, 1, 4);
     drive->setTurnValues(501, 50);
-
-    Puncher::start(ports::launcherLock, ports::puncher);
   }
 }
 
@@ -93,9 +91,11 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
   // No autonomous
-  Puncher::prime();
+  puncher->move_relative(250, 127);
 }
 
+bool punchWaiting = false;
+bool punching = false;
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -114,6 +114,9 @@ void opcontrol() {
 
   bool controllerDC = false;
 
+  puncher->tare_position();
+  puncherVariable->set_brake_mode(BRAKE_BRAKE);
+
 	while (true) {
 
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
@@ -127,9 +130,16 @@ void opcontrol() {
     else
       intake->move(0);
 
-    if (controllerMain->get_digital_new_press(BUTTON_L1))
-      /* Punch */;
+    if (controllerMain->get_digital_new_press(BUTTON_L1)) {
+      punchWaiting = true;
+    }
 
+    if (punchWaiting && !punching) {
+      punching = true;
+      punchWaiting = false;
+      puncher->move_relative(360, 127);
+    }
+    if (puncher->get_position() > 345) punching = false;
 
     if(controllerMain->get_digital(BUTTON_X)) {
       autonomous();
@@ -155,10 +165,10 @@ void opcontrol() {
       drive->pivot(90);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 2) {
-      drive->pivot(180);
+      drive->move(36);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 3) {
-      drive->pivot(-90);
+      drive->pivot(180);
       selectedAutonomous = 0;
     }
 
