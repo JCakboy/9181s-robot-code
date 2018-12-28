@@ -44,7 +44,7 @@ namespace ports {
     ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
     ports::drive = new DriveFunction(ports::driveControl);
 
-    driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 50, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     drive->setGearRatio(1, 1, 4);
     drive->setTurnValues(501, 50);
   }

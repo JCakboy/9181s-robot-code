@@ -1,6 +1,6 @@
 #include "main.h"
 
-PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int dThreshold, int tThreshold, int de0){
+PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0){
   PID::dt = dt;
   PID::kp = kp;
   PID::ki = ki;
@@ -8,6 +8,8 @@ PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iL
   PID::brake = brake;
   PID::tLimit = tLimit;
   PID::iLimit = iLimit;
+  PID::iZone = iZone;
+  PID::iReset = iReset;
   PID::dThreshold = dThreshold;
   PID::tThreshold = tThreshold;
   PID::de0 = de0;

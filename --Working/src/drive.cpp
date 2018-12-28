@@ -38,8 +38,10 @@ PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Mot
       error += motor.get_position();
     error = target - error / util::sign(motors.size());
 
-    calc->Se += error; // Add the current error to the sum of all errors
-    int de = error - calc->lastError; // Calculate the change in error
+    if (pid->iReset && (error == 0 || (calc->Se > 0 && error < 0) || (calc->Se < 0 && error > 0))) calc->Se = 0; // Check for error sum relevancy
+    else calc->Se = util::limitX(pid->iLimit, calc->Se + error); // Add the current error to the sum of all errors
+
+    int de = (error - calc->lastError) / pid->dt; // Calculate the change in error over time (gradient)
 
     if (util::abs(error) <= DriveControl::pid->dThreshold) {
       calc->completeCycles++;
@@ -131,10 +133,10 @@ void DriveControl::clearRightMotors() {
   DriveControl::rightMotors.clear();
 }
 
-void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int dThreshold, int tThreshold, int de0) {
+void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0) {
   if (usePID) clearPID();
   DriveControl::usePID = true;
-  DriveControl::pid = new PID(dt, kp, ki, kd, brake, tLimit, iLimit, dThreshold, tThreshold, de0);
+  DriveControl::pid = new PID(dt, kp, ki, kd, brake, tLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
 }
 
 PID * DriveControl::getPID() {

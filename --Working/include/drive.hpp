@@ -71,7 +71,7 @@ class DriveControl {
     void clearRightMotors();
 
     // Sets PID constants, see PID documentation
-    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int dThreshold, int tThreshold, int de0);
+    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
 
     // Gets PID constants
     PID * getPID();
