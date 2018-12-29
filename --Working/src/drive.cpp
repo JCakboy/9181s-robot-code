@@ -32,59 +32,12 @@ PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Mot
     lock->give();
     return PIDCommand(E_COMMAND_NO_CALCULATION, 0);
   } else; else if (motors.size() > 0) {
-    // Calculate the current error
-    int error = 0;
+    int position = 0;
     for (const auto & motor : motors)
-      error += motor.get_position();
-    error = target - error / util::sign(motors.size());
+      position += motor.get_position();
+    position = position / util::sign(motors.size());
 
-    if (pid->iReset && (error == 0 || (calc->Se > 0 && error < 0) || (calc->Se < 0 && error > 0))) calc->Se = 0; // Check for error sum relevancy
-    else calc->Se = util::limitX(pid->iLimit, calc->Se + error); // Add the current error to the sum of all errors
-
-    int de = (error - calc->lastError) / pid->dt; // Calculate the change in error over time (gradient)
-
-    if (util::abs(error) <= DriveControl::pid->dThreshold) {
-      calc->completeCycles++;
-      if (calc->completeCycles >= DriveControl::pid->tThreshold) {
-        if (lock->take(MUTEX_WAIT_TIME)) {
-          for (const auto & motor : motors)
-            motor.move(0);
-          lock->give();
-        }
-        return PIDCommand(E_COMMAND_EXIT_SUCCESS, 0);
-      }
-    } else
-      calc->completeCycles = 0;
-
-    if (util::abs(de) <= 1 && util::abs(error) >= DriveControl::pid->dThreshold) {
-      calc->hangCycles++;
-      if (DriveControl::pid->de0 > 0 && calc->hangCycles >= DriveControl::pid->de0) {
-        if (lock->take(MUTEX_WAIT_TIME)) {
-          for (const auto & motor : motors)
-            motor.move(0);
-          lock->give();
-        }
-        return PIDCommand(E_COMMAND_EXIT_FAILURE, 0);
-      }
-    } else
-      calc->hangCycles = 0;
-
-    LCD::setText(2, "Error (T" + std::to_string(DriveControl::pid->dThreshold) + "): " + std::to_string(error));
-
-    int p = error * DriveControl::pid->kp;
-    int i = util::limitX(DriveControl::pid->iLimit, calc->Se * DriveControl::pid->ki);
-    int d = de * DriveControl::pid->kd;
-
-    LCD::setText(3, "Power " + std::to_string(p + i + d));
-
-    calc->lastError = error;
-
-    if ((p + i + d) == 0)
-      if (DriveControl::pid->brake)
-        return PIDCommand(E_COMMAND_STOP_BRAKE, 0);
-      else return PIDCommand(E_COMMAND_STOP, 0);
-
-    return PIDCommand(E_COMMAND_CONTINUE, util::limitX(DriveControl::pid->tLimit, p + i + d));
+    return pid->calculate(calc, position, target);
   }
 }
 
@@ -156,12 +109,12 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   for (const auto & motor : DriveControl::leftMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode(BRAKE_COAST);
+    motor.set_brake_mode((!usePID || pid->brake) ? BRAKE_BRAKE : BRAKE_COAST);
   }
   for (const auto & motor : DriveControl::rightMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode(BRAKE_COAST);
+    motor.set_brake_mode((!usePID || !(pid->brake)) ? BRAKE_BRAKE : BRAKE_COAST);
   }
 
   LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));
@@ -235,6 +188,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
         } else
           leftPower = ret.result;
       }
+
       if (!rightComplete) {
         PIDCommand ret = DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
         if (ret.type == E_COMMAND_EXIT_FAILURE || ret.type == E_COMMAND_EXIT_SUCCESS) {

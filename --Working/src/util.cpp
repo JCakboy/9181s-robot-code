@@ -46,6 +46,10 @@ namespace util {
 		return amt / std::cos(degrees_to_radians(45));
 	}
 
+	bool withinX(int x, int a) {
+		return limitX(x, a) == a;
+	}
+
 	int limitX(int x, int a) {
 		x = std::abs(x);
 		return util::max(util::min(a, x), -x);

@@ -40,6 +40,15 @@ class PID {
      */
     explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, bool iReset,  int dThreshold, int tThreshold, int de0);
 
+    /*
+     * Calculates the output of the PID controller using the constants given at initialization
+     *
+     * calc: the calculation values for the PID controller that should persist between calculation scopes of the same motors
+     * position: the current position of the motor, or the average of multiple positions of the motors
+     * target: the desired sensor value for the motor(s)
+     */
+    PIDCommand calculate(PIDCalc * calc, int position, int target);
+
 };
 
 /*

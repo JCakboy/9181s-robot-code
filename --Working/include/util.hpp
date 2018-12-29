@@ -36,10 +36,13 @@ namespace util {
 	// Scales the amount by cos(45°) * 100
 	double tankScaleJoystick(double amt);
 
+	// Returns whether a given value has an absolute of equal to or less x
+	bool withinX(int x, int a);
+
 	// Returns ±x, whichever is closer, if the value has an absolute greater than x. Otherwise, it returns the given value
 	int limitX(int x, int a);
 
-	// Returns whether the values has an absolute of equal to or less than 127
+	// Returns whether the value has an absolute of equal to or less than 127
 	bool within127(int a);
 
 	// Returns ±127, whichever is closer, if the value has an absolute greater than 127. Otherwise, it returns the given value
