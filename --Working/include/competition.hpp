@@ -46,7 +46,7 @@ namespace ports {
   static Unused * port15;
   static Unused * port16;
   static pros::Motor * puncherVariable;
-  static pros::Motor * puncher;
+  static pros::Motor * puncherMotor;
   static pros::Motor * backRightDrive;
   static pros::Motor * backLeftDrive;
   static Unused * port21;
@@ -58,6 +58,8 @@ namespace ports {
 
   static DriveControl * driveControl;
   static DriveFunction * drive;
+
+  static Puncher * puncher;
 
   static void init();
 

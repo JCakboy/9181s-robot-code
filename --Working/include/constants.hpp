@@ -27,6 +27,9 @@
 // Proportional constant for move relative
 #define MOTOR_MOVE_RELATIVE_KP .43
 
+// Amount to move the puncher back for priming
+#define PUNCHER_PRIME_AMOUNT 260
+
 // Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
 

@@ -29,8 +29,8 @@ namespace ports {
     ports::port14 = new Unused(14);
     ports::port15 = new Unused(15);
     ports::port16 = new Unused(16);
-    ports::puncherVariable = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::puncher = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::puncherVariable = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::puncherMotor = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::backRightDrive = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
     ports::backLeftDrive = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::port21 = new Unused(21);
@@ -40,9 +40,11 @@ namespace ports {
     ports::intakeLock = new pros::Mutex();
     ports::liftLock = new pros::Mutex();
 
-    // ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::frontRightDrive);
-    ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
+    ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::frontRightDrive);
+    // ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
     ports::drive = new DriveFunction(ports::driveControl);
+
+    ports::puncher = new Puncher(launcherLock, ports::puncherMotor);
 
     driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     drive->setGearRatio(1, 1, 4);
@@ -61,7 +63,6 @@ using namespace ports;
 void initialize() {
   ports::init();
   LCD::initialize();
-
 }
 
 /**
@@ -91,11 +92,9 @@ void competition_initialize() {}
 int selectedAutonomous = 0;
 void autonomous() {
   // No autonomous
-  puncher->move_relative(260, 127);
+  puncher->prime();
 }
 
-bool punchWaiting = false;
-bool punching = false;
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -114,15 +113,12 @@ void opcontrol() {
 
   bool controllerDC = false;
 
-  int puncherTarget = 0;
-  bool punchWaiting = false;
-  bool punching = false;
-  puncher->tare_position();
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
 	while (true) {
 
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
+    puncher->run();
 
     puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) / 127.0 * 50);
 
@@ -134,25 +130,25 @@ void opcontrol() {
       intake->move(0);
 
     if (controllerMain->get_digital_new_press(BUTTON_L1)) {
-      punchWaiting = true;
+      puncherVariable->move(-75);
+      puncher->move(360);
+      pros::delay(525);
+      puncherVariable->move(0);
+    } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
+      puncherVariable->move(75);
+      puncher->move(360);
+      pros::delay(525);
+      puncherVariable->move(0);
     }
 
-    if (punchWaiting && !punching) {
-      punchWaiting = false;
-      punching = true;
-      puncherTarget += 360;
-      puncher->move_absolute(puncherTarget, 127);
-    }
+    if (controllerMain->get_digital_new_press(BUTTON_A))
+      puncher->togglePrime();
 
-    if (std::lround(puncher->get_position()) % 360 > 345) punching = false;
+    if (controllerMain->get_digital_new_press(BUTTON_X))
+      puncher->prime();
 
-    if(controllerMain->get_digital(BUTTON_X)) {
-      autonomous();
-      pros::delay(1000);
-      puncher->tare_position();
-      puncherTarget = 0;
-      LCD::setStatus("Returning to Operator Control");
-    }
+    if (controllerMain->get_digital_new_press(BUTTON_B))
+      puncher->unprime();
 
     if (!controllerMain->is_connected() && !controllerDC) {
       LCD::setStatus("Operator Controller Disconnected");
@@ -166,7 +162,7 @@ void opcontrol() {
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
     LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
-    LCD::setText(2, "Puncher: " + std::to_string((puncher->get_position())) + "(T" + std::to_string(puncher->get_temperature()) + ")");
+    LCD::setText(2, "Puncher: P" + std::to_string((puncher->primed)) + " B" + std::to_string(puncherMotor->get_brake_mode() == BRAKE_BRAKE));
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
