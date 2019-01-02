@@ -82,6 +82,7 @@ void opcontrol(void);
 #include "definitions.hpp"
 #include "drive.hpp"
 #include "lcd.hpp"
+#include "logger.hpp"
 #include "pid.hpp"
 #include "puncher.hpp"
 #include "util.hpp"

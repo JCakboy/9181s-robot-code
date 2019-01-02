@@ -63,6 +63,11 @@ using namespace ports;
 void initialize() {
   ports::init();
   LCD::initialize();
+  Logger::initializeDefaultLoggers();
+
+  Logger::log(LOG_INFO, "#########################");
+  Logger::log(LOG_INFO, "#     PROGRAM START     #");
+  Logger::log(LOG_INFO, "#########################");
 }
 
 /**
@@ -130,11 +135,13 @@ void opcontrol() {
       intake->move(0);
 
     if (controllerMain->get_digital_new_press(BUTTON_L1)) {
+      Logger::log(LOG_INFO, "High routine");
       puncherVariable->move(-75);
       puncher->move(360);
       pros::delay(525);
       puncherVariable->move(0);
     } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
+      Logger::log(LOG_INFO, "Mid routine");
       puncherVariable->move(75);
       puncher->move(360);
       pros::delay(525);
@@ -157,13 +164,13 @@ void opcontrol() {
       LCD::setStatus("Operator Controller Reconnected");
       controllerDC = false;
     }
-
+/*
     LCD::setText(3, "Left front: " + std::to_string((frontLeftDrive->get_position())));
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
     LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
     LCD::setText(2, "Puncher: P" + std::to_string((puncher->primed)) + " B" + std::to_string(puncherMotor->get_brake_mode() == BRAKE_BRAKE));
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+*/    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
     if (selectedAutonomous == 1) {

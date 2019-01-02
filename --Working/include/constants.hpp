@@ -30,8 +30,13 @@
 // Amount to move the puncher back for priming
 #define PUNCHER_PRIME_AMOUNT 260
 
+
+// Default logs path
+#define LOGS_PATH "/usd/logs/"
+
 // Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
+
 
 // Minimum alert level
 #define ALERT_LEVEL E_LOGGING_INFO

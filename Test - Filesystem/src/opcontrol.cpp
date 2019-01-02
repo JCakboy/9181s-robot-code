@@ -1,8 +1,9 @@
 #include "main.h"
+#include "sys/stat.h"
 #include <iostream>
 #include <cstdio>
-#include <ctime>
-#include <dirent.h>
+
+const std::string LOG_PATH = "/usd/logs/";
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -18,11 +19,36 @@
  * task, not resume it from where it left off.
  */
 
+FILE * out = stdout;
+
+bool fileExists(std::string name) {
+  if (FILE *file = fopen(name.c_str(), "r")) {
+      fclose(file);
+      return true;
+  } else {
+      return false;
+	}
+}
+
+std::string ensure3Digits(int i) {
+	std::string s = std::to_string(i);
+	while (s.length() < 3) s = "0" + s;
+	return s;
+}
+
+FILE * nextLogFile() {
+	int i = 0;
+	while (fileExists(LOGS_PATH + ensure3Digits(i) + ".log")) i++;
+	std::string filename = LOGS_PATH + ensure3Digits(i) + ".log";
+	fputs(filename.c_str(), out);
+	return fopen(filename.c_str(), "w");
+}
+
 void opcontrol() {
 
-	FILE * file = stdout;
+	FILE * file = nextLogFile();
 
-	std::cout << "opened file";
+	fputs("opened file\n", out);
 
 	if (file == NULL)
 		pros::lcd::set_text(3, "null");
@@ -31,18 +57,10 @@ void opcontrol() {
 		pros::lcd::set_text(3, "written");
 	}
 
-	DIR*    dir;
-  dirent* pdir;
-	dir = opendir("usd");
-
-	while (pdir = readdir(dir))
-		fputs(fputs("file found:" + pdir->d_name + "\n", file);
-
 	fclose(file);
 
 	while (true) {
 		pros::lcd::set_text(0, "waiting");
-		pros::lcd::set_text(4, timestamp());
 		pros::delay(20);
 	}
 }

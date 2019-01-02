@@ -51,6 +51,9 @@ namespace util {
 	// Adds or subtracts 1 from the given value, whicher gets it closer to 0
 	int step0(int a);
 
+	// Ensures an amount of digits of an integer in string format, adding 0s for padding
+	std::string ensureDigits(int amount, int i);
+
 	// Returns a timestamp in the format: YYYY-MM-DD hh:mm:ss
 	std::string timestamp();
 

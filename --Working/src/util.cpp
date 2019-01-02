@@ -71,16 +71,15 @@ namespace util {
 		return a;
 	}
 
+	std::string ensureDigits(int amount, int i) {
+		std::string s = std::to_string(i);
+		while (s.length() < amount) s = "0" + s;
+		return s;
+	}
+
 	std::string timestamp() {
-		time_t rawtime;
-	  struct tm * timeinfo;
-	  char buffer[80];
-
-	  time (&rawtime);
-	  timeinfo = localtime(&rawtime);
-
-	  strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
-	  return std::string(buffer);
+		int millis = sign(pros::millis());
+		return ensureDigits(2, std::floor(millis / 60000)) + ":" + ensureDigits(2, (millis / 1000) % 60);
 	}
 
 	std::pair<std::string, std::string> separateFirst(std::string s, std::string regex) {
