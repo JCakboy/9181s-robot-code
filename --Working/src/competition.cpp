@@ -95,9 +95,13 @@ void competition_initialize() {}
  */
 
 int selectedAutonomous = 0;
+bool autonomousComplete = true;
 void autonomous() {
+  autonomousComplete = false;
+  Logger::log(LOG_INFO, "--- Autonomous ---");
   // No autonomous
   puncher->prime();
+  autonomousComplete = true;
 }
 
 /**
@@ -114,7 +118,13 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+  Logger::log(LOG_INFO, "--- Operator Control Task ---");
   LCD::setStatus("Operator Control");
+
+  if (!autonomousComplete) {
+    Logger::log(LOG_WARNING, "Autonomous was not completed successfully!");
+    autonomousComplete = true;
+  }
 
   bool controllerDC = false;
 
@@ -159,9 +169,11 @@ void opcontrol() {
 
     if (!controllerMain->is_connected() && !controllerDC) {
       LCD::setStatus("Operator Controller Disconnected");
+      Logger::log(LOG_ERROR, "Operator Controller has been disconnected!");
       controllerDC = true;
     } else if (controllerMain->is_connected() && controllerDC) {
       LCD::setStatus("Operator Controller Reconnected");
+      Logger::log(LOG_ERROR, "Operator Controller has been reconnected!");
       controllerDC = false;
     }
 /*
@@ -195,4 +207,9 @@ void opcontrol() {
  */
 void disabled() {
   LCD::setStatus("Disabled");
+  Logger::log(LOG_INFO, "--- Disabled ---");
+  if (!autonomousComplete) {
+    Logger::log(LOG_WARNING, "Autonomous was not completed successfully!");
+    autonomousComplete = true;
+  }
 }
