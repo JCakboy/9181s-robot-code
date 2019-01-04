@@ -24,9 +24,9 @@ namespace ports {
   static pros::Controller * controllerMain;
   static pros::Controller * controllerPartner;
 
-  //static Battery * brainBattery;
-  //static Battery * controllerMainBattery;
-  // static Battery * controllerPartnerBattery;
+  static BrainBattery * brainBattery;
+  static ControllerBattery * controllerMainBattery;
+  static ControllerBattery * controllerPartnerBattery;
 
   // Ports
   static Unused * port1;
@@ -39,17 +39,25 @@ namespace ports {
   static Unused * port8;
   static Unused * port9;
   static Unused * port10;
-  static pros::Motor * frontLeftDrive;
-  static pros::Motor * frontRightDrive;
-  static pros::Motor * intake;
+  static pros::Motor * port11;
+  static pros::Motor * port12;
+  static pros::Motor * port13;
   static Unused * port14;
   static Unused * port15;
   static Unused * port16;
+  static pros::Motor * port17;
+  static pros::Motor * port18;
+  static pros::Motor * port19;
+  static pros::Motor * port20;
+  static Unused * port21;
+
+  static pros::Motor * frontLeftDrive;
+  static pros::Motor * frontRightDrive;
+  static pros::Motor * intake;
   static pros::Motor * puncherVariable;
   static pros::Motor * puncherMotor;
   static pros::Motor * backRightDrive;
   static pros::Motor * backLeftDrive;
-  static Unused * port21;
 
   static pros::Mutex * driveLock;
   static pros::Mutex * launcherLock;
@@ -66,5 +74,6 @@ namespace ports {
 };
 
 extern int selectedAutonomous;
+extern bool runOperaterControlLoop;
 
 #endif

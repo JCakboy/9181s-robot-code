@@ -32,7 +32,7 @@ class ControllerBattery : public Battery {
 	public:
 		ControllerBattery (pros::controller_id_e_t controller);
 
-		ControllerBattery (pros::Controller & controller);
+		ControllerBattery (pros::Controller * controller);
 
 		double capacity() override;
 

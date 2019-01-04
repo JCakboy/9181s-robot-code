@@ -2,6 +2,7 @@
 #include "battery.hpp"
 
 double BrainBattery::capacity() {
+	Logger::log(LOG_INFO, "b get c");
 	return pros::battery::get_capacity();
 }
 
@@ -21,8 +22,8 @@ ControllerBattery::ControllerBattery (pros::controller_id_e_t controller) {
 	ControllerBattery::controller = new pros::Controller(controller);
 }
 
-ControllerBattery::ControllerBattery (pros::Controller & controller) {
-	ControllerBattery::controller = &controller;
+ControllerBattery::ControllerBattery (pros::Controller * controller) {
+	ControllerBattery::controller = controller;
 }
 
 double ControllerBattery::capacity() {

@@ -9,10 +9,6 @@ namespace ports {
     ports::controllerMain = new pros::Controller(CONTROLLER_MAIN);
     ports::controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
-    //ports::brainBattery = new BrainBattery();
-    //ports::controllerMainBattery = new ControllerBattery(*(ports::controllerMain));
-    // ports::controllerPartnerBattery = new ControllerBattery(*(ports::controllerPartner));
-
     ports::port1 = new Unused(1);
     ports::port2 = new Unused(2);
     ports::port3 = new Unused(3);
@@ -23,17 +19,25 @@ namespace ports {
     ports::port8 = new Unused(8);
     ports::port9 = new Unused(9);
     ports::port10 = new Unused(10);
-    ports::frontLeftDrive = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::frontRightDrive = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::intake = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port12 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::port14 = new Unused(14);
     ports::port15 = new Unused(15);
     ports::port16 = new Unused(16);
-    ports::puncherVariable = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::puncherMotor = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::backRightDrive = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::backLeftDrive = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port18 = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+    ports::port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
+    ports::port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
     ports::port21 = new Unused(21);
+
+    ports::frontLeftDrive = ports::port11;
+    ports::frontRightDrive = ports::port12;
+    ports::intake = ports::port13;
+    ports::puncherVariable = ports::port17;
+    ports::puncherMotor = ports::port18;
+    ports::backRightDrive = ports::port19;
+    ports::backLeftDrive = ports::port20;
 
     ports::driveLock = new pros::Mutex();
     ports::launcherLock = new pros::Mutex();
@@ -64,6 +68,7 @@ void initialize() {
   ports::init();
   LCD::initialize();
   Logger::initializeDefaultLoggers();
+  Debugger::start();
 
   Logger::log(LOG_INFO, "#########################");
   Logger::log(LOG_INFO, "#     PROGRAM START     #");
@@ -117,6 +122,8 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+
+bool runOperaterControlLoop = true;
 void opcontrol() {
   Logger::log(LOG_INFO, "--- Operator Control Task ---");
   LCD::setStatus("Operator Control");
@@ -130,7 +137,9 @@ void opcontrol() {
 
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
-	while (true) {
+  start:
+
+	while (runOperaterControlLoop) {
 
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
     puncher->run();
@@ -173,7 +182,7 @@ void opcontrol() {
       controllerDC = true;
     } else if (controllerMain->is_connected() && controllerDC) {
       LCD::setStatus("Operator Controller Reconnected");
-      Logger::log(LOG_ERROR, "Operator Controller has been reconnected!");
+      Logger::log(LOG_INFO, "Operator Controller has been reconnected!");
       controllerDC = false;
     }
 /*
@@ -198,6 +207,21 @@ void opcontrol() {
 
 		pros::delay(20);
 	}
+
+  while (!runOperaterControlLoop) {
+    if (!controllerMain->is_connected() && !controllerDC) {
+      Logger::log(LOG_ERROR, "Operator Controller has been disconnected!");
+      controllerDC = true;
+    } else if (controllerMain->is_connected() && controllerDC) {
+      Logger::log(LOG_INFO, "Operator Controller has been reconnected!");
+      controllerDC = false;
+    }
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    pros::delay(20);
+  }
+
+  goto start;
 }
 
 /**
