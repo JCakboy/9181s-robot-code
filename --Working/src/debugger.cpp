@@ -59,15 +59,15 @@ std::vector<std::string> Debugger::command(std::string command) {
     ret.push_back("More may be added in the future.");
   } else if (command.rfind("freeze", 0) == 0) {
 
-    if (runOperaterControlLoop) {
-      runOperaterControlLoop = false;
+    if (runOperatorControlLoop) {
+      runOperatorControlLoop = false;
       ret.push_back("Operator Control Task paused");
       LCD::setStatus("Paused");
     } else
       ret.push_back("Operator Control Task is already paused");
   } else if (command.rfind("unfreeze", 0) == 0) {
-    if (!runOperaterControlLoop) {
-      runOperaterControlLoop = true;
+    if (!runOperatorControlLoop) {
+      runOperatorControlLoop = true;
       ret.push_back("Operator Control Task resumed");
       LCD::setStatus("Operator Control");
     } else
@@ -159,7 +159,7 @@ std::vector<std::string> Debugger::command(std::string command) {
         goto end;
       }
 
-      if (runOperaterControlLoop) {
+      if (runOperatorControlLoop) {
         ret.push_back("It is recommended that the operator control loop is paused when manually");
         ret.push_back("moving the motors because the loop may issue a command after the manual move.");
         ret.push_back("Use \"freeze\" to pause the operator control loop.");
@@ -180,7 +180,7 @@ std::vector<std::string> Debugger::command(std::string command) {
         goto end;
       }
 
-      if (runOperaterControlLoop) {
+      if (runOperatorControlLoop) {
         ret.push_back("It is recommended that the operator control loop is paused when manually");
         ret.push_back("moving the motors because the loop may issue a command after the manual move.");
         ret.push_back("Use \"freeze\" to pause the operator control loop.");
@@ -205,7 +205,7 @@ std::vector<std::string> Debugger::command(std::string command) {
         goto end;
       }
 
-      if (runOperaterControlLoop) {
+      if (runOperatorControlLoop) {
         ret.push_back("It is recommended that the operator control loop is paused when manually");
         ret.push_back("moving the motors because the loop may issue a command after the manual move.");
         ret.push_back("Use \"freeze\" to pause the operator control loop.");
@@ -216,7 +216,7 @@ std::vector<std::string> Debugger::command(std::string command) {
       motor.move(power);
       ret.push_back(type + " command issued to the motor on port " + portstr);
     } else if (command.rfind(".sto", 0) == 0) {
-      if (runOperaterControlLoop) {
+      if (runOperatorControlLoop) {
         ret.push_back("It is recommended that the operator control loop is paused when manually");
         ret.push_back("moving the motors because the loop may issue a command after the manual move.");
         ret.push_back("Use \"freeze\" to pause the operator control loop.");

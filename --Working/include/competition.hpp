@@ -21,59 +21,59 @@ class Unused {
 namespace ports {
 
   // Controllers
-  static pros::Controller * controllerMain;
-  static pros::Controller * controllerPartner;
+  extern pros::Controller * controllerMain;
+  extern pros::Controller * controllerPartner;
 
-  static BrainBattery * brainBattery;
-  static ControllerBattery * controllerMainBattery;
-  static ControllerBattery * controllerPartnerBattery;
+  extern BrainBattery * brainBattery;
+  extern ControllerBattery * controllerMainBattery;
+  extern ControllerBattery * controllerPartnerBattery;
 
   // Ports
-  static Unused * port1;
-  static Unused * port2;
-  static Unused * port3;
-  static Unused * port4;
-  static Unused * port5;
-  static Unused * port6;
-  static Unused * port7;
-  static Unused * port8;
-  static Unused * port9;
-  static Unused * port10;
-  static pros::Motor * port11;
-  static pros::Motor * port12;
-  static pros::Motor * port13;
-  static Unused * port14;
-  static Unused * port15;
-  static Unused * port16;
-  static pros::Motor * port17;
-  static pros::Motor * port18;
-  static pros::Motor * port19;
-  static pros::Motor * port20;
-  static Unused * port21;
+  extern Unused * port1;
+  extern Unused * port2;
+  extern Unused * port3;
+  extern Unused * port4;
+  extern Unused * port5;
+  extern Unused * port6;
+  extern Unused * port7;
+  extern Unused * port8;
+  extern Unused * port9;
+  extern Unused * port10;
+  extern pros::Motor * port11;
+  extern pros::Motor * port12;
+  extern pros::Motor * port13;
+  extern Unused * port14;
+  extern Unused * port15;
+  extern Unused * port16;
+  extern pros::Motor * port17;
+  extern pros::Motor * port18;
+  extern pros::Motor * port19;
+  extern pros::Motor * port20;
+  extern Unused * port21;
 
-  static pros::Motor * frontLeftDrive;
-  static pros::Motor * frontRightDrive;
-  static pros::Motor * intake;
-  static pros::Motor * puncherVariable;
-  static pros::Motor * puncherMotor;
-  static pros::Motor * backRightDrive;
-  static pros::Motor * backLeftDrive;
+  extern pros::Motor * frontLeftDrive;
+  extern pros::Motor * frontRightDrive;
+  extern pros::Motor * intake;
+  extern pros::Motor * puncherVariable;
+  extern pros::Motor * puncherMotor;
+  extern pros::Motor * backRightDrive;
+  extern pros::Motor * backLeftDrive;
 
-  static pros::Mutex * driveLock;
-  static pros::Mutex * launcherLock;
-  static pros::Mutex * intakeLock;
-  static pros::Mutex * liftLock;
+  extern pros::Mutex * driveLock;
+  extern pros::Mutex * launcherLock;
+  extern pros::Mutex * intakeLock;
+  extern pros::Mutex * liftLock;
 
-  static DriveControl * driveControl;
-  static DriveFunction * drive;
+  extern DriveControl * driveControl;
+  extern DriveFunction * drive;
 
-  static Puncher * puncher;
+  extern Puncher * puncher;
 
-  static void init();
+  extern void init();
 
 };
 
 extern int selectedAutonomous;
-extern bool runOperaterControlLoop;
+extern bool runOperatorControlLoop ;
 
 #endif

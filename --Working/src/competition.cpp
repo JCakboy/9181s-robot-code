@@ -5,51 +5,61 @@ Unused::Unused() {}
 Unused::Unused(int i) {}
 
 namespace ports {
+  // Controllers
+  pros::Controller * controllerMain = new pros::Controller(CONTROLLER_MAIN);
+  pros::Controller * controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
+
+  // Batteries
+  BrainBattery * brainBattery;
+  ControllerBattery * controllerMainBattery;
+  ControllerBattery * controllerPartnerBattery;
+
+  // Ports
+  Unused * port1 = new Unused(1);
+  Unused * port2 = new Unused(2);
+  Unused * port3 = new Unused(3);
+  Unused * port4 = new Unused(4);
+  Unused * port5 = new Unused(5);
+  Unused * port6 = new Unused(6);
+  Unused * port7 = new Unused(7);
+  Unused * port8 = new Unused(8);
+  Unused * port9 = new Unused(9);
+  Unused * port10 = new Unused(10);
+  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
+  Unused * port14 = new Unused(14);
+  Unused * port15 = new Unused(15);
+  Unused * port16 = new Unused(16);
+  pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
+  Unused * port21 = new Unused(21);
+
+  // Mapping
+  pros::Motor * frontLeftDrive = ports::port11;
+  pros::Motor * frontRightDrive = ports::port12;
+  pros::Motor * intake = ports::port13;
+  pros::Motor * puncherVariable = ports::port17;
+  pros::Motor * puncherMotor = ports::port18;
+  pros::Motor * backRightDrive = ports::port19;
+  pros::Motor * backLeftDrive = ports::port20;
+
+  // Mutexes
+  pros::Mutex * driveLock = new pros::Mutex();
+  pros::Mutex * launcherLock = new pros::Mutex();
+  pros::Mutex * intakeLock = new pros::Mutex();
+  pros::Mutex * liftLock = new pros::Mutex();
+
+  // Driving
+  DriveControl * driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
+  DriveFunction * drive = new DriveFunction(ports::driveControl);
+
+  // Puncher
+  Puncher * puncher = new Puncher(launcherLock, ports::puncherMotor);
+
   void init() {
-    ports::controllerMain = new pros::Controller(CONTROLLER_MAIN);
-    ports::controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
-
-    ports::port1 = new Unused(1);
-    ports::port2 = new Unused(2);
-    ports::port3 = new Unused(3);
-    ports::port4 = new Unused(4);
-    ports::port5 = new Unused(5);
-    ports::port6 = new Unused(6);
-    ports::port7 = new Unused(7);
-    ports::port8 = new Unused(8);
-    ports::port9 = new Unused(9);
-    ports::port10 = new Unused(10);
-    ports::port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port12 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port14 = new Unused(14);
-    ports::port15 = new Unused(15);
-    ports::port16 = new Unused(16);
-    ports::port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::port18 = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
-    ports::port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
-    ports::port21 = new Unused(21);
-
-    ports::frontLeftDrive = ports::port11;
-    ports::frontRightDrive = ports::port12;
-    ports::intake = ports::port13;
-    ports::puncherVariable = ports::port17;
-    ports::puncherMotor = ports::port18;
-    ports::backRightDrive = ports::port19;
-    ports::backLeftDrive = ports::port20;
-
-    ports::driveLock = new pros::Mutex();
-    ports::launcherLock = new pros::Mutex();
-    ports::intakeLock = new pros::Mutex();
-    ports::liftLock = new pros::Mutex();
-
-    ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::frontRightDrive);
-    // ports::driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
-    ports::drive = new DriveFunction(ports::driveControl);
-
-    ports::puncher = new Puncher(launcherLock, ports::puncherMotor);
-
     driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     drive->setGearRatio(1, 1, 4);
     drive->setTurnValues(501, 50);
@@ -123,7 +133,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
-bool runOperaterControlLoop = true;
+bool runOperatorControlLoop = true;
 void opcontrol() {
   Logger::log(LOG_INFO, "--- Operator Control Task ---");
   LCD::setStatus("Operator Control");
@@ -139,7 +149,7 @@ void opcontrol() {
 
   start:
 
-	while (runOperaterControlLoop) {
+	while (runOperatorControlLoop) {
 
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
     puncher->run();
@@ -198,8 +208,7 @@ void opcontrol() {
       drive->pivot(90);
       selectedAutonomous = 0;
     } else if (selectedAutonomous == 2) {
-      drive->move(36);
-      selectedAutonomous = 0;
+      drive->move(36);     selectedAutonomous = 0;
     } else if (selectedAutonomous == 3) {
       drive->pivot(180);
       selectedAutonomous = 0;
@@ -208,7 +217,7 @@ void opcontrol() {
 		pros::delay(20);
 	}
 
-  while (!runOperaterControlLoop) {
+  while (!runOperatorControlLoop ) {
     if (!controllerMain->is_connected() && !controllerDC) {
       Logger::log(LOG_ERROR, "Operator Controller has been disconnected!");
       controllerDC = true;
