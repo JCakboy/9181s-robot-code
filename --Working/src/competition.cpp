@@ -165,13 +165,13 @@ void opcontrol() {
 
     if (controllerMain->get_digital_new_press(BUTTON_L1)) {
       Logger::log(LOG_INFO, "High routine");
-      puncherVariable->move(-75);
+      puncherVariable->move(puncher->primed() ? -127 : -75);
       puncher->move(360);
       pros::delay(525);
       puncherVariable->move(0);
     } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
       Logger::log(LOG_INFO, "Mid routine");
-      puncherVariable->move(75);
+      puncherVariable->move(puncher->primed() ? 127 : 75);
       puncher->move(360);
       pros::delay(525);
       puncherVariable->move(0);

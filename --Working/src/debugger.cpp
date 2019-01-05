@@ -960,9 +960,225 @@ std::vector<std::string> Debugger::command(std::string command) {
     }
 
   } else if (command.rfind("drive", 0) == 0) {
+    command = command.substr(5);
 
+    if (command.size() == 0) {
+      // display left and right motors
+
+      // display driver profile
+
+      // display pid
+    } else if (command.rfind(".move_degrees") == 0) {
+      command = command.substr(13);
+
+    } else if (command.rfind(".move") == 0) {
+      command = command.substr(5);
+
+    } else if (command.rfind(".turn") == 0) {
+      command = command.substr(5);
+
+    } else if (command.rfind(".pvot") == 0) {
+      command = command.substr(5);
+
+    } else if (command.rfind(".pofile") == 0) {
+      command = command.substr(7);
+
+    } else if (command.rfind(".pd") == 0) {
+      command = command.substr(3);
+
+    } else if (command.rfind(".config") == 0) {
+      command = command.substr(7);
+
+    }
+  } else if (command.rfind("auto", 0) == 0) {
+    command = command.substr(4);
+    if (command.rfind("nomous", 0) == 0) command.substr(6);
+
+    if (command.size() == 0) {
+      ret.push_back("Currently Selected Autonomous: " + std::to_string(selectedAutonomous));
+    } else if (command.rfind(".run", 0) == 0) {
+      Logger::log(LOG_INFO, "Forcibly running autonomous...");
+      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+      autonomous();
+      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+      Logger::log(LOG_INFO, "Autonomous routine complete");
+    } else if (command.rfind(".select", 0) == 0) {
+      command = command.substr(4);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      std::string selstr;
+      int sel;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify a number to select");
+        goto end;
+      }
+
+      selstr = command.substr(0, command.find(" "));
+      command = command.substr(selstr.size());
+
+      try {
+        sel = std::stoi(selstr);
+      } catch (std::exception & e) {
+        ret.push_back("\"" + selstr + "\" is not a valid selection!");
+        goto end;
+      }
+
+      selectedAutonomous = sel;
+      ret.push_back("Selected autonomous: " + sel);
+    } else
+      ret.push_back("Unknown subcommand in \"auto\". Use \"select\" to select an autonomous and \"run\" to run it");
   } else if (command.rfind("lcd", 0) == 0) {
+    command = command.substr(3);
+    if (command.size() == 0) {
+      ret.push_back("Please specify an action like \"status\" or \"settext\"");
+      goto end;
+    } else if (command.rfind(".status", 0) == 0) {
+      ret.push_back("Status: " + LCD::getStatus());
+      goto end;
+    } else if (command.rfind(".text", 0) == 0) {
+      command = command.substr(5);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      bool invalidline = false;
+      std::string linestr;
+      int line;
 
+      if (command.size() == 0) {
+        ret.push_back("Please specify a line number");
+        goto end;
+      }
+
+      linestr = command.substr(0, command.find(" "));
+      command = command.substr(linestr.size());
+
+      try {
+        line = std::stoi(linestr);
+      } catch (std::exception & e) {
+        invalidline = true;
+      }
+      if (invalidline || line > 9 || line < 0){
+        ret.push_back("\"" + linestr + "\" is not a valid line number!");
+        goto end;
+      }
+
+      ret.push_back("Line " + linestr + ": " + LCD::getText(line));
+    } else if (command.rfind(".setstatus", 0) == 0) {
+      command = command.substr(10);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+
+      LCD::setStatus(command);
+      ret.push_back("Set LCD status to: " + command);
+    } else if (command.rfind(".settext", 0) == 0) {
+      command = command.substr(8);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      bool invalidline = false;
+      std::string linestr;
+      int line;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify a line number");
+        goto end;
+      }
+
+      linestr = command.substr(0, command.find(" "));
+      command = command.substr(linestr.size() + 1);
+
+      try {
+        line = std::stoi(linestr);
+      } catch (std::exception & e) {
+        invalidline = true;
+      }
+      if (invalidline || line > 9 || line < 0){
+        ret.push_back("\"" + linestr + "\" is not a valid line number!");
+        goto end;
+      }
+      if (command.size() == 0) {
+        ret.push_back("Please specify some text");
+        goto end;
+      }
+
+      LCD::setText(line, command);
+      ret.push_back("Set text on line " + linestr + " to: " + command);
+    } else if (command.rfind(".clearstatus", 0) == 0) {
+      LCD::setStatus("");
+      ret.push_back("Cleared LCD status");
+    } else if (command.rfind(".cleartext", 0) == 0) {
+      command = command.substr(10);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      bool invalidline = false;
+      std::string linestr;
+      int line;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify a line number");
+        goto end;
+      }
+
+      linestr = command.substr(0, command.find(" "));
+      command = command.substr(linestr.size());
+
+      try {
+        line = std::stoi(linestr);
+      } catch (std::exception & e) {
+        invalidline = true;
+      }
+      if (invalidline || line > 9 || line < 0){
+        ret.push_back("\"" + linestr + "\" is not a valid line number!");
+        goto end;
+      }
+      LCD::setText(line, "");
+      ret.push_back("Cleared text on line " + linestr);
+    } else if (command.rfind(".clearall", 0) == 0) {
+      for (int i = 0; i < 10; i++)
+        LCD::setText(i, "");
+      ret.push_back("Cleared all text on the LCD");
+    } else if (command.rfind(".button", 0) == 0) {
+      command = command.substr(7);
+      if (command.size() == 0) {
+        std::string pressed = "None";
+        switch (pros::lcd::read_buttons()) {
+          case 4:
+            pressed = "Left";
+            break;
+          case 2:
+            pressed = "Center";
+            break;
+          case 1:
+            pressed = "Right";
+            break;
+        }
+        ret.push_back("LCD Pressed Button: " + pressed);
+      } else if (command.rfind(".pess", 0) == 0) {
+        command = command.substr(5);
+        if (command.rfind(" ", 0) == 0) command = command.substr(1);
+
+        std::string name;
+        if (command.compare("left") == 0) {
+          name = "left";
+          LCD::onLeftButton();
+        } else if (command.compare("right") == 0) {
+          name = "right";
+          LCD::onRightButton();
+        } else if (command.compare("center") == 0) {
+          name = "center";
+          LCD::onCenterButton();
+        } else {
+          ret.push_back("Unknown button \"" + command + "\". Acceptable buttons are \"left\", \"right\", or \"center\"");
+          goto end;
+        }
+        ret.push_back("Successfully pressed the " + name + " button.");
+      } else if (command.rfind(".left", 0) == 0) {
+        std::string pressed = (pros::lcd::read_buttons() == 4) ? "pressed" : "not pressed";
+        ret.push_back("LCD Left Button: " + pressed);
+      } else if (command.rfind(".right", 0) == 0) {
+        std::string pressed = (pros::lcd::read_buttons() == 1) ? "pressed" : "not pressed";
+        ret.push_back("LCD Right Button: " + pressed);
+      } else if (command.rfind(".center", 0) == 0) {
+        std::string pressed = (pros::lcd::read_buttons() == 2) ? "pressed" : "not pressed";
+        ret.push_back("LCD Center Button: " + pressed);
+      } else
+        ret.push_back("Unkown subcommand in \"lcd.button\". Use \"press\" to virtually press a button");
+    } else
+      ret.push_back("Unknown subcommand in \"lcd\". Use subcommands such as \"button\" or \"text\"");
   } else
     ret.push_back("Unknown command. Type \"help\" for help");
 

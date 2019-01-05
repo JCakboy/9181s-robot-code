@@ -53,5 +53,5 @@ std::string LCD::getStatus() {
 std::string LCD::getText(int line) {
   if (line > 9 || line < 0)
     return "";
-  lines.at(line + 1);
+  return lines.at(line + 1);
 }
