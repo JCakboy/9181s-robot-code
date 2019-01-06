@@ -122,8 +122,10 @@ class DriveFunction {
   private:
     DriveControl * driveControl;
 
-    // Amount of degrees per inch of movement
-    double gearRatio;
+    // Values influencing gear ratio
+    double in;
+    double out;
+    double wheelDiameter;
 
     int pt;
     int kt;
@@ -144,8 +146,17 @@ class DriveFunction {
     // Sets the gear ratio for the drive motors, allowing for movement given in inches
     void setGearRatio(double in, double out, double wheelDiameter);
 
-    // Returns the gear ratio calculated for the motors;
-    double getGearRatio();
+    // Returns the full gear ratio calculated for the motors, factoring in input, output and wheelDiameter;
+    double getFullRatio();
+
+    // Returns the input gear ratio set with setGearRatio();
+    double getInputRatio();
+
+    // Returns the output gear ratio set with setGearRatio();
+    double getOutputRatio();
+
+    // Returns the wheel diameter set with setGearRatio();
+    double getWheelDiameter();
 
     // Turns the robot forward, specifying how far to turn
     void turn(int degrees);

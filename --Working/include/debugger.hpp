@@ -18,8 +18,10 @@ class Debugger {
     static void _task(void * param);
 
   public:
+    // Starts the debugging task
     static void start();
 
+    // Stops the debugging task
     static void stop();
 
 };

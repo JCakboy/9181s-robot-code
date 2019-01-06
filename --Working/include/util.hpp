@@ -7,7 +7,6 @@
 
 /*
  * A utility namespace to perform common robot functions
- *
  */
 
 namespace util {

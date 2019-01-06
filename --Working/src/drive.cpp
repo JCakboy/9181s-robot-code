@@ -100,24 +100,61 @@ void DriveControl::clearPID() {
   if (!usePID) return;
   DriveControl::usePID = false;
   delete DriveControl::pid;
+  DriveControl::pid = NULL;
 }
 
 void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees) {
   long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
   long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
 
+  std::vector<pros::Motor> leftMotors;
+  std::vector<pros::Motor> rightMotors;
+
+  std::vector<pros::Motor> lDisconnect;
+  std::vector<pros::Motor> rDisconnect;
+
   for (const auto & motor : DriveControl::leftMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
     motor.set_brake_mode((!usePID || pid->brake) ? BRAKE_BRAKE : BRAKE_COAST);
+    if (motor.get_efficiency() > 1000)
+      lDisconnect.push_back(motor);
+    else
+      leftMotors.push_back(motor);
   }
   for (const auto & motor : DriveControl::rightMotors) {
     motor.tare_position();
     motor.set_encoder_units(ENCODER_DEGREES);
     motor.set_brake_mode((!usePID || !(pid->brake)) ? BRAKE_BRAKE : BRAKE_COAST);
+    if (motor.get_efficiency() > 1000)
+      rDisconnect.push_back(motor);
+    else
+      rightMotors.push_back(motor);
   }
 
+  bool abort = false;
+
+  // Display disconnect errors
+  if (lDisconnect.size() > 0 && leftTarget) {
+    if (leftMotors.size() == 0) {
+      Logger::log(LOG_ERROR, "All of the left side drive motors have been disconnected! Aborting...");
+      abort = true;
+    }
+    else
+      Logger::log(LOG_ERROR, "Some of the left side drive motors have been disconnected! They will be ignored during this drive movement");
+  }
+  if (rDisconnect.size() > 0 && rightTarget) {
+    if (rightMotors.size() == 0) {
+      Logger::log(LOG_ERROR, "All of the right side drive motors have been disconnected! Aborting...");
+      abort = true;
+    }
+    else
+      Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! They will be ignored during this drive movement");
+  }
+  if (abort) return;
+
   LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));
+  Logger::log(LOG_INFO, "Auto Driving - Left Target: " + std::to_string(leftTarget) + ", Right Target:" + std::to_string(rightTarget));
   pros::delay(1000);
 
   if (!usePID) {
@@ -179,9 +216,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       if (!leftComplete) {
         PIDCommand ret = DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget);
         if (ret.type == E_COMMAND_EXIT_FAILURE || ret.type == E_COMMAND_EXIT_SUCCESS) {
-          if (ret.type == E_COMMAND_EXIT_FAILURE)
+          if (ret.type == E_COMMAND_EXIT_FAILURE) {
             message += "LF";
-          else
+            Logger::log(LOG_WARNING, "Left Side existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
+          } else
             message += "LS";
           leftComplete = true;
           leftPower = 0;
@@ -192,9 +230,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       if (!rightComplete) {
         PIDCommand ret = DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
         if (ret.type == E_COMMAND_EXIT_FAILURE || ret.type == E_COMMAND_EXIT_SUCCESS) {
-          if (ret.type == E_COMMAND_EXIT_FAILURE)
+          if (ret.type == E_COMMAND_EXIT_FAILURE) {
             message += "RF";
-          else
+            Logger::log(LOG_WARNING, "Right Side existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(rightPIDCalc->lastError));
+          } else
             message += "RS";
           rightComplete = true;
           rightPower = 0;
@@ -203,16 +242,17 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       }
 
       if (lock->take(MUTEX_WAIT_TIME)) {
-        for (const auto & motor : DriveControl::leftMotors)
+        for (const auto & motor : leftMotors)
           motor.move(leftPower);
-        for (const auto & motor : DriveControl::rightMotors)
+        for (const auto & motor : rightMotors)
           motor.move(rightPower);
         lock->give();
       }
 
       pros::delay(20);
     }
-    LCD::setStatus("PID complete " + message);
+    LCD::setStatus("PID Complete " + message);
+    Logger::log(LOG_INFO, "PID Complete");
     pros::delay(1000);
     delete DriveControl::leftPIDCalc;
     delete DriveControl::rightPIDCalc;
@@ -245,6 +285,13 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, b
 
 DriveFunction::DriveFunction(DriveControl * driveControl) {
   DriveFunction::driveControl = driveControl;
+
+  DriveFunction::in = 0;
+  DriveFunction::out = 0;
+  DriveFunction::wheelDiameter = 0;
+
+  DriveFunction::pt = 0;
+  DriveFunction::kt = 0;
 }
 
 DriveControl & DriveFunction::getDriveControl() {
@@ -261,11 +308,25 @@ std::pair<int, int> DriveFunction::getTurnValues() {
 }
 
 void DriveFunction::setGearRatio(double in, double out, double wheelDiameter) {
-  DriveFunction::gearRatio = (360 * out) / (wheelDiameter * PI * in);
+  DriveFunction::in = in;
+  DriveFunction::out = out;
+  DriveFunction::wheelDiameter = wheelDiameter;
 }
 
-double DriveFunction::getGearRatio() {
-  return DriveFunction::gearRatio;
+double DriveFunction::getFullRatio() {
+  return (360 * out) / (wheelDiameter * PI * in);
+}
+
+double DriveFunction::getInputRatio() {
+  return DriveFunction::in;
+}
+
+double DriveFunction::getOutputRatio() {
+  return DriveFunction::out;
+}
+
+double DriveFunction::getWheelDiameter() {
+  return DriveFunction::wheelDiameter;
 }
 
 void DriveFunction::turn(int degrees) {
@@ -290,6 +351,7 @@ void DriveFunction::pivot(int degrees) {
 }
 
 void DriveFunction::move(double inches) {
+  double gearRatio = (360 * out) / (wheelDiameter * PI * in);
     DriveFunction::driveControl->moveRelative(0, inches * gearRatio, 0, inches * gearRatio);
 }
 

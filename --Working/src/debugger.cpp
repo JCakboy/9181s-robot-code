@@ -1,9 +1,13 @@
 #include "main.h"
 #include <algorithm>
+#include <cctype>
 #include <exception>
 #include <iostream>
+#include <list>
 #include <string>
 #include <vector>
+
+using namespace ports;
 
 bool Debugger::stopped = true;
 pros::Task * Debugger::task = NULL;
@@ -29,9 +33,31 @@ void Debugger::_task(void * param) {
     std::string input;
     getline(std::cin, input);
 
+    std::replace(input.begin(), input.end(), ',', '.');
+    std::replace(input.begin(), input.end(), '/', '.');
+    std::replace(input.begin(), input.end(), '\b', '|');
+
     Logger::log(LOG_INFO, "Command: " + input);
 
-    for (std::string s : Debugger::command(input))
+    std::replace(input.begin(), input.end(), '|', '\b');
+
+    std::string command;
+
+    for(char & c : input)
+      if (isalnum(c) || c == '.' || c == ' ')
+        command += c;
+      else if (c == ';')
+        break;
+      else if (c == '\b' && command.size() != 0)
+        command.erase(command.end() - 1);
+      else if (c == 0x7f)
+        while (command.size() != 0 && (command.at(command.size() - 1) != '.' && command.at(command.size() - 1) != ' '))
+          command.erase(command.end() - 1);
+
+    Logger::log(LOG_INFO, "Parsed: " + command);
+
+
+    for (std::string s : Debugger::command(command))
       Logger::log(LOG_INFO, s);
   }
 }
@@ -42,8 +68,6 @@ std::vector<std::string> Debugger::command(std::string command) {
   // Trim command
   command.erase(std::find_if(command.rbegin(), command.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), command.end());
   command.erase(command.begin(), std::find_if(command.begin(), command.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-
-  std::replace(command.begin(), command.end(), ',', '.');
 
   pros::Controller main (CONTROLLER_MAIN);
   pros::Controller partner (CONTROLLER_PARTNER);
@@ -258,13 +282,13 @@ std::vector<std::string> Debugger::command(std::string command) {
         ret.push_back("        Capacity: " + std::to_string(controllerMain->get_battery_capacity()) + "%");
         ret.push_back("        Voltage: " + std::to_string(controllerMain->get_battery_level() / 1000.0) + " V");
       } else
-        ret.push_back("    Main Controller Battery: Not connected");
+        ret.push_back("    Main Controller Battery: Not Connected");
       if (controllerPartner->is_connected()) {
         ret.push_back("    Partner Controller Battery:");
         ret.push_back("        Capacity: " + std::to_string(controllerPartner->get_battery_capacity()) + "%");
         ret.push_back("        Voltage: " + std::to_string(controllerPartner->get_battery_level() / 1000.0) + " V");
       } else
-        ret.push_back("    Partner Controller Battery: Not connected");
+        ret.push_back("    Partner Controller Battery: Not Connected");
 
     } else if (command.rfind(".brain", 0) == 0) {
 
@@ -963,53 +987,105 @@ std::vector<std::string> Debugger::command(std::string command) {
     command = command.substr(5);
 
     if (command.size() == 0) {
-      // display left and right motors
+      std::pair<int, int> ptkt = drive->getTurnValues();
+      PID * pid = driveControl->getPID();
 
-      // display driver profile
+      ret.push_back("Drive Management:");
+      ret.push_back("    Gearing:");
+      ret.push_back("        Input: " + std::to_string(drive->getInputRatio()));
+      ret.push_back("        Ouput: " + std::to_string(drive->getOutputRatio()));
+      ret.push_back("        Wheel Diameter: " + std::to_string(drive->getWheelDiameter()) + " inches");
+      ret.push_back("    Turn Values:");
+      ret.push_back("        Proportion: " + std::to_string(ptkt.first));
+      ret.push_back("        Constant: " + std::to_string(ptkt.second));
+      if (pid == NULL)
+        ret.push_back("    PID Values: Not Set");
+      else {
+        std::string braking = (pid->brake) ? "true" : "false";
+        ret.push_back("    PID Values:");
+        ret.push_back("        dt: " + std::to_string(pid->dt));
+        ret.push_back("        kp: " + std::to_string(pid->kp));
+        ret.push_back("        ki: " + std::to_string(pid->ki));
+        ret.push_back("        kd: " + std::to_string(pid->kd));
+        ret.push_back("        brake: " + braking);
+        ret.push_back("        tLimit: " + std::to_string(pid->tLimit));
+        ret.push_back("        iLimit: " + std::to_string(pid->iLimit));
+        ret.push_back("        iZone: " + std::to_string(pid->iZone));
+        ret.push_back("        dThreshold: " + std::to_string(pid->dThreshold));
+        ret.push_back("        tThreshold: " + std::to_string(pid->tThreshold));
+        ret.push_back("        hangThreshold: " + std::to_string(pid->de0));
+      }
+    } else if (command.rfind(".turning", 0) == 0) {
+      command = command.substr(8);
+      std::pair<int, int> ptkt = drive->getTurnValues();
+      if (command.size() == 0) {
+        ret.push_back("Drive Turn Values:");
+        ret.push_back("    Proportion: " + std::to_string(ptkt.first));
+        ret.push_back("    Constant: " + std::to_string(ptkt.second));
+      } else if (command.rfind(".set", 0) == 0) {
+        command = command.substr(4);
 
-      // display pid
-    } else if (command.rfind(".move_degrees") == 0) {
+        if (command.size() == 0)
+          ret.push_back("Please specify a value to set, such as \"kp\" or \"tlimit\"");
+        else if (command.rfind(".p", 0) == 0) {
+          std::string selstr;
+          double sel;
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size() + 1);
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          try {
+            sel = std::stod(command);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + command + "\" is not a valid value!");
+            goto end;
+          }
+
+          drive->setTurnValues(sel, ptkt.second);
+          ret.push_back("Set Drive Turning Proportion to: " + command);
+        } else if (command.rfind(".k", 0) == 0) {
+          std::string selstr;
+          double sel;
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size() + 1);
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          try {
+            sel = std::stod(command);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + command + "\" is not a valid value!");
+            goto end;
+          }
+
+          drive->setTurnValues(ptkt.first, sel);
+          ret.push_back("Set Drive Turning Constant to: " + command);
+        } else
+          ret.push_back("\"" + command + "\" is not a known value! Acceptable values include \"pt\" or \"kt\"");
+      } else if (command.rfind(".p", 0) == 0)
+        ret.push_back("Drive Turn Proportion: " + std::to_string(ptkt.first));
+      else if (command.rfind(".k", 0) == 0)
+        ret.push_back("Drive Turn Constant: " + std::to_string(ptkt.second));
+      else
+        ret.push_back("Unknown subcommand in \"drive.turning\". Set values with \"set\" or retrieve values such as \"kt\"");
+
+    } else if (command.rfind(".move_degrees", 0) == 0) {
       command = command.substr(13);
-
-    } else if (command.rfind(".move") == 0) {
-      command = command.substr(5);
-
-    } else if (command.rfind(".turn") == 0) {
-      command = command.substr(5);
-
-    } else if (command.rfind(".pvot") == 0) {
-      command = command.substr(5);
-
-    } else if (command.rfind(".pofile") == 0) {
-      command = command.substr(7);
-
-    } else if (command.rfind(".pd") == 0) {
-      command = command.substr(3);
-
-    } else if (command.rfind(".config") == 0) {
-      command = command.substr(7);
-
-    }
-  } else if (command.rfind("auto", 0) == 0) {
-    command = command.substr(4);
-    if (command.rfind("nomous", 0) == 0) command.substr(6);
-
-    if (command.size() == 0) {
-      ret.push_back("Currently Selected Autonomous: " + std::to_string(selectedAutonomous));
-    } else if (command.rfind(".run", 0) == 0) {
-      Logger::log(LOG_INFO, "Forcibly running autonomous...");
-      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-      autonomous();
-      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
-      Logger::log(LOG_INFO, "Autonomous routine complete");
-    } else if (command.rfind(".select", 0) == 0) {
-      command = command.substr(4);
       if (command.rfind(" ", 0) == 0) command = command.substr(1);
       std::string selstr;
       int sel;
 
       if (command.size() == 0) {
-        ret.push_back("Please specify a number to select");
+        ret.push_back("Please specify an amount of degrees to move");
         goto end;
       }
 
@@ -1019,14 +1095,561 @@ std::vector<std::string> Debugger::command(std::string command) {
       try {
         sel = std::stoi(selstr);
       } catch (std::exception & e) {
-        ret.push_back("\"" + selstr + "\" is not a valid selection!");
+        ret.push_back("\"" + selstr + "\" is not a valid amount!");
         goto end;
       }
 
-      selectedAutonomous = sel;
-      ret.push_back("Selected autonomous: " + sel);
+      Logger::log(LOG_INFO, "Moving " + selstr + " degrees...");
+      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+      drive->moveDegrees(sel);
+      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+      Logger::log(LOG_INFO, "Movement complete");
+
+    } else if (command.rfind(".move", 0) == 0) {
+      command = command.substr(5);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      std::string selstr;
+      int sel;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify an amount of inches to move");
+        goto end;
+      }
+
+      selstr = command.substr(0, command.find(" "));
+      command = command.substr(selstr.size());
+
+      try {
+        sel = std::stoi(selstr);
+      } catch (std::exception & e) {
+        ret.push_back("\"" + selstr + "\" is not a valid amount!");
+        goto end;
+      }
+
+      Logger::log(LOG_INFO, "Moving " + selstr + " inches...");
+      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+      drive->move(sel);
+      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+      Logger::log(LOG_INFO, "Movement complete");
+
+    } else if (command.rfind(".turn", 0) == 0) {
+      command = command.substr(5);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      std::string selstr;
+      int sel;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify an amount of inches to turn");
+        goto end;
+      }
+
+      selstr = command.substr(0, command.find(" "));
+      command = command.substr(selstr.size());
+
+      try {
+        sel = std::stoi(selstr);
+      } catch (std::exception & e) {
+        ret.push_back("\"" + selstr + "\" is not a valid amount!");
+        goto end;
+      }
+
+      Logger::log(LOG_INFO, "Turning " + selstr + " degrees...");
+      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+      drive->turn(sel);
+      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+      Logger::log(LOG_INFO, "Turning complete");
+    } else if (command.rfind(".pvot", 0) == 0) {
+      command = command.substr(5);
+      if (command.rfind(" ", 0) == 0) command = command.substr(1);
+      std::string selstr;
+      int sel;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify an amount of inches to pivot");
+        goto end;
+      }
+
+      selstr = command.substr(0, command.find(" "));
+      command = command.substr(selstr.size());
+
+      try {
+        sel = std::stoi(selstr);
+      } catch (std::exception & e) {
+        ret.push_back("\"" + selstr + "\" is not a valid amount!");
+        goto end;
+      }
+
+      Logger::log(LOG_INFO, "Pivoting " + selstr + " degrees...");
+      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+      drive->pivot(sel);
+      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+      Logger::log(LOG_INFO, "Pivoting complete");
+    } else if (command.rfind(".gearing", 0) == 0) {
+      command = command.substr(8);
+
+      if (command.size() == 0) {
+        ret.push_back("Drive Gearing:");
+        ret.push_back("    Input: " + std::to_string(drive->getInputRatio()));
+        ret.push_back("    Ouput: " + std::to_string(drive->getOutputRatio()));
+        ret.push_back("    Wheel Diameter: " + std::to_string(drive->getWheelDiameter()) + " inches");
+      } else if (command.rfind(".set", 0) == 0) {
+        command = command.substr(4);
+
+        if (command.rfind(".in", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("put", 0) == 0) command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          drive->setGearRatio(sel, drive->getOutputRatio(), drive->getWheelDiameter());
+          ret.push_back("Set Drive Gearing input to: " + selstr);
+        } else if (command.rfind(".out", 0) == 0){
+          command = command.substr(4);
+          if (command.rfind("put", 0) == 0) command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          drive->setGearRatio(drive->getInputRatio(), sel, drive->getWheelDiameter());
+          ret.push_back("Set Drive Gearing output to: " + selstr);
+        } else if (command.rfind(".wd", 0) == 0 || command.rfind(".wh", 0) == 0 || command.rfind(".dia", 0) == 0) {
+          std::string selstr;
+          double sel;
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size() + 1);
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          try {
+            sel = std::stod(command);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + command + "\" is not a valid value!");
+            goto end;
+          }
+
+          drive->setGearRatio(drive->getInputRatio(), drive->getOutputRatio(), sel);
+          ret.push_back("Set Drive Gearing wheelDiameter to: " + command);
+        } else
+          ret.push_back("Please specify a value to set, such as \"in\" or \"out\"");
+      } else if (command.rfind(".in", 0) == 0)
+        ret.push_back("Drive Gearing Input Ratio: " + std::to_string(drive->getInputRatio()));
+      else if (command.rfind(".out", 0) == 0)
+        ret.push_back("Drive Gearing Output Ratio: " + std::to_string(drive->getOutputRatio()));
+      else if (command.rfind(".wd", 0) == 0 || command.rfind(".wh", 0) == 0 || command.rfind(".dia", 0) == 0)
+        ret.push_back("Drive Gearing Wheel Diameter: " + std::to_string(drive->getWheelDiameter()) + " inches");
+      else
+        ret.push_back("Unknown subcommand in \"drive.gearing\". Set values with \"set\" or retrieve values such as \"input\" or \"output\"");
+    } else if (command.rfind(".pd", 0) == 0) {
+      PID * pid = driveControl->getPID();
+      command = command.substr(3);
+
+      if (command.size() == 0) {
+        if (pid == NULL)
+          ret.push_back("Drive PID Values: Not Set");
+        else {
+          std::string braking = (pid->brake) ? "true" : "false";
+          ret.push_back("Drive PID Values:");
+          ret.push_back("    dt: " + std::to_string(pid->dt));
+          ret.push_back("    kp: " + std::to_string(pid->kp));
+          ret.push_back("    ki: " + std::to_string(pid->ki));
+          ret.push_back("    kd: " + std::to_string(pid->kd));
+          ret.push_back("    brake: " + braking);
+          ret.push_back("    tLimit: " + std::to_string(pid->tLimit));
+          ret.push_back("    iLimit: " + std::to_string(pid->iLimit));
+          ret.push_back("    iZone: " + std::to_string(pid->iZone));
+          ret.push_back("    dThreshold: " + std::to_string(pid->dThreshold));
+          ret.push_back("    tThreshold: " + std::to_string(pid->tThreshold));
+          ret.push_back("    hangThreshold: " + std::to_string(pid->de0));
+        }
+        goto end;
+      }
+
+      if (command.rfind(".set", 0) == 0) {
+        command = command.substr(4);
+
+        if (command.size() == 0) {
+          ret.push_back("Please specify a value to set, such as \"kp\" or \"tlimit\"");
+          goto end;
+        }
+
+        if (pid == NULL) {
+          driveControl->setPID(20, 0, 0, 0, false, 127, 0, 0, 10, 50, 50);
+          pid = driveControl->getPID();
+        }
+
+        if (command.rfind(".dth", 0) == 0) {
+          command = command.substr(4);
+          if (command.rfind("reshold", 0) == 0) command = command.substr(7);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->dThreshold = sel;
+          ret.push_back("Set Drive PID dThreshold to: " + selstr);
+        } else if (command.rfind(".kp", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->kp = sel;
+          ret.push_back("Set Drive PID kp to: " + selstr);
+        } else if (command.rfind(".ki", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->ki = sel;
+          ret.push_back("Set Drive PID ki to: " + selstr);
+        } else if (command.rfind(".kd", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->kd = sel;
+          ret.push_back("Set Drive PID kd to: " + selstr);
+        } else if (command.rfind(".brake", 0) == 0) {
+          command = command.substr(6);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          bool sel = false;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a boolean");
+            goto end;
+          } else if (command.compare("1") == 0)
+            sel = true;
+          else if (command.compare("0") == 0)
+            sel = false;
+          else if (command.compare("true") == 0)
+            sel = true;
+          else if (command.compare("false") == 0)
+            sel = false;
+          else {
+            ret.push_back("\"" + command + "\" is not a valid boolean! Acceptable values are \"true\" or \"false\"");
+            goto end;
+          }
+
+          pid->brake = sel;
+          ret.push_back("Set Drive PID brake to: " + command);
+        } else if (command.rfind(".tl", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("imit", 0) == 0) command = command.substr(4);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->tLimit = sel;
+          ret.push_back("Set Drive PID tLimit to: " + selstr);
+        } else if (command.rfind(".il", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("imit", 0) == 0) command = command.substr(4);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->iLimit = sel;
+          ret.push_back("Set Drive PID iLimit to: " + selstr);
+        } else if (command.rfind(".iz", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("one", 0) == 0) command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->iZone = sel;
+          ret.push_back("Set Drive PID iZone to: " + selstr);
+        } else if (command.rfind(".dt", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->dt = sel;
+          ret.push_back("Set Drive PID dt to: " + selstr);
+        } else if (command.rfind(".tt", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("hreshold", 0) == 0) command = command.substr(8);
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->tThreshold = sel;
+          ret.push_back("Set Drive PID tThreshold to: " + selstr);
+        } else if (command.rfind(".de", 0) == 0 || command.rfind("ht") == 0) {
+          command = command.substr(3);
+          if (command.rfind("0", 0) == 0) command = command.substr(1);
+          else if (command.rfind("hreshold", 0) == 0) command = command.substr(8);
+
+          if (command.rfind(" ", 0) == 0) command = command.substr(1);
+          std::string selstr;
+          double sel;
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size());
+
+          try {
+            sel = std::stod(selstr);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + selstr + "\" is not a valid value!");
+            goto end;
+          }
+
+          pid->de0 = sel;
+          ret.push_back("Set Drive PID hangThreshold to: " + selstr);
+        } else
+          ret.push_back("\"" + command + "\" is not a known value! Acceptable values include \"kp\" or \"tlimit\"");
+      } else if (command.rfind(".clear", 0) == 0) {
+        if (pid == NULL)
+          ret.push_back("Drive PID Values are not set!");
+        else {
+          driveControl->clearPID();
+          ret.push_back("Drive PID Values have been cleared");
+        }
+      } else {
+        if (pid == NULL)
+          ret.push_back("Drive PID Values: Not Set");
+        else if (command.rfind(".dth", 0) == 0)
+          ret.push_back("Drive PID dThreshold: " + std::to_string(pid->dThreshold));
+        else if (command.rfind(".kp", 0) == 0)
+          ret.push_back("Drive PID kp: " + std::to_string(pid->kp));
+        else if (command.rfind(".ki", 0) == 0)
+          ret.push_back("Drive PID ki: " + std::to_string(pid->ki));
+        else if (command.rfind(".kd", 0) == 0)
+          ret.push_back("Drive PID kd: " + std::to_string(pid->kd));
+        else if (command.rfind(".brake", 0) == 0) {
+          std::string braking = (pid->brake) ? "true" : "false";
+          ret.push_back("Drive PID brake: " + braking);
+        } else if (command.rfind(".tlimit", 0) == 0)
+          ret.push_back("Drive PID tLimit: " + std::to_string(pid->tLimit));
+        else if (command.rfind(".il", 0) == 0)
+          ret.push_back("Drive PID iLimit: " + std::to_string(pid->iLimit));
+        else if (command.rfind(".iz", 0) == 0)
+          ret.push_back("Drive PID iZone: " + std::to_string(pid->iZone));
+        else if (command.rfind(".dt", 0) == 0)
+          ret.push_back("Drive PID dt: " + std::to_string(pid->dt));
+        else if (command.rfind(".tt", 0) == 0)
+          ret.push_back("Drive PID tThreshold: " + std::to_string(pid->tThreshold));
+        else if (command.rfind(".de", 0) == 0 || command.rfind("ht") == 0)
+          ret.push_back("Drive PID hangThreshold: " + std::to_string(pid->de0));
+         else
+          ret.push_back("Unknown subcommand in \"drive.pid\". Set values with \"set\" or retrieve values such as \"kp\"");
+      }
     } else
-      ret.push_back("Unknown subcommand in \"auto\". Use \"select\" to select an autonomous and \"run\" to run it");
+      ret.push_back("Unknown subcommand in \"drive\". Issue commands such as \"move\" or retrieve information with \"pid\"");
+  } else if (command.rfind("auto", 0) == 0) {
+      command = command.substr(4);
+      if (command.rfind("nomous", 0) == 0) command.substr(6);
+
+      if (command.size() == 0) {
+        ret.push_back("Currently Selected Autonomous: " + std::to_string(selectedAutonomous));
+      } else if (command.rfind(".run", 0) == 0) {
+        Logger::log(LOG_INFO, "Forcibly running autonomous...");
+        task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+        autonomous();
+        task->set_priority(TASK_PRIORITY_DEFAULT - 1);
+        Logger::log(LOG_INFO, "Autonomous routine complete");
+      } else if (command.rfind(".select", 0) == 0) {
+        command = command.substr(4);
+        if (command.rfind(" ", 0) == 0) command = command.substr(1);
+        std::string selstr;
+        int sel;
+
+        if (command.size() == 0) {
+          ret.push_back("Please specify a number to select");
+          goto end;
+        }
+
+        selstr = command.substr(0, command.find(" "));
+        command = command.substr(selstr.size());
+
+        try {
+          sel = std::stoi(selstr);
+        } catch (std::exception & e) {
+          ret.push_back("\"" + selstr + "\" is not a valid selection!");
+          goto end;
+        }
+
+        selectedAutonomous = sel;
+        ret.push_back("Selected autonomous: " + sel);
+      } else
+        ret.push_back("Unknown subcommand in \"auto\". Use \"select\" to select an autonomous and \"run\" to run it");
   } else if (command.rfind("lcd", 0) == 0) {
     command = command.substr(3);
     if (command.size() == 0) {
