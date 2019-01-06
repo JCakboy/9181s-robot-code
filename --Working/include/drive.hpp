@@ -18,10 +18,13 @@
 class DriveControl {
   friend void ::autonomous();
   private:
+    // Lists of motors for right and left sides
     std::vector<pros::Motor> leftMotors;
     std::vector<pros::Motor> rightMotors;
+    // The mutex to take before attempting to move the motors
     pros::Mutex * lock;
 
+    // PID constant and calculation variables
     bool usePID;
     PID * pid;
     PIDCalc * leftPIDCalc;
@@ -30,14 +33,19 @@ class DriveControl {
     int pidSe;
     int pidLastError;
 
+    // Iterates and runs left motors at a given voltage
     void runLeftMotors(int voltage);
 
+    // Iterates and runs right motors at a given voltage
     void runRightMotors(int voltage);
 
+    // Iterates and sets the brake mode of all left motors to a given mode
     void setLeftBrake(pros::motor_brake_mode_e_t mode);
 
+    // Iterates and sets the brake mode of all right motors to a given mode
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
+    // The middleman to facilitate choosing between a PID calculation or a simple move_relative() motor command
     PIDCommand runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor> motors, int target);
 
   public:
@@ -120,6 +128,7 @@ class DriveControl {
 
 class DriveFunction {
   private:
+    // The DriveControl object to wrap and/or call
     DriveControl * driveControl;
 
     // Values influencing gear ratio
@@ -127,6 +136,7 @@ class DriveFunction {
     double out;
     double wheelDiameter;
 
+    // The values to use to calculate turning targets
     int pt;
     int kt;
 

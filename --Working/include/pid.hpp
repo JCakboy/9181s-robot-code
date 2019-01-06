@@ -9,6 +9,7 @@
 
 class PID {
   public:
+    // Stored PID constants. See the constructor for documentation
     int dt;
     double kp;
     double ki;
@@ -36,7 +37,7 @@ class PID {
      * iReset (integral reset): whether to reset after the error is insignificant, should be true for movement and false for velocity
      * dThreshold (delta threshold): the maximum delta between the motors actual position and the desired position
      * tThreshold (time threshold): the minimum number of cycles the motor must hold within the delta threshold to consider the operation complete
-     * de0 (hang threshold): the maximum number of cycles the motor holds a error delta of 0 before the operation is considered hung, use 0 to disable
+     * de0 (hang threshold): the maximum number of cycles the motor holds an error delta of 0 before the operation is considered hung, use 0 to disable
      */
     explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, bool iReset,  int dThreshold, int tThreshold, int de0);
 
@@ -58,15 +59,20 @@ class PID {
 
 class PIDCalc {
   public:
+    // The error in the last calculation loop
     int lastError;
+    // The sum of errors throughout the PID calculations
     int Se;
+    // The amount of cycles where the motor has held an error delta of 0
     int hangCycles;
+    // The amount of cycles where the motor has held an error delta under dThreshold
     int completeCycles;
 };
 
 /*
  * An enumeration specifying PID calculation statuses meant to used to communicate between the PID loop and the PID controller
  */
+
  typedef enum pid_command_type : int {
    E_COMMAND_NO_CALCULATION,
    E_COMMAND_CONTINUE,
@@ -81,6 +87,7 @@ class PIDCalc {
 /*
  * A class meant to hold the result of a pid calculation
  */
+
 class PIDCommand {
   public:
     // The command type

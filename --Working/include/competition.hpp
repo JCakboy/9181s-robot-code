@@ -69,11 +69,12 @@ namespace ports {
 
   extern Puncher * puncher;
 
+  // Fully initializes the port configuration. Should be called on intitalize()
   extern void init();
 
 };
 
 extern int selectedAutonomous;
-extern bool runOperatorControlLoop ;
+extern bool runOperatorControlLoop;
 
 #endif

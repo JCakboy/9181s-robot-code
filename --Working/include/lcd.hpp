@@ -6,7 +6,9 @@
 
 class LCD {
   private:
+    // The current status
     static std::string status;
+    // The current text on the LCD, set through this class
     static std::vector<std::string> lines;
 
   public:
@@ -28,7 +30,7 @@ class LCD {
     // Sets a line of text on the LCD
     static void setText(int line, std::string text);
 
-    // Returns the status set on the LCD
+    // Returns the current status set on the LCD
     static std::string getStatus();
 
     // Returns a line of text on the LCD

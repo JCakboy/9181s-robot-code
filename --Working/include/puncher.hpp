@@ -6,15 +6,22 @@
 class Puncher {
   friend void ::opcontrol();
   private:
+    // The mutex to take before attempting to move the motor
     pros::Mutex * lock;
+    // The motor assigned to the puncher
     pros::Motor * motor;
 
+    // The absolute value the puncher is holding
     int puncherTarget;
 
+    // Whether the puncher is currently moving
     bool punching;
+    // Whether a punch has been requested
     bool punchWaiting;
+    // Whether the puncher is pulled back and primed
     bool isprimed;
 
+    // Moves the puncher motor forward the given degrees
     void move(int degrees);
 
   public:

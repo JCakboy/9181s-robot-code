@@ -5,6 +5,8 @@
 
 /*
  * A header file listing constant settings
+ *
+ * These values are constant each compilation, but may vary between compilations
  */
 
 // Whether or not a microSD card is inserted

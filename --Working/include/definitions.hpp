@@ -6,6 +6,8 @@
 /*
  * A header file simplifying enumeration values,
  * similar to #define PROS_USE_SIMPLE_NAMES
+ *
+ * These values are constant, defined aliases for common enumerations
  */
 
 // Controller enumereration definitions

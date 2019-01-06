@@ -33,18 +33,25 @@ typedef enum logging_levels_e {
 
 class Logger {
   private:
+    // A list of currentlly initializes loggers
     static std::vector<Logger*> loggers;
 
+    // The minimum logging level set for this logger
     int minLevel;
+    // The file to log to
     std::string fileName;
     FILE * logfile;
 
+    // Creates the Logger object, given a minimum logging level, filename, and file pointer
     explicit Logger(logging_levels mLevel, std::string filename, FILE * file);
 
+    // Adds a new Logger to the list of loggers
     static void addNew(Logger * log);
 
+    // Writes text to the log file
     void _log(logging_levels level, std::string message);
 
+    // Checks whether a file exists
     static bool fileExists(std::string name);
 
   public:
