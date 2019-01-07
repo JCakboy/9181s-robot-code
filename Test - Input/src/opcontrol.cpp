@@ -1,6 +1,8 @@
 #include "main.h"
 #include <cstdio>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -19,9 +21,10 @@ void my_task_fn(void* param) {
 	while (true) {
 		pros::lcd::set_text(0, "waiting in task");
 		std::string s;
-		getline(std::cin, s);
-		std::cout << "Out: " << s << "\n";
-		pros::delay(750);
+		unsigned char a = std::cin.get();
+		// getline(std::cin, s);
+		std::cout << a;
+		pros::delay(10);
 	}
 }
 

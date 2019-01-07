@@ -19,7 +19,7 @@ class Debugger {
     // Handles a command
     static std::vector<std::string> command(std::string command);
 
-    // Responsible for waiting for, getting and parsing a command for command()
+    // Properly cooks the PROS terminal and is responsible for waiting for, getting and parsing a command for command()
     static void _task(void * param);
 
   public:

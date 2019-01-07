@@ -28,51 +28,123 @@ void Debugger::stop() {
   }
 }
 
+unsigned char getChar() {
+  return std::cin.get();
+}
+
+std::string currentCommand;
+std::string pending;
+std::vector<std::string> history;
+int activeIndex = -1;
+
 void Debugger::_task(void * param) {
+  // Serial input is encoded with UTF-8
   while (true) {
-    std::string input;
-    getline(std::cin, input);
 
-    std::replace(input.begin(), input.end(), ',', '.');
-    std::replace(input.begin(), input.end(), '/', '.');
-    std::replace(input.begin(), input.end(), '\b', '|');
+    unsigned char c = getChar();
 
-    Logger::log(LOG_INFO, "Command: " + input);
+    if (c == 0xc3) {
+      // Wait for continuation byte
+      unsigned char c0 = getChar();
+      std::cout << "\b \b";
+      if (c0 != 0xa0)
+        continue;
 
-    std::replace(input.begin(), input.end(), '|', '\b');
+      // Get next character
+      unsigned char c1 = getChar();
+      std::cout << "\b \b";
 
-    std::string command;
+      // Save the current command, if necessary
+      if (activeIndex == -1)
+        pending = currentCommand;
 
-    for(char & c : input)
-      if (isalnum(c) || c == '.' || c == ' ')
-        command += c;
-      else if (c == ';')
-        break;
-      else if (c == '\b' && command.size() != 0)
-        command.erase(command.end() - 1);
-      else if (c == 0x7f)
-        while (command.size() != 0 && (command.at(command.size() - 1) != '.' && command.at(command.size() - 1) != ' '))
-          command.erase(command.end() - 1);
+      int size = 0;
+      if (c1 == 0x48) { // Arrow Up was pressed
+        activeIndex++;
+        size = currentCommand.size();
+        if (activeIndex >= history.size()) activeIndex = history.size() - 1;
+        currentCommand = history.at(history.size() - 1 - activeIndex);
+      } else if (c1 == 0x50) { // Arrow Down was pressed
+        activeIndex--;
+        if (activeIndex < -1) activeIndex = -1;
+        size = currentCommand.size();
+        if (activeIndex == -1)
+          currentCommand = pending;
+        else
+          currentCommand = history.at(history.size() - 1 - activeIndex);
+      } else {
+          for (auto s : history)
+            Logger::log(LOG_INFO, s);
+          Logger::log(LOG_INFO, std::to_string(activeIndex));
+          continue;
+      }
+      // Home, end, insert or similar key was pressed.
+      // Ignore these inputs
 
-    Logger::log(LOG_INFO, "Parsed: " + command);
+      // Erase the line
+      for (int i = 0; i < (size + 5); i++)
+        std::cout << "\b";
+      for (int i = 0; i < (size + 3); i++)
+        std::cout << " ";
+      for (int i = 0; i < (size + 5); i++)
+        std::cout << "\b";
 
+      std::cout << currentCommand;
+    } else if (isalnum(c) || c == '.' || c == ' ') { // Input is alphanumeric or '.' or ' '
+      currentCommand += c;
+    } else if (c == '\b') { // Backspace was pressed
+      std::cout << " \b"; // PROS terminal doesn't parse /b properly, do it manually
+      currentCommand.erase(currentCommand.end() - 1);
+    } else if (c == 0x7f) { // CTRL+Backspace was pressed
+      // Erase until "." or " "
+      std::cout << "\b \b"; // PROS terminal doesn't parse 0x7f (CTRL+Backspace), do it manually
+      int amt = 0;
 
-    for (std::string s : Debugger::command(command))
-      Logger::log(LOG_INFO, s);
+      while (currentCommand.size() != 0 && (currentCommand.at(currentCommand.size() - 1) != '.' && currentCommand.at(currentCommand.size() - 1) != ' ')) {
+        currentCommand.erase(currentCommand.end() - 1);
+        amt++;
+      }
+      for (int i = 0; i < amt; i++)
+        std::cout << "\b";
+      for (int i = 0; i < amt; i++)
+        std::cout << " ";
+      for (int i = 0; i < amt; i++)
+        std::cout << "\b";
+    } else if (c == 0x1b) { // Escape was pressed
+      // Erase the line
+      for (int i = 0; i < (currentCommand.size() + 5); i++)
+        std::cout << "\b";
+      for (int i = 0; i < (currentCommand.size() + 3); i++)
+        std::cout << " ";
+      for (int i = 0; i < (currentCommand.size() + 5); i++)
+        std::cout << "\b";
+      currentCommand = "";
+    } else if (c == '\n') {
+      // Log the command to the log file
+      Logger::log(LOG_INFO, "Command: " + currentCommand);
+
+      // Execute the command
+      for (std::string s : Debugger::command(currentCommand))
+        Logger::log(LOG_INFO, s);
+
+      // Reset the state of control variables and push the command to the history
+      history.push_back(currentCommand);
+      currentCommand = "";
+      pending = "";
+      activeIndex = -1;
+    } else
+      Logger::log(LOG_INFO, "input ignored");
   }
 }
 
 std::vector<std::string> Debugger::command(std::string command) {
+  task->set_priority(TASK_PRIORITY_DEFAULT + 1);
+
   std::vector<std::string> ret;
 
   // Trim command
   command.erase(std::find_if(command.rbegin(), command.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), command.end());
   command.erase(command.begin(), std::find_if(command.begin(), command.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-
-  pros::Controller main (CONTROLLER_MAIN);
-  pros::Controller partner (CONTROLLER_PARTNER);
-  pros::Controller * controllerMain = &main;
-  pros::Controller * controllerPartner = &partner;
 
   if (command.rfind("echo ", 0) == 0) {
     ret.push_back(command.substr(5));
@@ -105,7 +177,17 @@ std::vector<std::string> Debugger::command(std::string command) {
     int port;
 
     if (command.size() == 0) {
-      ret.push_back("Please specify a port");
+      std::string found;
+      for (int i = 1; i <= 21; i++)
+        if (pros::Motor(i).get_efficiency() < 1000)
+          found = found + std::to_string(i) + " ";
+      ret.push_back("Motors found on ports: " + found);
+      ret.push_back("Please specify a port to retrive motor information");
+      goto end;
+    } else if (command.rfind(".sto", 0) == 0) {
+      for (int i = 1; i <= 21; i++)
+        pros::Motor(i).move(0);
+      ret.push_back("Stopped all motors");
       goto end;
     }
 
@@ -117,7 +199,7 @@ std::vector<std::string> Debugger::command(std::string command) {
     } catch (std::exception & e) {
       invalidport = true;
     }
-    if (invalidport || port > 20){
+    if (invalidport || port > 21){
       ret.push_back("\"" + portstr + "\" is not a valid port number!");
       goto end;
     }
@@ -1621,9 +1703,7 @@ std::vector<std::string> Debugger::command(std::string command) {
         ret.push_back("Currently Selected Autonomous: " + std::to_string(selectedAutonomous));
       } else if (command.rfind(".run", 0) == 0) {
         Logger::log(LOG_INFO, "Forcibly running autonomous...");
-        task->set_priority(TASK_PRIORITY_DEFAULT + 1);
         autonomous();
-        task->set_priority(TASK_PRIORITY_DEFAULT - 1);
         Logger::log(LOG_INFO, "Autonomous routine complete");
       } else if (command.rfind(".select", 0) == 0) {
         command = command.substr(4);
@@ -1807,5 +1887,6 @@ std::vector<std::string> Debugger::command(std::string command) {
 
   end:
 
+  task->set_priority(TASK_PRIORITY_DEFAULT - 1);
   return ret;
 }
