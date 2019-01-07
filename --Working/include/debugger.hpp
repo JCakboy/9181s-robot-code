@@ -16,6 +16,15 @@ class Debugger {
     // The debugger task
     static pros::Task * task;
 
+    // The current command buffer
+    static std::string currentCommand;
+    // The pending command buffer (the string acting as if it were passed the end of history)
+    static std::string pending;
+    // The history of commands
+    static std::vector<std::string> history;
+    // The active index of history, changed with the arrow keys
+    static int activeIndex;
+
     // Handles a command
     static std::vector<std::string> command(std::string command);
 

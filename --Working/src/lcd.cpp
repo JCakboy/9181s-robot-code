@@ -15,31 +15,39 @@ void LCD::initialize() {
     lines.push_back("");
 
   LCD::setStatus("LCD initialized");
-  setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
+  updateSelectedAutonomous();
 }
 
 void LCD::onLeftButton() {
-  selectedAutonomous = 1;
-  setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
+  // Decrements the selected autonomous and update the LCD
+  selectedAutonomous++;
+  updateSelectedAutonomous();
 }
 
 void LCD::onCenterButton() {
-  selectedAutonomous = 2;
-  setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
+  // No action set
 }
 
 void LCD::onRightButton() {
-  selectedAutonomous = 3;
+  // Increments the selected autonomous and update the LCD
+  selectedAutonomous--;
+  updateSelectedAutonomous();
+}
+
+void LCD::updateSelectedAutonomous() {
+  // Updates the selected autonomous on the LCD
   setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
 }
 
 void LCD::setStatus(std::string status) {
+  // Sets the status on the LCD
   pros::lcd::set_text(0, "Status: " + status);
   LCD::status = status;
   lines.at(0) = "Status: " + status;
 }
 
 void LCD::setText(int line, std::string text) {
+  // Sets the text at a given line on the LCD
   if (line > 9 || line < 0)
     return;
   pros::lcd::set_text(line + 1, text);
@@ -47,10 +55,12 @@ void LCD::setText(int line, std::string text) {
 }
 
 std::string LCD::getStatus() {
+  // Returns the status on the LCD
   return LCD::status;
 }
 
 std::string LCD::getText(int line) {
+  // Returns the text at a given line on the LCD
   if (line > 9 || line < 0)
     return "";
   return lines.at(line + 1);

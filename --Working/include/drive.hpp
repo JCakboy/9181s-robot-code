@@ -145,7 +145,7 @@ class DriveFunction {
     DriveFunction(DriveControl * driveControl);
 
     // Returns the Drive Control
-    DriveControl & getDriveControl();
+    DriveControl * getDriveControl();
 
     // Sets the turn porpotional value and the turn constant, used to calculate the amount to move the motors to turn the robot
     void setTurnValues(int pt, int kt);

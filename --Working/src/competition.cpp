@@ -60,12 +60,16 @@ namespace ports {
   Puncher * puncher = new Puncher(launcherLock, ports::puncherMotor);
 
   void init() {
+    // Set the PID values
     driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
+    // Sets the turn values of drive
     drive->setTurnValues(501, 50);
   }
 }
 
+// This file uses many of the fields above. Dump it into the global namespace for ease of programming
 using namespace ports;
 
 /**
@@ -75,11 +79,16 @@ using namespace ports;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+  // Initialize the ports
   ports::init();
+  // Initialize the LCD
   LCD::initialize();
+  // Initialize all the loggers that log to the microSD card
   Logger::initializeDefaultLoggers();
+  // Initialize the USB debugger
   Debugger::start();
 
+  // Simple header to signal the start of a new program in a log file
   Logger::log(LOG_INFO, "#########################");
   Logger::log(LOG_INFO, "#     PROGRAM START     #");
   Logger::log(LOG_INFO, "#########################");
@@ -109,11 +118,15 @@ void competition_initialize() {}
  * from where it left off.
  */
 
+// The currently selected autonomous, has external linkage (meaning its global throughout the project)
 int selectedAutonomous = 0;
+// Whether the autonomous was completed successfully. Used to determine whether the autonomous routine takes too long to complete
 bool autonomousComplete = true;
 void autonomous() {
   autonomousComplete = false;
+  // Log the start of autonomous to signify in a log file the location of the log
   Logger::log(LOG_INFO, "--- Autonomous ---");
+  LCD::setStatus("Autonomous");
   // No autonomous
   puncher->prime();
   autonomousComplete = true;
@@ -133,8 +146,10 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
+ // Whether the operator control loop should run, has external linkage
 bool runOperatorControlLoop = true;
 void opcontrol() {
+  // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "--- Operator Control Task ---");
   LCD::setStatus("Operator Control");
 
@@ -143,19 +158,26 @@ void opcontrol() {
     autonomousComplete = true;
   }
 
+  // Flag to set when the main controller has disconnected
   bool controllerDC = false;
 
+  // Puncher should hold its angle
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
   start:
 
+  // The operator control loop, code here is executed every 20ms when runOperatorControlLoop is set
 	while (runOperatorControlLoop) {
 
+    // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
+    // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
+    // Map the right analog stick to the puncherVariable motor to change the puncher angle
     puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) / 127.0 * 50);
 
+    // Intake code, R1 intakes balls, R2 outtakes balls and flips ground caps
     if (controllerMain->get_digital(BUTTON_R1))
       intake->move(127);
     else if (controllerMain->get_digital(BUTTON_R2))
@@ -163,6 +185,7 @@ void opcontrol() {
     else
       intake->move(0);
 
+    // Runs the high and mid flag routine when L1 and L2 is pressed, respectively
     if (controllerMain->get_digital_new_press(BUTTON_L1)) {
       Logger::log(LOG_INFO, "High routine");
       puncherVariable->move(puncher->primed() ? -127 : -75);
@@ -177,6 +200,7 @@ void opcontrol() {
       puncherVariable->move(0);
     }
 
+    // Buttons A, X and B deal with puncher priming. See Puncher for documentation
     if (controllerMain->get_digital_new_press(BUTTON_A))
       puncher->togglePrime();
 
@@ -186,6 +210,7 @@ void opcontrol() {
     if (controllerMain->get_digital_new_press(BUTTON_B))
       puncher->unprime();
 
+    // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {
       LCD::setStatus("Operator Controller Disconnected");
       Logger::log(LOG_ERROR, "Operator Controller has been disconnected!");
@@ -195,29 +220,28 @@ void opcontrol() {
       Logger::log(LOG_INFO, "Operator Controller has been reconnected!");
       controllerDC = false;
     }
-/*
+
+    /* Debugging code: displays drive and puncher motor values to the LCD screen
+     * DEPRECATED: use USB debugging to query the motor positions
     LCD::setText(3, "Left front: " + std::to_string((frontLeftDrive->get_position())));
     LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
     LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
     LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
     LCD::setText(2, "Puncher: P" + std::to_string((puncher->primed)) + " B" + std::to_string(puncherMotor->get_brake_mode() == BRAKE_BRAKE));
-*/    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    */
+
+    // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
-    if (selectedAutonomous == 1) {
-      drive->pivot(90);
-      selectedAutonomous = 0;
-    } else if (selectedAutonomous == 2) {
-      drive->move(36);     selectedAutonomous = 0;
-    } else if (selectedAutonomous == 3) {
-      drive->pivot(180);
-      selectedAutonomous = 0;
-    }
-
+    // Run every 20ms
 		pros::delay(20);
 	}
 
-  while (!runOperatorControlLoop ) {
+  // Code loop when the operator control loop is paused. Runs
+  while (!runOperatorControlLoop) {
+
+    // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {
       Logger::log(LOG_ERROR, "Operator Controller has been disconnected!");
       controllerDC = true;
@@ -225,11 +249,16 @@ void opcontrol() {
       Logger::log(LOG_INFO, "Operator Controller has been reconnected!");
       controllerDC = false;
     }
+
+    // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+
+    // Run every 20ms
     pros::delay(20);
   }
 
+  // Jump back to the operator control loop when re-enabled
   goto start;
 }
 
@@ -239,8 +268,9 @@ void opcontrol() {
  * the robot is enabled, this task will exit.
  */
 void disabled() {
-  LCD::setStatus("Disabled");
+  // Log the start of disablement to signify in a log file the location of the log
   Logger::log(LOG_INFO, "--- Disabled ---");
+  LCD::setStatus("Disabled");
   if (!autonomousComplete) {
     Logger::log(LOG_WARNING, "Autonomous was not completed successfully!");
     autonomousComplete = true;

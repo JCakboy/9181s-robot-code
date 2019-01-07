@@ -7,12 +7,20 @@
 #include <string>
 #include <vector>
 
+// Uses some elements of this namespace. Dump it into the global namespace for ease of programming
 using namespace ports;
 
+// The static initializations of private Debugger fields. See the header file for documentation
 bool Debugger::stopped = true;
 pros::Task * Debugger::task = NULL;
 
+std::string Debugger::currentCommand;
+std::string Debugger::pending;
+std::vector<std::string> Debugger::history;
+int Debugger::activeIndex;
+
 void Debugger::start() {
+  // If the debugger is stopped, start the debugger
   if (Debugger::stopped) {
     Debugger::task = new pros::Task(Debugger::_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "Debugger");
     Debugger::stopped = false;
@@ -20,6 +28,7 @@ void Debugger::start() {
 }
 
 void Debugger::stop() {
+  // If the debugger is not stopped, erase the debugger task from memory as well as from the PROS RTOS API
   if (!Debugger::stopped) {
     Debugger::task->remove();
     delete Debugger::task;
@@ -28,30 +37,21 @@ void Debugger::stop() {
   }
 }
 
-unsigned char getChar() {
-  return std::cin.get();
-}
-
-std::string currentCommand;
-std::string pending;
-std::vector<std::string> history;
-int activeIndex = -1;
-
 void Debugger::_task(void * param) {
   // Serial input is encoded with UTF-8
   while (true) {
 
-    unsigned char c = getChar();
+    unsigned char c = std::cin.get();
 
     if (c == 0xc3) {
       // Wait for continuation byte
-      unsigned char c0 = getChar();
+      unsigned char c0 = std::cin.get();
       std::cout << "\b \b";
       if (c0 != 0xa0)
         continue;
 
       // Get next character
-      unsigned char c1 = getChar();
+      unsigned char c1 = std::cin.get();
       std::cout << "\b \b";
 
       // Save the current command, if necessary
@@ -138,14 +138,17 @@ void Debugger::_task(void * param) {
 }
 
 std::vector<std::string> Debugger::command(std::string command) {
+  // When running a command, set the priority higher than operator control so it does not interrupt
   task->set_priority(TASK_PRIORITY_DEFAULT + 1);
 
+  // The
   std::vector<std::string> ret;
 
   // Trim command
   command.erase(std::find_if(command.rbegin(), command.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), command.end());
   command.erase(command.begin(), std::find_if(command.begin(), command.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
 
+  // Handle the command
   if (command.rfind("echo ", 0) == 0) {
     ret.push_back(command.substr(5));
   } else if (command.rfind("hel", 0) == 0) {
@@ -1887,6 +1890,7 @@ std::vector<std::string> Debugger::command(std::string command) {
 
   end:
 
+  // Set the priority lower than operator control when waiting for a new command
   task->set_priority(TASK_PRIORITY_DEFAULT - 1);
   return ret;
 }

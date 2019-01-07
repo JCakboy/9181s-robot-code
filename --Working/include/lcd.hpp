@@ -24,6 +24,9 @@ class LCD {
     // The method called on a right LCD button press
     static void onRightButton();
 
+    // Updates the selected autonomous on the lCD
+    static void updateSelectedAutonomous();
+
     // Sets the status on the lCD
     static void setStatus(std::string status);
 

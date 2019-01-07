@@ -7,6 +7,12 @@
 #include "util.hpp"
 
 namespace util {
+	/*
+	 * All of these methods perform simple tasks that are utilized throughout the project
+	 *
+	 * For documentation, see the header file
+	 */
+
 	double min(double a, double b) {
 		return ((a < b) ? a : b);
 	}
