@@ -234,6 +234,14 @@ void opcontrol() {
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
+    if (selectedAutonomous == 1) {
+      drive->move(-20);
+      selectedAutonomous = 0;
+    } else if (selectedAutonomous == -1) {
+      drive->move(30);
+      selectedAutonomous = 0;
+    }
+
     // Run every 20ms
 		pros::delay(20);
 	}

@@ -300,12 +300,12 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
           rightPower = ret.result;
       }
 
+      std::cout << "Power L" << std::to_string(leftPower) << " R" << rightPower <<"\n";
+
       if (lock->take(MUTEX_WAIT_TIME)) {
         // Iterate through and issue the commands to the motors
-        for (const auto & motor : leftMotors)
-          motor.move(leftPower);
-        for (const auto & motor : rightMotors)
-          motor.move(rightPower);
+        DriveControl::runLeftMotors(leftPower);
+        DriveControl::runRightMotors(rightPower);
         lock->give();
       }
 

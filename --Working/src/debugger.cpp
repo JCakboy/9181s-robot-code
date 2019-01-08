@@ -90,7 +90,7 @@ void Debugger::_task(void * param) {
         std::cout << "\b";
 
       std::cout << currentCommand;
-    } else if (isalnum(c) || c == '.' || c == ' ') { // Input is alphanumeric or '.' or ' '
+    } else if (isalnum(c) || c == '.' || c == ' ' || c == '_') { // Input is alphanumeric or '.' or ' ' or '_'
       currentCommand += c;
     } else if (c == '\b') { // Backspace was pressed
       std::cout << " \b"; // PROS terminal doesn't parse /b properly, do it manually
@@ -133,7 +133,7 @@ void Debugger::_task(void * param) {
       pending = "";
       activeIndex = -1;
     } else
-      Logger::log(LOG_INFO, "input ignored");
+      std::cout << "\b \b";
   }
 }
 
