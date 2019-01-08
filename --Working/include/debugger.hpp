@@ -25,6 +25,15 @@ class Debugger {
     // The active index of history, changed with the arrow keys
     static int activeIndex;
 
+    // The code for the command to run during operator control
+    static unsigned int callCode;
+    // The parameters for the call
+    static std::string parameter1;
+    static std::string parameter2;
+    static std::string parameter3;
+    // The completion message
+    static std::string completion;
+
     // Handles a command
     static std::vector<std::string> command(std::string command);
 
@@ -34,6 +43,9 @@ class Debugger {
   public:
     // Starts the debugging task
     static void start();
+
+    // Runs the debugger, meant to be called in the operator control loop to give direct access to methods
+    static void run();
 
     // Stops the debugging task
     static void stop();

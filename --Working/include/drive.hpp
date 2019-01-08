@@ -19,8 +19,8 @@ class DriveControl {
   friend void ::autonomous();
   private:
     // Lists of motors for right and left sides
-    std::vector<pros::Motor> leftMotors;
-    std::vector<pros::Motor> rightMotors;
+    std::vector<pros::Motor*> leftMotors;
+    std::vector<pros::Motor*> rightMotors;
     // The mutex to take before attempting to move the motors
     pros::Mutex * lock;
 
@@ -46,11 +46,11 @@ class DriveControl {
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
     // The middleman to facilitate choosing between a PID calculation or a simple move_relative() motor command
-    PIDCommand runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor> motors, int target);
+    PIDCommand runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor*> motors, int target);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
-    explicit DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor);
+    explicit DriveControl(pros::Mutex * motorLock, pros::Motor * leftMotor, pros::Motor * rightMotor);
 
     /*
      * Creates the Drive Control object
@@ -61,13 +61,13 @@ class DriveControl {
      * frontRightMotor: a motor on the right side of the robot
      * rearRightMotor: a motor on the right side of the robot
      */
-    explicit DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor);
+    explicit DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor);
 
     // Adds a motor to the left position list
-    void addLeftMotor(pros::Motor motor);
+    void addLeftMotor(pros::Motor * motor);
 
     // Adds a motor to the right position list
-    void addRightMotor(pros::Motor motor);
+    void addRightMotor(pros::Motor * motor);
 
     // Clears all motors from the motor lists
     void clearMotors();

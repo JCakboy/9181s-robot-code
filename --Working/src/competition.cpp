@@ -53,7 +53,7 @@ namespace ports {
   pros::Mutex * liftLock = new pros::Mutex();
 
   // Driving
-  DriveControl * driveControl = new DriveControl(*ports::driveLock, *ports::frontLeftDrive, *ports::backLeftDrive, *ports::frontRightDrive, *ports::backRightDrive);
+  DriveControl * driveControl = new DriveControl(ports::driveLock, ports::frontLeftDrive, ports::backLeftDrive, ports::frontRightDrive, ports::backRightDrive);
   DriveFunction * drive = new DriveFunction(ports::driveControl);
 
   // Puncher
@@ -168,6 +168,8 @@ void opcontrol() {
 
   // The operator control loop, code here is executed every 20ms when runOperatorControlLoop is set
 	while (runOperatorControlLoop) {
+    // Runs the debugger and executes any required methods
+    Debugger::run();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
@@ -248,6 +250,8 @@ void opcontrol() {
 
   // Code loop when the operator control loop is paused. Runs
   while (!runOperatorControlLoop) {
+    // Runs the debugger and executes any required methods
+    Debugger::run();
 
     // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {

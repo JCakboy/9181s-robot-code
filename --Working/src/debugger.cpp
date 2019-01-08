@@ -19,12 +19,45 @@ std::string Debugger::pending;
 std::vector<std::string> Debugger::history;
 int Debugger::activeIndex;
 
+unsigned int Debugger::callCode;
+std::string Debugger::parameter1;
+std::string Debugger::parameter2;
+std::string Debugger::parameter3;
+std::string Debugger::completion;
+
 void Debugger::start() {
   // If the debugger is stopped, start the debugger
   if (Debugger::stopped) {
     Debugger::task = new pros::Task(Debugger::_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "Debugger");
     Debugger::stopped = false;
   }
+}
+
+void Debugger::run() {
+  // If the debugger is not running, ignore
+  if (Debugger::stopped) return;
+  // If no call is waiting, continue
+  if (Debugger::callCode == 0x00) return;
+
+  try { // Catch all exceptions, should never error here
+    // Call codes starting with 0x10 to 0x1f refer to drive
+    if (Debugger::callCode == 0x10)  // DriveFunction::move
+      ports::drive->move(std::stoi(parameter1));
+    else if (Debugger::callCode == 0x11)  // DriveFunction::moveDegrees
+      ports::drive->moveDegrees(std::stoi(parameter1));
+    else if (Debugger::callCode == 0x12)  // DriveFunction::pivot
+      ports::drive->pivot(std::stoi(parameter1));
+    else if (Debugger::callCode == 0x13)  // DriveFunction::turn
+      ports::drive->turn(std::stoi(parameter1));
+
+  } catch (std::exception e) {}
+
+  // Reset the call code and parameters
+  Debugger::callCode = 0x00;
+  Debugger::parameter1 = "";
+  Debugger::parameter2 = "";
+  Debugger::parameter3 = "";
+  Logger::log(LOG_INFO, completion);
 }
 
 void Debugger::stop() {
@@ -90,7 +123,7 @@ void Debugger::_task(void * param) {
         std::cout << "\b";
 
       std::cout << currentCommand;
-    } else if (isalnum(c) || c == '.' || c == ' ' || c == '_') { // Input is alphanumeric or '.' or ' ' or '_'
+    } else if (isalnum(c) || c == '.' || c == ' ' || c == '_' || c == '-') { // Acceptable characters: alphanumeric, '.', ' ', '_' or '-'
       currentCommand += c;
     } else if (c == '\b') { // Backspace was pressed
       std::cout << " \b"; // PROS terminal doesn't parse /b properly, do it manually
@@ -219,8 +252,9 @@ std::vector<std::string> Debugger::command(std::string command) {
 
     if (command.size() == 0) {
       ret.push_back("Motor at Port " + portstr + ":");
-      ret.push_back("    Position: " + std::to_string(motor.get_position()) + " degrees");
+      ret.push_back("    Move Command: " + std::to_string(std::lround(motor.get_voltage() / 12000.0 * 127)));
       ret.push_back("    Direction: " + direction);
+      ret.push_back("    Position: " + std::to_string(motor.get_position()) + " degrees");
       ret.push_back("    Velocity:");
       ret.push_back("        Turbo Gearing: " + std::to_string(motor.get_actual_velocity() * 3.0) + " RPM");
       ret.push_back("        High Speed Gearing: " + std::to_string(motor.get_actual_velocity()) + " RPM");
@@ -232,7 +266,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       ret.push_back("    Torque: " + std::to_string(motor.get_torque()) + " Nm");
       ret.push_back("    Efficiency: " + std::to_string(motor.get_efficiency()) + "%");
       ret.push_back("    Brake Mode: " + brake);
-    } else if (command.rfind(".loc" , 0) == 0)
+    } else if (command.rfind(".com", 0) == 0)
+      ret.push_back("Move Command of Motor at Port " + portstr + ": " + std::to_string(std::lround(motor.get_voltage() / 12000.0 * 127)));
+    else if (command.rfind(".loc" , 0) == 0)
       ret.push_back("Position of Motor at Port " + portstr + ": " + std::to_string(motor.get_position()) + " degrees");
     else if (command.rfind(".dir" , 0) == 0)
       ret.push_back("Direction of Motor at Port " + portstr + ": " + direction);
@@ -1185,10 +1221,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       }
 
       Logger::log(LOG_INFO, "Moving " + selstr + " degrees...");
-      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-      drive->moveDegrees(sel);
-      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
-      Logger::log(LOG_INFO, "Movement complete");
+      Debugger::parameter1 = selstr;
+      Debugger::callCode = 0x11;
+      Debugger::completion = "Movement complete";
 
     } else if (command.rfind(".move", 0) == 0) {
       command = command.substr(5);
@@ -1212,10 +1247,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       }
 
       Logger::log(LOG_INFO, "Moving " + selstr + " inches...");
-      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-      drive->move(sel);
-      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
-      Logger::log(LOG_INFO, "Movement complete");
+      Debugger::parameter1 = selstr;
+      Debugger::callCode = 0x10;
+      Debugger::completion = "Movement complete";
 
     } else if (command.rfind(".turn", 0) == 0) {
       command = command.substr(5);
@@ -1239,10 +1273,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       }
 
       Logger::log(LOG_INFO, "Turning " + selstr + " degrees...");
-      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-      drive->turn(sel);
-      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
-      Logger::log(LOG_INFO, "Turning complete");
+      Debugger::parameter1 = selstr;
+      Debugger::callCode = 0x13;
+      Debugger::completion = "Turning complete";
     } else if (command.rfind(".pvot", 0) == 0) {
       command = command.substr(5);
       if (command.rfind(" ", 0) == 0) command = command.substr(1);
@@ -1265,10 +1298,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       }
 
       Logger::log(LOG_INFO, "Pivoting " + selstr + " degrees...");
-      task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-      drive->pivot(sel);
-      task->set_priority(TASK_PRIORITY_DEFAULT - 1);
-      Logger::log(LOG_INFO, "Pivoting complete");
+      Debugger::parameter1 = selstr;
+      Debugger::callCode = 0x12;
+      Debugger::completion = "Pivoting complete";
     } else if (command.rfind(".gearing", 0) == 0) {
       command = command.substr(8);
 
@@ -1708,8 +1740,9 @@ std::vector<std::string> Debugger::command(std::string command) {
         Logger::log(LOG_INFO, "Forcibly running autonomous...");
         autonomous();
         Logger::log(LOG_INFO, "Autonomous routine complete");
-      } else if (command.rfind(".select", 0) == 0) {
+      } else if (command.rfind(".sel", 0) == 0 || command.rfind(".set", 0) == 0) {
         command = command.substr(4);
+        if (command.rfind("ect", 0) == 0) command = command.substr(3);
         if (command.rfind(" ", 0) == 0) command = command.substr(1);
         std::string selstr;
         int sel;

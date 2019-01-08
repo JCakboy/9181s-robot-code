@@ -18,12 +18,12 @@ PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iL
 
 PIDCommand PID::calculate(PIDCalc * calc, int position, int target) {
   // Calculate the current error
-  int error = target - position;
+  double error = target - position;
 
   if (PID::iReset && (error == 0 || (calc->Se > 0 && error < 0) || (calc->Se < 0 && error > 0))) calc->Se = 0; // Check for error sum relevancy
   else if (util::withinX(PID::iZone, error)) calc->Se = util::limitX(PID::iLimit, calc->Se + error); // Add the current error to the sum of all errors
 
-  int de = (error - calc->lastError) / PID::dt; // Calculate the change in error over time (gradient)
+  double de = (error - calc->lastError) / PID::dt; // Calculate the change in error over time (gradient)
 
   // Check for successful completion of the PID movement
   if (util::abs(error) <= PID::dThreshold) {

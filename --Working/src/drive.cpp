@@ -6,34 +6,34 @@
 void DriveControl::runLeftMotors(int voltage) {
   // Iterate through and set the left motors to a given power
   for (const auto & motor : DriveControl::leftMotors)
-    motor.move(voltage);
+    motor->move(voltage);
 }
 
 void DriveControl::runRightMotors(int voltage) {
   // Iterate through and set the right motors to a given power
   for (const auto & motor : DriveControl::rightMotors)
-    motor.move(voltage);
+    motor->move(voltage);
 }
 
 void DriveControl::setLeftBrake(pros::motor_brake_mode_e_t mode) {
   // Iterate through and set the left motors to a given brake mode
-  for (const auto & motor : DriveControl::leftMotors)
-    if (motor.get_brake_mode() != mode)
-      motor.set_brake_mode(mode);
+  for (const auto * motor : DriveControl::leftMotors)
+    if (motor->get_brake_mode() != mode)
+      motor->set_brake_mode(mode);
 }
 
 void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
   // Iterate through and set the right motors to a given brake mode
-  for (const auto & motor : DriveControl::rightMotors)
-    if (motor.get_brake_mode() != mode)
-      motor.set_brake_mode(mode);
+  for (const auto * motor : DriveControl::rightMotors)
+    if (motor->get_brake_mode() != mode)
+      motor->set_brake_mode(mode);
 }
 
-PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor> motors, int target) {
+PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor *> motors, int target) {
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
     // PID values are not set, issue simple move command
     for (const auto & motor : motors)
-      motor.move(util::limitX(MOTOR_MOVE_RELATIVE_MAX_SPEED, target * MOTOR_MOVE_RELATIVE_KP));
+      motor->move(util::limitX(MOTOR_MOVE_RELATIVE_MAX_SPEED, target * MOTOR_MOVE_RELATIVE_KP));
     lock->give();
     return PIDCommand(E_COMMAND_NO_CALCULATION, 0);
   } else; else if (motors.size() > 0) {
@@ -41,7 +41,7 @@ PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Mot
     // Calculate the average motor position, giving a better sense of the robot position
     int position = 0;
     for (const auto & motor : motors)
-      position += motor.get_position();
+      position += motor->get_position();
     position = position / util::sign(motors.size());
 
     // Calculate the output
@@ -49,10 +49,10 @@ PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Mot
   }
 }
 
-DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros::Motor rightMotor) {
+DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * leftMotor, pros::Motor * rightMotor) {
   // Two wheel drive initialization
   // Store the mutex
-  DriveControl::lock = &motorLock;
+  DriveControl::lock = motorLock;
   // Add the left motor
   DriveControl::addLeftMotor(leftMotor);
   // Add the right motor
@@ -65,14 +65,14 @@ DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor leftMotor, pros:
   DriveControl::rightPIDCalc = NULL;
 }
 
-DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, pros::Motor rearLeftMotor, pros::Motor frontRightMotor, pros::Motor rearRightMotor) {
+DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor) {
   // Four wheel drive initialization
   // Store the mutex
-  DriveControl::lock = &motorLock;
+  DriveControl::lock = motorLock;
   // Add the left motors
   DriveControl::addLeftMotor(frontLeftMotor);
   DriveControl::addLeftMotor(rearLeftMotor);
-  // Add the right motors
+  // Add the right motor&
   DriveControl::addRightMotor(frontRightMotor);
   DriveControl::addRightMotor(rearRightMotor);
 
@@ -83,12 +83,12 @@ DriveControl::DriveControl(pros::Mutex & motorLock, pros::Motor frontLeftMotor, 
   DriveControl::rightPIDCalc = NULL;
 }
 
-void DriveControl::addLeftMotor(pros::Motor motor) {
+void DriveControl::addLeftMotor(pros::Motor * motor) {
   // Add the motor to the list of left motors
   DriveControl::leftMotors.push_back(motor);
 }
 
-void DriveControl::addRightMotor(pros::Motor motor) {
+void DriveControl::addRightMotor(pros::Motor * motor) {
   // Add the motor to the list of right motors
   DriveControl::rightMotors.push_back(motor);
 }
@@ -137,13 +137,9 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
   long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
 
-  // The dynamic list of left and right motors to use
-  std::vector<pros::Motor> leftMotors;
-  std::vector<pros::Motor> rightMotors;
-
-  // The list of motors not connected, but stored in the lists
-  std::vector<pros::Motor> lDisconnect;
-  std::vector<pros::Motor> rDisconnect;
+  // The amount of disconnected motors
+  int lDisconnect = 0;
+  int rDisconnect = 0;
 
   /*
    * Iterates through the left and right motors to check whether they are connected
@@ -152,43 +148,37 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
    * If no motors are plugged in on either side, abort
    */
   for (const auto & motor : DriveControl::leftMotors) {
-    motor.tare_position();
-    motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode((!usePID || pid->brake) ? BRAKE_BRAKE : BRAKE_COAST);
-    if (motor.get_efficiency() > 1000)
-      lDisconnect.push_back(motor);
-    else
-      leftMotors.push_back(motor);
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode((!usePID || pid->brake) ? BRAKE_BRAKE : BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      lDisconnect++;
   }
   for (const auto & motor : DriveControl::rightMotors) {
-    motor.tare_position();
-    motor.set_encoder_units(ENCODER_DEGREES);
-    motor.set_brake_mode((!usePID || !(pid->brake)) ? BRAKE_BRAKE : BRAKE_COAST);
-    if (motor.get_efficiency() > 1000)
-      rDisconnect.push_back(motor);
-    else
-      rightMotors.push_back(motor);
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode((!usePID || !(pid->brake)) ? BRAKE_BRAKE : BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      rDisconnect++;
   }
 
   // Whether to abort
   bool abort = false;
 
   // Display disconnect errors
-  if (lDisconnect.size() > 0 && leftTarget) {
-    if (leftMotors.size() == 0) {
+  if (lDisconnect > 0 && leftTarget) {
+    if (DriveControl::leftMotors.size() == lDisconnect)
       Logger::log(LOG_ERROR, "All of the left side drive motors have been disconnected! Aborting...");
-      abort = true;
-    }
     else
-      Logger::log(LOG_ERROR, "Some of the left side drive motors have been disconnected! They will be ignored during this drive movement");
+      Logger::log(LOG_ERROR, "Some of the left side drive motors have been disconnected! Aborting...");
+    abort = true;
   }
-  if (rDisconnect.size() > 0 && rightTarget) {
-    if (rightMotors.size() == 0) {
+  if (rDisconnect > 0 && rightTarget) {
+    if (DriveControl::rightMotors.size() == rDisconnect)
       Logger::log(LOG_ERROR, "All of the right side drive motors have been disconnected! Aborting...");
-      abort = true;
-    }
     else
-      Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! They will be ignored during this drive movement");
+      Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! Aborting...");
+    abort = true;
   }
   if (abort) return;
 
@@ -208,11 +198,11 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       long total = 0;
       // Run the left motors
       for (const auto & motor : leftMotors) {
-        if (util::abs(leftTarget - motor.get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
+        if (util::abs(leftTarget - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
           count++;
-          LCD::setText(2, "Left error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(leftTarget - motor.get_position()));
+          LCD::setText(2, "Left error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(leftTarget - motor->get_position()));
         }
-        total += motor.get_position();
+        total += motor->get_position();
       }
       // Check for completion
       if (count == DriveControl::leftMotors.size()) {
@@ -226,11 +216,11 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       total = 0;
       // Run the right motors
       for (const auto & motor : rightMotors) {
-        if (util::abs(rightTarget - motor.get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
+        if (util::abs(rightTarget - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
           count++;
-          LCD::setText(2, "Right error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(rightTarget - motor.get_position()));
+          LCD::setText(2, "Right error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(rightTarget - motor->get_position()));
         }
-        total += motor.get_position();
+        total += motor->get_position();
       }
       // Check for completion
       if (count == DriveControl::rightMotors.size()) {
@@ -299,8 +289,6 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
         } else
           rightPower = ret.result;
       }
-
-      std::cout << "Power L" << std::to_string(leftPower) << " R" << rightPower <<"\n";
 
       if (lock->take(MUTEX_WAIT_TIME)) {
         // Iterate through and issue the commands to the motors
