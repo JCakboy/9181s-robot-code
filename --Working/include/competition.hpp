@@ -39,10 +39,10 @@ namespace ports {
   extern Unused * port8;
   extern Unused * port9;
   extern Unused * port10;
-  extern pros::Motor * port11;
+  extern Unused * port11;
   extern pros::Motor * port12;
   extern pros::Motor * port13;
-  extern Unused * port14;
+  extern pros::Motor * port14;
   extern Unused * port15;
   extern Unused * port16;
   extern pros::Motor * port17;

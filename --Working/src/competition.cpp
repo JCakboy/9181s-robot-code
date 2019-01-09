@@ -25,22 +25,22 @@ namespace ports {
   Unused * port8 = new Unused(8);
   Unused * port9 = new Unused(9);
   Unused * port10 = new Unused(10);
-  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
-  Unused * port14 = new Unused(14);
+  Unused * port11 = new Unused(11);
+  pros::Motor * port12 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port14 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port15 = new Unused(15);
   Unused * port16 = new Unused(16);
   pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port18 = new pros::Motor(18, GEARSET_100, FWD, ENCODER_DEGREES);
   pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port21 = new Unused(21);
 
   // Mapping
-  pros::Motor * frontLeftDrive = ports::port11;
-  pros::Motor * frontRightDrive = ports::port12;
-  pros::Motor * intake = ports::port13;
+  pros::Motor * frontLeftDrive = ports::port12;
+  pros::Motor * frontRightDrive = ports::port13;
+  pros::Motor * intake = ports::port14;
   pros::Motor * puncherVariable = ports::port17;
   pros::Motor * puncherMotor = ports::port18;
   pros::Motor * backRightDrive = ports::port19;
@@ -172,7 +172,7 @@ void opcontrol() {
     Debugger::run();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
-    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
+    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 0.9, 0.9);
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
@@ -192,13 +192,13 @@ void opcontrol() {
       Logger::log(LOG_INFO, "High routine");
       puncherVariable->move(puncher->primed() ? -127 : -75);
       puncher->move(360);
-      pros::delay(525);
+      pros::delay(puncher->primed() ? 500 : 800);
       puncherVariable->move(0);
     } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
       Logger::log(LOG_INFO, "Mid routine");
       puncherVariable->move(puncher->primed() ? 127 : 75);
       puncher->move(360);
-      pros::delay(525);
+      pros::delay(puncher->primed() ? 500 : 800);
       puncherVariable->move(0);
     }
 
