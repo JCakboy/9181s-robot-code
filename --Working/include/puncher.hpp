@@ -4,7 +4,8 @@
 #include "main.h"
 
 class Puncher {
-  friend void ::opcontrol();
+  friend void ::highRoutine();
+  friend void ::midRoutine();
   private:
     // The mutex to take before attempting to move the motor
     pros::Mutex * lock;

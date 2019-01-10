@@ -74,6 +74,9 @@ namespace ports {
 
 };
 
+void highRoutine();
+void midRoutine();
+
 extern int selectedAutonomous;
 extern bool runOperatorControlLoop;
 

@@ -26,9 +26,9 @@ namespace ports {
   Unused * port9 = new Unused(9);
   Unused * port10 = new Unused(10);
   Unused * port11 = new Unused(11);
-  pros::Motor * port12 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port13 = new pros::Motor(12, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port14 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port15 = new Unused(15);
   Unused * port16 = new Unused(16);
   pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
@@ -61,7 +61,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.54, 0.000000, 0.000000, false, 127, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    driveControl->setPID(20, 0.425, 0.000000, 0.5000000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -106,6 +106,24 @@ void initialize() {
 void competition_initialize() {}
 
 
+
+void highRoutine() {
+  Logger::log(LOG_INFO, "High routine");
+  puncherVariable->move(puncher->primed() ? -127 : -75);
+  puncher->move(360);
+  pros::delay(puncher->primed() ? 500 : 800);
+  puncherVariable->move(0);
+}
+
+void midRoutine() {
+  Logger::log(LOG_INFO, "Mid routine");
+  puncherVariable->move(puncher->primed() ? 127 : 75);
+  puncher->move(360);
+  pros::delay(puncher->primed() ? 500 : 800);
+  puncherVariable->move(0);
+}
+
+
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -127,8 +145,28 @@ void autonomous() {
   // Log the start of autonomous to signify in a log file the location of the log
   Logger::log(LOG_INFO, "--- Autonomous ---");
   LCD::setStatus("Autonomous");
-  // No autonomous
-  puncher->prime();
+
+  if (selectedAutonomous == 5) {
+    intake->move(127);
+    drive->move(48);
+    intake->move(0);
+    drive->move(-52);
+    puncher->prime();
+    drive->move(4);
+    drive->pivot(-90);
+    drive->run(0, 0, false, false, false);
+    pros::delay(20);
+    highRoutine();
+    intake->move(127);
+    pros::delay(600);
+    midRoutine();
+    drive->move(40);
+  }
+
+
+
+
+
   autonomousComplete = true;
 }
 
@@ -172,7 +210,7 @@ void opcontrol() {
     Debugger::run();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
-    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 0.9, 0.9);
+    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
@@ -189,17 +227,9 @@ void opcontrol() {
 
     // Runs the high and mid flag routine when L1 and L2 is pressed, respectively
     if (controllerMain->get_digital_new_press(BUTTON_L1)) {
-      Logger::log(LOG_INFO, "High routine");
-      puncherVariable->move(puncher->primed() ? -127 : -75);
-      puncher->move(360);
-      pros::delay(puncher->primed() ? 500 : 800);
-      puncherVariable->move(0);
+      midRoutine();
     } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
-      Logger::log(LOG_INFO, "Mid routine");
-      puncherVariable->move(puncher->primed() ? 127 : 75);
-      puncher->move(360);
-      pros::delay(puncher->primed() ? 500 : 800);
-      puncherVariable->move(0);
+      highRoutine();
     }
 
     // Buttons A, X and B deal with puncher priming. See Puncher for documentation
@@ -211,6 +241,11 @@ void opcontrol() {
 
     if (controllerMain->get_digital_new_press(BUTTON_B))
       puncher->unprime();
+
+    if (controllerMain->get_digital_new_press(BUTTON_Y)) {
+      selectedAutonomous = 5;
+      autonomous();
+    }
 
     // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {

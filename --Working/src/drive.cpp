@@ -72,7 +72,7 @@ DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor
   // Add the left motors
   DriveControl::addLeftMotor(frontLeftMotor);
   DriveControl::addLeftMotor(rearLeftMotor);
-  // Add the right motor&
+  // Add the right motor
   DriveControl::addRightMotor(frontRightMotor);
   DriveControl::addRightMotor(rearRightMotor);
 
@@ -150,14 +150,14 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   for (const auto & motor : DriveControl::leftMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode((!usePID || pid->brake) ? BRAKE_BRAKE : BRAKE_COAST);
+    motor->set_brake_mode(BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       lDisconnect++;
   }
   for (const auto & motor : DriveControl::rightMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode((!usePID || !(pid->brake)) ? BRAKE_BRAKE : BRAKE_COAST);
+    motor->set_brake_mode(BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       rDisconnect++;
   }
@@ -180,7 +180,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! Aborting...");
     abort = true;
   }
-  if (abort) return;
+  //if (abort) return;
 
   // Display and log for debugging purposes
   LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));
@@ -292,8 +292,12 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
 
       if (lock->take(MUTEX_WAIT_TIME)) {
         // Iterate through and issue the commands to the motors
-        DriveControl::runLeftMotors(leftPower);
-        DriveControl::runRightMotors(rightPower);
+        if (leftPower != 0)
+          for (const auto & motor : DriveControl::leftMotors)
+            motor->move(leftPower);
+        if (rightPower != 0)
+          for (const auto & motor : DriveControl::rightMotors)
+            motor->move(rightPower);
         lock->give();
       }
 
