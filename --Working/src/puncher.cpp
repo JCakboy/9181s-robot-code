@@ -64,8 +64,10 @@ void Puncher::run() {
   if (!Puncher::isprimed) {
     // If the puncher is not primed, ensure that the motor is in the neutral position
     Puncher::motor->set_brake_mode(BRAKE_COAST);
-    Puncher::motor->tare_position();
-    Puncher::motor->move(0);
+    if (!punching){
+      Puncher::motor->tare_position();
+      Puncher::motor->move(0);
+    }
 
     Puncher::puncherTarget = 0;
   }

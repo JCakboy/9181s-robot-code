@@ -146,26 +146,27 @@ void autonomous() {
   Logger::log(LOG_INFO, "--- Autonomous ---");
   LCD::setStatus("Autonomous");
 
-  if (selectedAutonomous == 5) {
+  if (selectedAutonomous == 5) { // Skills Routine
+    // Drive and toggle the front ball
     intake->move(127);
     drive->move(48);
     intake->move(0);
+    // Drive back and reset
     drive->move(-52);
     puncher->prime();
-    drive->move(4);
+    // Turn to face the flags
+    drive->move(3);
     drive->pivot(-90);
     drive->run(0, 0, false, false, false);
     pros::delay(20);
+    // Articulate and shoot the balls
     highRoutine();
     intake->move(127);
-    pros::delay(600);
+    pros::delay(650);
     midRoutine();
+    // Drive forward and toggle the low flag
     drive->move(40);
   }
-
-
-
-
 
   autonomousComplete = true;
 }

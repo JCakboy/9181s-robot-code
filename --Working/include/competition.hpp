@@ -74,7 +74,9 @@ namespace ports {
 
 };
 
+// Routine to shoot the high flag
 void highRoutine();
+// Routine to shoot the mid flag
 void midRoutine();
 
 extern int selectedAutonomous;

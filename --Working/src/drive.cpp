@@ -250,59 +250,66 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
     std::string message;
 
     while (!(leftComplete && rightComplete)) {
+
+      // Calculate a power for the left motors
+      PIDCommand left = DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget);
+      leftPower = left.result;
+
       if (!leftComplete) {
-        // Left is not complete, calculate another power to the motors
-        PIDCommand ret = DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget);
-        if (ret.type == E_COMMAND_EXIT_FAILURE || ret.type == E_COMMAND_EXIT_SUCCESS) {
+        // Left side is not complete, check for completion signal
+        if (left.type == E_COMMAND_EXIT_FAILURE || left.type == E_COMMAND_EXIT_SUCCESS) {
           // An exit command was issued, signifying either success or failure
-          if (ret.type == E_COMMAND_EXIT_FAILURE) {
+          if (left.type == E_COMMAND_EXIT_FAILURE) {
             // Left side failed to complete, stuck on an object
             message += "LF";
-            Logger::log(LOG_WARNING, "Left Side existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
+            Logger::log(LOG_WARNING, "Left Side has existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
           } else {
             // Left side successfully completed
             message += "LS";
-            Logger::log(LOG_INFO, "Left Side existed with a success status. Error: " + std::to_string(leftPIDCalc->lastError));
+            Logger::log(LOG_INFO, "Left Side has existed with a success status. Error: " + std::to_string(leftPIDCalc->lastError));
           }
           leftComplete = true;
-          leftPower = 0;
-        } else
-          leftPower = ret.result;
+        }
       }
 
+      // Calculate a power for the right motors
+      PIDCommand right = DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
+      rightPower = right.result;
+
       if (!rightComplete) {
-        // Right is not complete, calculate another power to the motors
-        PIDCommand ret = DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
-        if (ret.type == E_COMMAND_EXIT_FAILURE || ret.type == E_COMMAND_EXIT_SUCCESS) {
+        // Right is not complete, check for completion signal
+        if (right.type == E_COMMAND_EXIT_FAILURE || right.type == E_COMMAND_EXIT_SUCCESS) {
           // An exit command was issued, signifying either success or failure
-          if (ret.type == E_COMMAND_EXIT_FAILURE) {
+          if (right.type == E_COMMAND_EXIT_FAILURE) {
             // Right side failed to complete, stuck on an object
             message += "RF";
-            Logger::log(LOG_WARNING, "Right Side existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(rightPIDCalc->lastError));
+            Logger::log(LOG_WARNING, "Right Side has existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(rightPIDCalc->lastError));
           } else {
             // Right side successfully completed
             message += "RS";
-            Logger::log(LOG_INFO, "Right Side existed with a success status. Error: " + std::to_string(rightPIDCalc->lastError));
+            Logger::log(LOG_INFO, "Right Side has existed with a success status. Error: " + std::to_string(rightPIDCalc->lastError));
           }
           rightComplete = true;
-          rightPower = 0;
-        } else
-          rightPower = ret.result;
+        }
       }
 
       if (lock->take(MUTEX_WAIT_TIME)) {
         // Iterate through and issue the commands to the motors
-        if (leftPower != 0)
-          for (const auto & motor : DriveControl::leftMotors)
-            motor->move(leftPower);
-        if (rightPower != 0)
-          for (const auto & motor : DriveControl::rightMotors)
-            motor->move(rightPower);
+        for (const auto & motor : DriveControl::leftMotors)
+          motor->move(leftPower);
+        for (const auto & motor : DriveControl::rightMotors)
+          motor->move(rightPower);
         lock->give();
       }
 
+      // Delay for the specified time delta
       pros::delay(pid->dt);
     }
+    // Stop the motors together
+    for (const auto & motor : DriveControl::leftMotors)
+      motor->move(0);
+    for (const auto & motor : DriveControl::rightMotors)
+      motor->move(0);
     // Log the completion
     LCD::setStatus("PID Complete " + message);
     Logger::log(LOG_INFO, "PID Complete");

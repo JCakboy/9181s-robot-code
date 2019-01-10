@@ -40,7 +40,11 @@ void Debugger::run() {
   if (Debugger::callCode == 0x00) return;
 
   try { // Catch all exceptions, should never error here
-    // Call codes starting with 0x10 to 0x1f refer to drive
+    // Call codes starting from 0x01 to 0x0f refer to general robot commands
+    if (Debugger::callCode == 0x01) // Run autonomous
+      autonomous();
+
+    // Call codes starting from 0x10 to 0x1f refer to drive
     if (Debugger::callCode == 0x10)  // DriveFunction::move
       ports::drive->move(std::stoi(parameter1));
     else if (Debugger::callCode == 0x11)  // DriveFunction::moveDegrees
@@ -105,11 +109,6 @@ void Debugger::_task(void * param) {
           currentCommand = pending;
         else
           currentCommand = history.at(history.size() - 1 - activeIndex);
-      } else {
-          for (auto s : history)
-            Logger::log(LOG_INFO, s);
-          Logger::log(LOG_INFO, std::to_string(activeIndex));
-          continue;
       }
       // Home, end, insert or similar key was pressed.
       // Ignore these inputs
@@ -1664,7 +1663,7 @@ std::vector<std::string> Debugger::command(std::string command) {
 
           pid->tThreshold = sel;
           ret.push_back("Set Drive PID tThreshold to: " + selstr);
-        } else if (command.rfind(".de", 0) == 0 || command.rfind("ht") == 0) {
+        } else if (command.rfind(".de", 0) == 0 || command.rfind("ht", 0) == 0) {
           command = command.substr(3);
           if (command.rfind("0", 0) == 0) command = command.substr(1);
           else if (command.rfind("hreshold", 0) == 0) command = command.substr(8);
@@ -1738,8 +1737,8 @@ std::vector<std::string> Debugger::command(std::string command) {
         ret.push_back("Currently Selected Autonomous: " + std::to_string(selectedAutonomous));
       } else if (command.rfind(".run", 0) == 0) {
         Logger::log(LOG_INFO, "Forcibly running autonomous...");
-        autonomous();
-        Logger::log(LOG_INFO, "Autonomous routine complete");
+        Debugger::callCode = 0x01;
+        Debugger::completion = "Autonomous routine complete";
       } else if (command.rfind(".sel", 0) == 0 || command.rfind(".set", 0) == 0) {
         command = command.substr(4);
         if (command.rfind("ect", 0) == 0) command = command.substr(3);
