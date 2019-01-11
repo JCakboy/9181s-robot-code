@@ -61,7 +61,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.425, 0.000000, 0.5000000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
+    driveControl->setPID(20, 0.45, 0.000000, 0.5250000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -109,17 +109,17 @@ void competition_initialize() {}
 
 void highRoutine() {
   Logger::log(LOG_INFO, "High routine");
-  puncherVariable->move(puncher->primed() ? -127 : -75);
+  puncherVariable->move(puncher->primed() ? -75 : -75);
   puncher->move(360);
-  pros::delay(puncher->primed() ? 500 : 800);
+  pros::delay(puncher->primed() ? 500 : 900);
   puncherVariable->move(0);
 }
 
 void midRoutine() {
   Logger::log(LOG_INFO, "Mid routine");
-  puncherVariable->move(puncher->primed() ? 127 : 75);
+  puncherVariable->move(puncher->primed() ? 75 : 75);
   puncher->move(360);
-  pros::delay(puncher->primed() ? 500 : 800);
+  pros::delay(puncher->primed() ? 500 : 900);
   puncherVariable->move(0);
 }
 
@@ -147,24 +147,48 @@ void autonomous() {
   LCD::setStatus("Autonomous");
 
   if (selectedAutonomous == 5) { // Skills Routine
-    // Drive and toggle the front ball
+    // Drive and toggle the cap, grab the front ball
     intake->move(127);
     drive->move(48);
-    intake->move(0);
     // Drive back and reset
+    intake->move(0);
     drive->move(-52);
     puncher->prime();
     // Turn to face the flags
     drive->move(3);
     drive->pivot(-90);
+    drive->move(11.5);
     drive->run(0, 0, false, false, false);
     pros::delay(20);
     // Articulate and shoot the balls
+    intake->move(127);
+    pros::delay(200);
+    intake->move(0);
     highRoutine();
     intake->move(127);
-    pros::delay(650);
+    pros::delay(1350);
     midRoutine();
     // Drive forward and toggle the low flag
+    drive->turn(-15);
+    drive->move(40);
+    // Get in position for next routine
+    drive->move(-24);
+    intake->move(0);
+    drive->pivot(90);
+    drive->move(-20);
+
+    // Drive and toggle the cap
+    intake->move(-127);
+    drive->move(50);
+    drive->pivot(-90);
+    drive->move(-10);
+    // Articulate and shoot the balls
+    highRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    midRoutine();
+    // Drive forward and toggle the low flag
+    drive->turn(-10);
     drive->move(40);
   }
 
