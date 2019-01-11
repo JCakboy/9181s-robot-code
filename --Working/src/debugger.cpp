@@ -173,10 +173,10 @@ std::vector<std::string> Debugger::command(std::string command) {
   // When running a command, set the priority higher than operator control so it does not interrupt
   task->set_priority(TASK_PRIORITY_DEFAULT + 1);
 
-  // The
+  // The list of messages to return to the serial input
   std::vector<std::string> ret;
 
-  // Trim command
+  // Trim the command
   command.erase(std::find_if(command.rbegin(), command.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), command.end());
   command.erase(command.begin(), std::find_if(command.begin(), command.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
 
@@ -1111,6 +1111,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       PID * pid = driveControl->getPID();
 
       ret.push_back("Drive Management:");
+      ret.push_back("    Sensitivity:");
+      ret.push_back("        Driving: " + std::to_string(sensitivity));
+      ret.push_back("        Adjusting: " + std::to_string(adjustingSensitivity));
       ret.push_back("    Gearing:");
       ret.push_back("        Input: " + std::to_string(drive->getInputRatio()));
       ret.push_back("        Ouput: " + std::to_string(drive->getOutputRatio()));
@@ -1135,6 +1138,79 @@ std::vector<std::string> Debugger::command(std::string command) {
         ret.push_back("        tThreshold: " + std::to_string(pid->tThreshold));
         ret.push_back("        hangThreshold: " + std::to_string(pid->de0));
       }
+    } else if (command.rfind(".sens", 0) == 0) {
+      command = command.substr(5);
+      if (command.rfind("itivity", 0) == 0) command = command.substr(7);
+
+      if (command.size() == 0) {
+        ret.push_back("Drive Sensitivity:");
+        ret.push_back("    Driving: " + std::to_string(std::lround(sensitivity * 100)) + "%");
+        ret.push_back("    Adjusting: " + std::to_string(std::lround(adjustingSensitivity * 100)) + "%");
+      } else if (command.rfind(".dr", 0) == 0)
+        ret.push_back("Driving Sensitivity: " + std::to_string(sensitivity));
+      else if (command.rfind(".ad", 0) == 0)
+        ret.push_back("Drive Adjusting Sensitivity: " + std::to_string(adjustingSensitivity));
+      else if (command.rfind(".set", 0) == 0) {
+        command = command.substr(4);
+        if (command.rfind(" ", 0) == 0) command = command.substr(1);
+
+        if (command.size() == 0)
+          ret.push_back("Please specify a value to set, such as \"driving\" or \"adjusting\"");
+        else if (command.rfind(".dr", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("iv", 0) == 0) command = command.substr(2);
+          if (command.rfind("e", 0) == 0) command = command.substr(1);
+          else if (command.rfind("ing", 0) == 0) command = command.substr(3);
+          std::string selstr;
+          double sel;
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size() + 1);
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          try {
+            sel = std::stod(command);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + command + "\" is not a valid value!");
+            goto end;
+          }
+
+          sensitivity = sel;
+          ret.push_back("Set Driving Sensitivity to: " + selstr);
+        } else if (command.rfind(".ad", 0) == 0) {
+          command = command.substr(3);
+          if (command.rfind("iv", 0) == 0) command = command.substr(2);
+          if (command.rfind("e", 0) == 0) command = command.substr(1);
+          else if (command.rfind("ing", 0) == 0) command = command.substr(3);
+          std::string selstr;
+          double sel;
+
+          selstr = command.substr(0, command.find(" "));
+          command = command.substr(selstr.size() + 1);
+
+          if (command.size() == 0) {
+            ret.push_back("Please specify a value");
+            goto end;
+          }
+
+          try {
+            sel = std::stod(command);
+          } catch (std::exception & e) {
+            ret.push_back("\"" + command + "\" is not a valid value!");
+            goto end;
+          }
+
+          adjustingSensitivity = sel;
+          ret.push_back("Set Drive Adjusting Sensitivity to: " + selstr);
+        } else
+          ret.push_back("\"" + command + "\" is not a known value! Acceptable values are \"driving\" or \"adjusting\"");
+      } else
+        ret.push_back("Unknown subcommand in \"drive.sensitivity\". Set values with \"set\" or retrieve values such as \"driving\"");
+
     } else if (command.rfind(".turning", 0) == 0) {
       command = command.substr(8);
       std::pair<int, int> ptkt = drive->getTurnValues();

@@ -61,7 +61,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.45, 0.000000, 0.5250000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
+    driveControl->setPID(20, 0.455, 0.000000, 0.5150000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -211,6 +211,8 @@ void autonomous() {
 
  // Whether the operator control loop should run, has external linkage
 bool runOperatorControlLoop = true;
+double sensitivity = 1.0;
+double adjustingSensitivity = 0.25;
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "--- Operator Control Task ---");
@@ -224,6 +226,10 @@ void opcontrol() {
   // Flag to set when the main controller has disconnected
   bool controllerDC = false;
 
+  // Flags to set when the L1 and L2 buttons are pressed
+  bool l1Pressed = false;
+  bool l2Pressed = false;
+
   // Puncher should hold its angle
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
@@ -235,7 +241,13 @@ void opcontrol() {
     Debugger::run();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
-    drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true);
+    /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
+    // Check for puncher adjustment and if adjusting, lower the sensitivity
+    if (l1Pressed || l2Pressed)
+      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+    else
+      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity, sensitivity);
+
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
@@ -251,10 +263,18 @@ void opcontrol() {
       intake->move(0);
 
     // Runs the high and mid flag routine when L1 and L2 is pressed, respectively
-    if (controllerMain->get_digital_new_press(BUTTON_L1)) {
+    if (!l1Pressed && controllerMain->get_digital(BUTTON_L1))
+      l1Pressed = true;
+    else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
       midRoutine();
-    } else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
+      l1Pressed = false;
+    }
+
+    if (!l2Pressed && controllerMain->get_digital(BUTTON_L2))
+      l2Pressed = true;
+    else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
       highRoutine();
+      l2Pressed = false;
     }
 
     // Buttons A, X and B deal with puncher priming. See Puncher for documentation

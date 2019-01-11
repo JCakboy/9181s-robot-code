@@ -81,5 +81,7 @@ void midRoutine();
 
 extern int selectedAutonomous;
 extern bool runOperatorControlLoop;
+extern double sensitivity;
+extern double adjustingSensitivity;
 
 #endif
