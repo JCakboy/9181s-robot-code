@@ -61,7 +61,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.455, 0.000000, 0.5150000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 20);
+    driveControl->setPID(20, 0.475, 0.000000, 0.5150000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -109,17 +109,23 @@ void competition_initialize() {}
 
 void highRoutine() {
   Logger::log(LOG_INFO, "High routine");
-  puncherVariable->move(puncher->primed() ? -75 : -75);
+  puncherVariable->move(puncher->primed() ? -60 : -60);
   puncher->move(360);
-  pros::delay(puncher->primed() ? 500 : 900);
+  int millis = util::sign(pros::millis());
+  while (std::lround(puncher->motor->get_position()) % 360 < 355 && util::sign(pros::millis()) - millis < 900)
+    pros::delay(1);
+  pros::delay(100);
   puncherVariable->move(0);
 }
 
 void midRoutine() {
   Logger::log(LOG_INFO, "Mid routine");
-  puncherVariable->move(puncher->primed() ? 75 : 75);
+  puncherVariable->move(puncher->primed() ? 60 : 60);
   puncher->move(360);
-  pros::delay(puncher->primed() ? 500 : 900);
+  int millis = util::sign(pros::millis());
+  while (std::lround(puncher->motor->get_position()) % 360 < 355 && util::sign(pros::millis()) - millis < 900)
+    pros::delay(1);
+  pros::delay(100);
   puncherVariable->move(0);
 }
 
@@ -148,8 +154,10 @@ void autonomous() {
 
   if (selectedAutonomous == 5) { // Skills Routine
     // Drive and toggle the cap, grab the front ball
-    intake->move(127);
+    intake->move(-60);
     drive->move(48);
+    intake->move(127);
+    pros::delay(200);
     // Drive back and reset
     intake->move(0);
     drive->move(-52);
@@ -230,6 +238,10 @@ void opcontrol() {
   bool l1Pressed = false;
   bool l2Pressed = false;
 
+  // Cache to store the puncher priming
+  bool primeCacheSet = false;
+  bool primeCache = false;
+
   // Puncher should hold its angle
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
 
@@ -243,7 +255,7 @@ void opcontrol() {
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
     // Check for puncher adjustment and if adjusting, lower the sensitivity
-    if (l1Pressed || l2Pressed)
+    if (l1Pressed || l2Pressed || controllerMain->get_digital(BUTTON_R2))
       drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else
       drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity, sensitivity);
@@ -258,23 +270,55 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_R1))
       intake->move(127);
     else if (controllerMain->get_digital(BUTTON_R2))
-      intake->move(-127);
+      intake->move(-90);
     else
       intake->move(0);
 
     // Runs the high and mid flag routine when L1 and L2 is pressed, respectively
-    if (!l1Pressed && controllerMain->get_digital(BUTTON_L1))
+    if (!l1Pressed && controllerMain->get_digital(BUTTON_L1)) {
       l1Pressed = true;
-    else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
+      if (!primeCacheSet) {
+        primeCache = puncher->primed();
+        primeCacheSet = true;
+      }
+      puncher->prime();
+    } else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
+      drive->run(0, 0, false, false, false);
       midRoutine();
       l1Pressed = false;
+      if (controllerMain->get_digital(BUTTON_L2))
+        puncher->prime();
+      else if (primeCacheSet) {
+        primeCacheSet = false;
+        if (primeCache)
+          puncher->prime();
+        else
+          puncher->unprime();
+      } else
+        puncher->unprime();
     }
 
-    if (!l2Pressed && controllerMain->get_digital(BUTTON_L2))
+    if (!l2Pressed && controllerMain->get_digital(BUTTON_L2)) {
       l2Pressed = true;
-    else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
+      if (!primeCacheSet) {
+        primeCache = puncher->primed();
+        primeCacheSet = true;
+      }
+      puncher->prime();
+    } else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
+      drive->run(0, 0, false, false, false);
       highRoutine();
       l2Pressed = false;
+      if (controllerMain->get_digital(BUTTON_L1))
+        puncher->prime();
+      else if (primeCacheSet) {
+        primeCacheSet = false;
+        if (primeCache)
+          puncher->prime();
+        else
+          puncher->unprime();
+      } else
+        puncher->unprime();
     }
 
     // Buttons A, X and B deal with puncher priming. See Puncher for documentation

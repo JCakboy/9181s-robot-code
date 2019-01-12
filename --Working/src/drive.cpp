@@ -180,7 +180,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! Aborting...");
     abort = true;
   }
-  //if (abort) return;
+  if (abort) return;
 
   // Display and log for debugging purposes
   LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));
@@ -313,9 +313,9 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       // Calculate the same power for each side
       // Join the motors to one complete list
       std::vector<pros::Motor*> allMotors;
-      for (const auto & motor : DriveControl::leftMotors)
+      for (const auto motor : DriveControl::leftMotors)
         allMotors.push_back(motor);
-      for (const auto & motor : DriveControl::rightMotors)
+      for (const auto motor : DriveControl::rightMotors)
         allMotors.push_back(motor);
       while (!leftComplete) {
         PIDCommand left = DriveControl::runMotorsRelative(leftPIDCalc, allMotors, leftTarget);
@@ -325,7 +325,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
         if (left.type == E_COMMAND_EXIT_FAILURE || left.type == E_COMMAND_EXIT_SUCCESS) {
           // An exit command was issued, signifying either success or failure
           if (left.type == E_COMMAND_EXIT_FAILURE) {
-            // Left side failed to complete, stuck on an object
+            // Linked sides failed to complete, stuck on an object
             message += "Linked Failure";
             Logger::log(LOG_WARNING, "Linked Sides have existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
           } else {
@@ -342,9 +342,8 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
             motor->move(leftPower);
           lock->give();
         }
+        pros::delay(pid->dt);
       }
-
-      pros::delay(pid->dt);
     }
     // Stop the motors together
     for (const auto & motor : DriveControl::leftMotors)

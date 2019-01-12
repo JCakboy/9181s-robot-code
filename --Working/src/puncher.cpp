@@ -83,5 +83,5 @@ void Puncher::run() {
   int punchPos = Puncher::motor->get_position();
   if (Puncher::isprimed) punchPos -= PUNCHER_PRIME_AMOUNT;
 
-  if (std::lround(punchPos) % 360 > 345) punching = false;
+  if (std::lround(punchPos) % 360 > 355) punching = false;
 }
