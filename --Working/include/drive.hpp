@@ -192,6 +192,8 @@ class DriveFunction {
     // See Drive Control
     void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
+    // Stops the robot
+    void stop();
 };
 
 #endif

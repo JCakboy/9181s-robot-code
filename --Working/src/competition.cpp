@@ -179,6 +179,70 @@ void autonomous() {
     drive->move(3);
     drive->pivot(-90);
     drive->move(11.5);
+    drive->stop();
+    pros::delay(20);
+    // Articulate and shoot the balls
+    intake->move(127);
+    pros::delay(200);
+    intake->move(0);
+    highRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    midRoutine();
+    puncher->unprime();
+    // Drive forward and toggle the low flag
+    drive->turn(-15);
+    drive->move(40);
+    // Get in position for next routine
+    drive->move(-24);
+    intake->move(0);
+    drive->pivot(90);
+    drive->move(-20);
+
+
+    // Drive and toggle the cap
+    intake->move(-127);
+    drive->move(50);
+    puncher->prime();
+    drive->pivot(-90);
+    drive->move(-10);
+    // Articulate and shoot the balls
+    drive->stop();
+    highRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    midRoutine();
+    puncher->unprime();
+    // Drive forward and toggle the low flag
+    drive->turn(-10);
+    drive->move(40);
+    // Get in position for next routine
+    drive->move(-24);
+    intake->move(0);
+    drive->pivot(90);
+    intake->move(-60);
+    drive->move(60);
+    drive->move(-10);
+    drive->pivot(90);
+    drive->move(12);
+    drive->pivot(90);
+    drive->move(-20);
+
+
+    goto end;
+    // Drive and toggle the cap, grab the front ball
+    intake->move(-60);
+    drive->move(48);
+    intake->move(127);
+    pros::delay(200);
+    // Drive back and reset
+    intake->move(0);
+    drive->move(-52);
+    puncher->prime();
+    // Turn to face the flags
+    drive->move(15);
+    drive->pivot(90);
+    drive->move(11.5);
     drive->run(0, 0, false, false, false);
     pros::delay(20);
     // Articulate and shoot the balls
@@ -189,30 +253,14 @@ void autonomous() {
     intake->move(127);
     pros::delay(1350);
     midRoutine();
+    puncher->unprime();
     // Drive forward and toggle the low flag
-    drive->turn(-15);
+    drive->turn(15);
     drive->move(40);
-    // Get in position for next routine
-    drive->move(-24);
-    intake->move(0);
-    drive->pivot(90);
-    drive->move(-20);
 
-    // Drive and toggle the cap
-    intake->move(-127);
-    drive->move(50);
-    drive->pivot(-90);
-    drive->move(-10);
-    // Articulate and shoot the balls
-    highRoutine();
-    intake->move(127);
-    pros::delay(1350);
-    midRoutine();
-    // Drive forward and toggle the low flag
-    drive->turn(-10);
-    drive->move(40);
   }
 
+  end:
   autonomousComplete = true;
 }
 

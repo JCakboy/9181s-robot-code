@@ -341,7 +341,7 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
           for (const auto & motor : leftMotors)
             motor->move(leftPower);
           for (const auto & motor : rightMotors)
-            motor->move(leftPower + 1);
+            motor->move(leftPower);
           lock->give();
         }
         pros::delay(pid->dt);
@@ -495,4 +495,9 @@ void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, 
 void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
   // Passes the call to the DriveControl object run()
   DriveFunction::driveControl->run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse, moveSensitivity, turnSensitivity);
+}
+
+void DriveFunction::stop() {
+  // Moves the robot with a power of 0, stopping it
+  DriveFunction::driveControl->run(0, 0, false, false, false);
 }
