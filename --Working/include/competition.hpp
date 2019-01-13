@@ -79,8 +79,11 @@ void highRoutine();
 // Routine to shoot the mid flag
 void midRoutine();
 
+// The currently selected autonomous
 extern int selectedAutonomous;
+// Whether the operator control loop should run
 extern bool runOperatorControlLoop;
+// Driving sensitivity
 extern double sensitivity;
 extern double adjustingSensitivity;
 

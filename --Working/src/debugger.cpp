@@ -260,7 +260,9 @@ std::vector<std::string> Debugger::command(std::string command) {
       ret.push_back("        Torque Gearing: " + std::to_string(motor.get_actual_velocity() / 2.0) + " RPM");
       ret.push_back("    Temperature: " + std::to_string(motor.get_temperature()) + " ºC" + ((motor.get_temperature() >= 55) ? " (Overheating)" : ""));
       ret.push_back("    Voltage: " + std::to_string(motor.get_voltage() / 1000.0) + " V");
+      ret.push_back("        Limit: " + std::to_string(motor.get_voltage_limit() / 1000.0) + " V");
       ret.push_back("    Current: " + std::to_string(motor.get_current_draw() / 1000.0) + " A");
+      ret.push_back("        Limit: " + std::to_string(motor.get_current_limit() / 1000.0) + " A");
       ret.push_back("    Power: " + std::to_string(motor.get_power()) + " W");
       ret.push_back("    Torque: " + std::to_string(motor.get_torque()) + " Nm");
       ret.push_back("    Efficiency: " + std::to_string(motor.get_efficiency()) + "%");

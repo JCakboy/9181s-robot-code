@@ -61,11 +61,14 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.475, 0.000000, 0.5150000, false, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    driveControl->setPID(20, 0.465, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
     drive->setTurnValues(501, 50);
+    // Limit the current of the variable puncher motor to reduce clicking
+    // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
+    puncherVariable->set_current_limit(500);
   }
 }
 
@@ -109,23 +112,33 @@ void competition_initialize() {}
 
 void highRoutine() {
   Logger::log(LOG_INFO, "High routine");
-  puncherVariable->move(puncher->primed() ? -60 : -60);
+  // Snap the puncher to the position (the torque with limited torque)
+  puncherVariable->move(puncher->primed() ? -127 : -127);
+  pros::delay(20);
+  // Punch
   puncher->move(360);
+  // Wait until the punch is complete
   int millis = util::sign(pros::millis());
-  while (std::lround(puncher->motor->get_position()) % 360 < 355 && util::sign(pros::millis()) - millis < 900)
+  while (std::lround(puncher->motor->get_position()) % 360 < 350 && util::sign(pros::millis()) - millis < 900)
     pros::delay(1);
-  pros::delay(100);
+  // Wait before allowing drive movement
+  pros::delay(30);
   puncherVariable->move(0);
 }
 
 void midRoutine() {
   Logger::log(LOG_INFO, "Mid routine");
-  puncherVariable->move(puncher->primed() ? 60 : 60);
+  // Snap the puncher to the position (the torque with limited torque)
+  puncherVariable->move(puncher->primed() ? 127 : 127);
+  pros::delay(20);
+  // Punch
   puncher->move(360);
+  // Wait until the punch is complete
   int millis = util::sign(pros::millis());
-  while (std::lround(puncher->motor->get_position()) % 360 < 355 && util::sign(pros::millis()) - millis < 900)
+  while (std::lround(puncher->motor->get_position()) % 360 < 350 && util::sign(pros::millis()) - millis < 900)
     pros::delay(1);
-  pros::delay(100);
+  // Wait before allowing drive movement
+  pros::delay(30);
   puncherVariable->move(0);
 }
 
@@ -219,6 +232,7 @@ void autonomous() {
 
  // Whether the operator control loop should run, has external linkage
 bool runOperatorControlLoop = true;
+// Driving sensitivity, has external linkage
 double sensitivity = 1.0;
 double adjustingSensitivity = 0.25;
 void opcontrol() {
@@ -254,7 +268,7 @@ void opcontrol() {
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
-    // Check for puncher adjustment and if adjusting, lower the sensitivity
+    // Check for puncher adjustment or outtake and if so, lower the sensitivity
     if (l1Pressed || l2Pressed || controllerMain->get_digital(BUTTON_R2))
       drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else
@@ -264,7 +278,7 @@ void opcontrol() {
     puncher->run();
 
     // Map the right analog stick to the puncherVariable motor to change the puncher angle
-    puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) / 127.0 * 50);
+    puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) * 70.0 / 127.0);
 
     // Intake code, R1 intakes balls, R2 outtakes balls and flips ground caps
     if (controllerMain->get_digital(BUTTON_R1))
@@ -274,8 +288,9 @@ void opcontrol() {
     else
       intake->move(0);
 
-    // Runs the high and mid flag routine when L1 and L2 is pressed, respectively
+    // Code for mid flag puncher routine, two parts
     if (!l1Pressed && controllerMain->get_digital(BUTTON_L1)) {
+      // When the button is held, prime the puncher and lower the drive sensitivity for easier adjustment
       l1Pressed = true;
       if (!primeCacheSet) {
         primeCache = puncher->primed();
@@ -283,9 +298,11 @@ void opcontrol() {
       }
       puncher->prime();
     } else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
+      // When the button is released, punch the puncher and return the drive sensitivity to normal
       drive->run(0, 0, false, false, false);
       midRoutine();
       l1Pressed = false;
+      // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
       if (controllerMain->get_digital(BUTTON_L2))
         puncher->prime();
       else if (primeCacheSet) {
@@ -298,7 +315,9 @@ void opcontrol() {
         puncher->unprime();
     }
 
+    // Code for mid flag puncher routine, two parts
     if (!l2Pressed && controllerMain->get_digital(BUTTON_L2)) {
+      // When the button is held, prime the puncher and lower the drive sensitivity for easier adjustment
       l2Pressed = true;
       if (!primeCacheSet) {
         primeCache = puncher->primed();
@@ -306,9 +325,11 @@ void opcontrol() {
       }
       puncher->prime();
     } else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
+      // When the button is released, punch the puncher and return the drive sensitivity to normal
       drive->run(0, 0, false, false, false);
       highRoutine();
       l2Pressed = false;
+      // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
       if (controllerMain->get_digital(BUTTON_L1))
         puncher->prime();
       else if (primeCacheSet) {
@@ -331,6 +352,7 @@ void opcontrol() {
     if (controllerMain->get_digital_new_press(BUTTON_B))
       puncher->unprime();
 
+    // Test skills autonomous run. TO BE REMOVED BEFORE TOURNAMENT
     if (controllerMain->get_digital_new_press(BUTTON_Y)) {
       selectedAutonomous = 5;
       autonomous();
@@ -360,6 +382,7 @@ void opcontrol() {
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
+    // Test driving forward and backward, TO BE REMOVED BEFORE TOURNAMENT
     if (selectedAutonomous == 1) {
       drive->move(-20);
       selectedAutonomous = 0;

@@ -313,9 +313,9 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
       // Calculate the same power for each side
       // Join the motors to one complete list
       std::vector<pros::Motor*> allMotors;
-      for (const auto motor : DriveControl::leftMotors)
-        allMotors.push_back(motor);
       for (const auto motor : DriveControl::rightMotors)
+        allMotors.push_back(motor);
+      for (const auto motor : DriveControl::leftMotors)
         allMotors.push_back(motor);
       while (!leftComplete) {
         PIDCommand left = DriveControl::runMotorsRelative(leftPIDCalc, allMotors, leftTarget);
@@ -338,8 +338,10 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
 
         if (lock->take(MUTEX_WAIT_TIME)) {
           // Iterate through and issue the commands to the motors
-          for (const auto & motor : allMotors)
+          for (const auto & motor : leftMotors)
             motor->move(leftPower);
+          for (const auto & motor : rightMotors)
+            motor->move(leftPower + 1);
           lock->give();
         }
         pros::delay(pid->dt);
