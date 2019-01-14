@@ -44,7 +44,7 @@ namespace ports {
   extern pros::Motor * port13;
   extern pros::Motor * port14;
   extern Unused * port15;
-  extern Unused * port16;
+  extern pros::Motor * port16;
   extern pros::Motor * port17;
   extern pros::Motor * port18;
   extern pros::Motor * port19;
@@ -54,6 +54,7 @@ namespace ports {
   extern pros::Motor * frontLeftDrive;
   extern pros::Motor * frontRightDrive;
   extern pros::Motor * intake;
+  extern pros::Motor * arm;
   extern pros::Motor * puncherVariable;
   extern pros::Motor * puncherMotor;
   extern pros::Motor * backRightDrive;

@@ -30,7 +30,7 @@ namespace ports {
   pros::Motor * port13 = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port15 = new Unused(15);
-  Unused * port16 = new Unused(16);
+  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_100, FWD, ENCODER_DEGREES);
   pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
@@ -41,6 +41,7 @@ namespace ports {
   pros::Motor * frontLeftDrive = ports::port12;
   pros::Motor * frontRightDrive = ports::port13;
   pros::Motor * intake = ports::port14;
+  pros::Motor * arm = ports::port16;
   pros::Motor * puncherVariable = ports::port17;
   pros::Motor * puncherMotor = ports::port18;
   pros::Motor * backRightDrive = ports::port19;
@@ -92,9 +93,11 @@ void initialize() {
   Debugger::start();
 
   // Simple header to signal the start of a new program in a log file
-  Logger::log(LOG_INFO, "#########################");
-  Logger::log(LOG_INFO, "#     PROGRAM START     #");
-  Logger::log(LOG_INFO, "#########################");
+  Logger::log(LOG_INFO, "#####################################");
+  Logger::log(LOG_INFO, "#                                   #");
+  Logger::log(LOG_INFO, "#           PROGRAM START           #");
+  Logger::log(LOG_INFO, "#                                   #");
+  Logger::log(LOG_INFO, "#####################################");
 }
 
 /**
@@ -111,10 +114,10 @@ void competition_initialize() {}
 
 
 void highRoutine() {
-  Logger::log(LOG_INFO, "High routine");
+  Logger::log(LOG_INFO, "Puncher High Routine");
   // Snap the puncher to the position (the torque with limited torque)
   puncherVariable->move(puncher->primed() ? -127 : -127);
-  pros::delay(20);
+  pros::delay(50);
   // Punch
   puncher->move(360);
   // Wait until the punch is complete
@@ -127,10 +130,10 @@ void highRoutine() {
 }
 
 void midRoutine() {
-  Logger::log(LOG_INFO, "Mid routine");
+  Logger::log(LOG_INFO, "Puncher Mid Routine");
   // Snap the puncher to the position (the torque with limited torque)
   puncherVariable->move(puncher->primed() ? 127 : 127);
-  pros::delay(20);
+  pros::delay(50);
   // Punch
   puncher->move(360);
   // Wait until the punch is complete
@@ -162,26 +165,28 @@ bool autonomousComplete = true;
 void autonomous() {
   autonomousComplete = false;
   // Log the start of autonomous to signify in a log file the location of the log
-  Logger::log(LOG_INFO, "--- Autonomous ---");
+  Logger::log(LOG_INFO, "---===( Autonomous )===---");
   LCD::setStatus("Autonomous");
 
   if (selectedAutonomous == 5) { // Skills Routine
-    // Drive and toggle the cap, grab the front ball
+    Logger::log(LOG_INFO, "--- Start of Skills ---");
+    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
     intake->move(-60);
     drive->move(48);
     intake->move(127);
     pros::delay(200);
-    // Drive back and reset
+    Logger::log(LOG_INFO, "Drive back and reset");
     intake->move(0);
     drive->move(-52);
     puncher->prime();
-    // Turn to face the flags
+    Logger::log(LOG_INFO, "Turn to face the flags");
     drive->move(3);
     drive->pivot(-90);
     drive->move(11.5);
     drive->stop();
     pros::delay(20);
-    // Articulate and shoot the balls
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
     intake->move(127);
     pros::delay(200);
     intake->move(0);
@@ -190,33 +195,34 @@ void autonomous() {
     pros::delay(1350);
     midRoutine();
     puncher->unprime();
-    // Drive forward and toggle the low flag
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(-15);
     drive->move(40);
-    // Get in position for next routine
+    Logger::log(LOG_INFO, "Get in position for next routine");
     drive->move(-24);
     intake->move(0);
     drive->pivot(90);
     drive->move(-20);
 
 
-    // Drive and toggle the cap
+    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile Left 1 <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap");
     intake->move(-127);
     drive->move(50);
     puncher->prime();
     drive->pivot(-90);
     drive->move(-10);
-    // Articulate and shoot the balls
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
     drive->stop();
     highRoutine();
     intake->move(127);
     pros::delay(1350);
     midRoutine();
     puncher->unprime();
-    // Drive forward and toggle the low flag
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(-10);
     drive->move(40);
-    // Get in position for next routine
+    Logger::log(LOG_INFO, "Get in position for next routine");
     drive->move(-24);
     intake->move(0);
     drive->pivot(90);
@@ -230,22 +236,23 @@ void autonomous() {
 
 
     goto end;
-    // Drive and toggle the cap, grab the front ball
+    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile<");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
     intake->move(-60);
     drive->move(48);
     intake->move(127);
     pros::delay(200);
-    // Drive back and reset
+    Logger::log(LOG_INFO, "Drive back and reset");
     intake->move(0);
     drive->move(-52);
     puncher->prime();
-    // Turn to face the flags
+    Logger::log(LOG_INFO, "Turn to face the flags");
     drive->move(15);
     drive->pivot(90);
     drive->move(11.5);
-    drive->run(0, 0, false, false, false);
+    drive->stop();
     pros::delay(20);
-    // Articulate and shoot the balls
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
     intake->move(127);
     pros::delay(200);
     intake->move(0);
@@ -254,7 +261,7 @@ void autonomous() {
     pros::delay(1350);
     midRoutine();
     puncher->unprime();
-    // Drive forward and toggle the low flag
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(15);
     drive->move(40);
 
@@ -285,7 +292,7 @@ double sensitivity = 1.0;
 double adjustingSensitivity = 0.25;
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
-  Logger::log(LOG_INFO, "--- Operator Control Task ---");
+  Logger::log(LOG_INFO, "---===( Operator Control )===---");
   LCD::setStatus("Operator Control");
 
   if (!autonomousComplete) {
@@ -325,8 +332,8 @@ void opcontrol() {
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
-    // Map the right analog stick to the puncherVariable motor to change the puncher angle
-    puncherVariable->move(controllerMain->get_analog(STICK_RIGHT_Y) * 70.0 / 127.0);
+    // Map the right analog stick to the descorer arm
+    arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
 
     // Intake code, R1 intakes balls, R2 outtakes balls and flips ground caps
     if (controllerMain->get_digital(BUTTON_R1))
@@ -347,7 +354,7 @@ void opcontrol() {
       puncher->prime();
     } else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
       // When the button is released, punch the puncher and return the drive sensitivity to normal
-      drive->run(0, 0, false, false, false);
+      drive->stop();
       midRoutine();
       l1Pressed = false;
       // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
@@ -374,7 +381,7 @@ void opcontrol() {
       puncher->prime();
     } else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
       // When the button is released, punch the puncher and return the drive sensitivity to normal
-      drive->run(0, 0, false, false, false);
+      drive->stop();
       highRoutine();
       l2Pressed = false;
       // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
@@ -476,7 +483,7 @@ void opcontrol() {
  */
 void disabled() {
   // Log the start of disablement to signify in a log file the location of the log
-  Logger::log(LOG_INFO, "--- Disabled ---");
+  Logger::log(LOG_INFO, "---===( Disabled )===---");
   LCD::setStatus("Disabled");
   if (!autonomousComplete) {
     Logger::log(LOG_WARNING, "Autonomous was not completed successfully!");
