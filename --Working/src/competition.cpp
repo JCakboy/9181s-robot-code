@@ -62,7 +62,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.465, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 50);
+    driveControl->setPID(20, 0.475, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 35);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -117,7 +117,7 @@ void highRoutine() {
   Logger::log(LOG_INFO, "Puncher High Routine");
   // Snap the puncher to the position (the torque with limited torque)
   puncherVariable->move(puncher->primed() ? -127 : -127);
-  pros::delay(50);
+  pros::delay(100);
   // Punch
   puncher->move(360);
   // Wait until the punch is complete
@@ -133,7 +133,7 @@ void midRoutine() {
   Logger::log(LOG_INFO, "Puncher Mid Routine");
   // Snap the puncher to the position (the torque with limited torque)
   puncherVariable->move(puncher->primed() ? 127 : 127);
-  pros::delay(50);
+  pros::delay(100);
   // Punch
   puncher->move(360);
   // Wait until the punch is complete
@@ -172,18 +172,17 @@ void autonomous() {
     Logger::log(LOG_INFO, "--- Start of Skills ---");
     Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile <");
     Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
-    intake->move(-60);
-    drive->move(48);
+    drive->move(54);
     intake->move(127);
-    pros::delay(200);
+    pros::delay(400);
     Logger::log(LOG_INFO, "Drive back and reset");
     intake->move(0);
-    drive->move(-52);
+    drive->move(-56);
     puncher->prime();
     Logger::log(LOG_INFO, "Turn to face the flags");
-    drive->move(3);
-    drive->pivot(-90);
-    drive->move(11.5);
+    drive->move(5);
+    drive->pivot(-85);
+    drive->move(17);
     drive->stop();
     pros::delay(20);
     Logger::log(LOG_INFO, "Articulate and shoot the balls");
@@ -210,7 +209,7 @@ void autonomous() {
     intake->move(-127);
     drive->move(50);
     puncher->prime();
-    drive->pivot(-90);
+    drive->pivot(-85);
     drive->move(-10);
     Logger::log(LOG_INFO, "Articulate and shoot the balls");
     drive->stop();
@@ -223,20 +222,22 @@ void autonomous() {
     drive->turn(-10);
     drive->move(40);
     Logger::log(LOG_INFO, "Get in position for next routine");
-    drive->move(-24);
     intake->move(0);
+    drive->move(-40);
     drive->pivot(90);
+    drive->move(25);
+    drive->pivot(-45);
     intake->move(-60);
-    drive->move(60);
+    drive->move(70);
     drive->move(-10);
-    drive->pivot(90);
-    drive->move(12);
+    drive->pivot(135);
+    drive->move(50);
     drive->pivot(90);
     drive->move(-20);
 
 
     goto end;
-    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile<");
+    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile <");
     Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
     intake->move(-60);
     drive->move(48);
@@ -324,8 +325,10 @@ void opcontrol() {
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
     // Check for puncher adjustment or outtake and if so, lower the sensitivity
-    if (l1Pressed || l2Pressed || controllerMain->get_digital(BUTTON_R2))
+    if (l1Pressed || l2Pressed)
       drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+    else if (controllerMain->get_digital(BUTTON_R2))
+      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * 0.5, sensitivity * 0.5);
     else
       drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity, sensitivity);
 

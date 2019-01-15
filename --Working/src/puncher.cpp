@@ -39,6 +39,8 @@ void Puncher::unprime() {
   if (Puncher::isprimed) {
     // Unbrake the motor and restore its neutral position
     Puncher::isprimed = false;
+    Puncher::motor->set_brake_mode(BRAKE_COAST);
+    Puncher::motor->move(0);
   }
 }
 
