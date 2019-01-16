@@ -62,7 +62,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(20, 0.475, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 35);
+    driveControl->setPID(19, 0.475, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 30);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -196,9 +196,9 @@ void autonomous() {
     puncher->unprime();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(-15);
-    drive->move(40);
+    drive->move(33.75);
     Logger::log(LOG_INFO, "Get in position for next routine");
-    drive->move(-24);
+    drive->move(-25);
     intake->move(0);
     drive->pivot(90);
     drive->move(-20);
@@ -207,9 +207,9 @@ void autonomous() {
     Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile Left 1 <");
     Logger::log(LOG_INFO, "Drive and toggle the cap");
     intake->move(-127);
-    drive->move(50);
+    drive->move(50.75);
     puncher->prime();
-    drive->pivot(-85);
+    drive->pivot(-82);
     drive->move(-10);
     Logger::log(LOG_INFO, "Articulate and shoot the balls");
     drive->stop();
@@ -220,18 +220,18 @@ void autonomous() {
     puncher->unprime();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(-10);
-    drive->move(40);
+    drive->move(32.5);
     Logger::log(LOG_INFO, "Get in position for next routine");
     intake->move(0);
-    drive->move(-40);
+    drive->move(-37.5);
     drive->pivot(90);
-    drive->move(25);
+    drive->move(30);
     drive->pivot(-45);
     intake->move(-60);
-    drive->move(70);
+    drive->move(51);
     drive->move(-10);
     drive->pivot(135);
-    drive->move(50);
+    drive->move(32);
     drive->pivot(90);
     drive->move(-20);
 
