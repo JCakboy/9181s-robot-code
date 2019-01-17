@@ -69,7 +69,7 @@ namespace ports {
     drive->setTurnValues(501, 50);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(500);
+    puncherVariable->set_current_limit(450);
   }
 }
 
@@ -115,7 +115,7 @@ void competition_initialize() {}
 
 void highRoutine() {
   Logger::log(LOG_INFO, "Puncher High Routine");
-  // Snap the puncher to the position (the torque with limited torque)
+  // Snap the puncher to the position (with limited torque)
   puncherVariable->move(puncher->primed() ? -127 : -127);
   pros::delay(100);
   // Punch
@@ -131,7 +131,7 @@ void highRoutine() {
 
 void midRoutine() {
   Logger::log(LOG_INFO, "Puncher Mid Routine");
-  // Snap the puncher to the position (the torque with limited torque)
+  // Snap the puncher to the position (with limited torque)
   puncherVariable->move(puncher->primed() ? 127 : 127);
   pros::delay(100);
   // Punch
@@ -228,9 +228,11 @@ void autonomous() {
     intake->move(-60);
     drive->move(32);
     drive->move(-10);
+    intake->move(127);
     drive->pivot(128);
     drive->move(30);
     drive->pivot(88);
+    intake->move(0);
     drive->move(-30);
 
 
@@ -253,6 +255,157 @@ void autonomous() {
     intake->move(127);
     pros::delay(200);
     intake->move(0);
+    midRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    highRoutine();
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
+    drive->turn(15);
+    drive->move(40);
+    Logger::log(LOG_INFO, "Drive backward, try again for the high flag and park");
+    drive->move(-40);
+    pros::delay(200);
+    highRoutine();
+    puncher->unprime();
+    drive->pivot(180);
+    drive->move(40);
+    drive->pivot(90);
+    drive->move(30);
+    Logger::log(LOG_INFO, "Shoot the last ball");
+    drive->pivot(70);
+    highRoutine();
+
+    /*
+    Logger::log(LOG_INFO, "> Current Position: Red Side Far Starting Tile <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap");
+    intake->move(-60);
+    drive->move(54);
+    Logger::log(LOG_INFO, "Drive and turn to adjacent cap");
+    drive->move(-20);
+    intake->move(0);
+    drive->pivot(90);
+    drive->move(30);
+    drive->pivot(-90);
+    Logger::log(LOG_INFO, "Drive and toggle the cap");
+    intake->move(-60);
+    drive->move(20);
+    Logger::log(LOG_INFO, "Drive through to blue side");
+    drive->pivot(-90);
+    intake->move(0);
+    drive->move(17);
+    drive->pivot(90);
+    drive->move(40);
+
+    Logger::log(LOG_INFO, "> Current Position: Blue Side Far Starting Tile Forward 1 <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
+    drive->pivot(-90);
+    drive->move(17);
+    intake->move(127);
+    Logger::log(LOG_INFO, "Drive back and reset");
+    drive->move(-56);
+    intake->move(0);
+    Logger::log(LOG_INFO, "Get in position for next routine");
+    drive->move(5);
+    drive->pivot(90);
+    drive->move(-60);
+    drive->pivot(-90);
+    drive->move(-10);
+
+    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
+    drive->move(54);
+    intake->move(127);
+    pros::delay(400);
+    Logger::log(LOG_INFO, "Drive back");
+    intake->move(0);
+    drive->move(-30);
+    puncher->prime();
+    Logger::log(LOG_INFO, "Turn to face the flags");
+    drive->pivot(85);
+    drive->move(17);
+    drive->stop();
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
+    drive->stop();
+    highRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    midRoutine();
+    puncher->unprime();
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
+    intake->move(-127);
+    drive->turn(15);
+    drive->move(33.75);
+    intake->move(127);
+    pros::delay(400);
+    */
+
+  } else if (selectedAutonomous == 1) { // Red side flags
+    Logger::log(LOG_INFO, "--- Red Flag Side ---");
+    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
+    drive->move(50);
+    intake->move(127);
+    pros::delay(400);
+    Logger::log(LOG_INFO, "Drive back and reset");
+    intake->move(0);
+    drive->move(-52);
+    puncher->prime();
+    Logger::log(LOG_INFO, "Turn to face the flags");
+    drive->move(5);
+    drive->pivot(-85);
+    drive->move(17);
+    drive->stop();
+    pros::delay(20);
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
+    intake->move(127);
+    pros::delay(200);
+    intake->move(0);
+    highRoutine();
+    intake->move(127);
+    pros::delay(1350);
+    midRoutine();
+    puncher->unprime();
+    Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
+    drive->turn(-15);
+    drive->move(33.75);
+    Logger::log(LOG_INFO, "Get in position for next routine");
+    drive->move(-25);
+    intake->move(0);
+    drive->pivot(90);
+    drive->move(-20);
+
+
+    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile Left 1 <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap and flag");
+    intake->move(-127);
+    drive->move(50.75);
+    puncher->prime();
+    intake->move(-127);
+    drive->pivot(-80);
+    drive->move(40);
+  } else if (selectedAutonomous == 2) { // Red side far
+
+  } else if (selectedAutonomous == 3) { // Blue side flags
+    Logger::log(LOG_INFO, "--- Blue Flag Side ---");
+    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap, grab the front ball");
+    drive->move(50);
+    intake->move(127);
+    pros::delay(400);
+    Logger::log(LOG_INFO, "Drive back and reset");
+    intake->move(0);
+    drive->move(-52);
+    puncher->prime();
+    Logger::log(LOG_INFO, "Turn to face the flags");
+    drive->move(5);
+    drive->pivot(87);
+    drive->move(17);
+    drive->stop();
+    pros::delay(20);
+    Logger::log(LOG_INFO, "Articulate and shoot the balls");
+    intake->move(127);
+    pros::delay(200);
+    intake->move(0);
     highRoutine();
     intake->move(127);
     pros::delay(1350);
@@ -260,9 +413,26 @@ void autonomous() {
     puncher->unprime();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(15);
+    drive->move(33.75);
+    Logger::log(LOG_INFO, "Get in position for next routine");
+    drive->move(-25);
+    intake->move(0);
+    drive->pivot(-88);
+    drive->move(-20);
+
+
+    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile Right 1 <");
+    Logger::log(LOG_INFO, "Drive and toggle the cap and flag");
+    intake->move(-127);
+    drive->move(50.75);
+    puncher->prime();
+    intake->move(-127);
+    drive->pivot(-80);
     drive->move(40);
+  } else if (selectedAutonomous == 4) { // Blue side far
 
   }
+
 
   end:
   autonomousComplete = true;
