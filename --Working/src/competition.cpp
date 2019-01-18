@@ -62,14 +62,14 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(19, 0.475, 0.000000, 0.550000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 30);
+    driveControl->setPID(19, 0.473, 0.000000, 0.530000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
     drive->setTurnValues(501, 50);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(450);
+    puncherVariable->set_current_limit(375);
   }
 }
 
@@ -206,34 +206,35 @@ void autonomous() {
 
     Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile Left 1 <");
     Logger::log(LOG_INFO, "Drive and toggle the cap");
-    intake->move(-127);
+    intake->move(-45);
     drive->move(50.75);
     puncher->prime();
-    intake->move(-127);
+    intake->move(0);
     drive->pivot(-80);
+    intake->move(0);
     drive->move(-10);
     Logger::log(LOG_INFO, "Articulate and shoot the balls");
     drive->stop();
     midRoutine();
     puncher->unprime();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
+    intake->move(80);
     drive->turn(-10);
-    drive->move(31.9);
+    drive->move(33.3);
     Logger::log(LOG_INFO, "Get in position for next routine");
-    intake->move(0);
-    drive->move(-36);
-    drive->pivot(86.5);
+    drive->move(-35.5);
+    drive->pivot(86);
     drive->move(31.5);
-    drive->pivot(-38);
-    intake->move(-60);
+    intake->move(0);
+    drive->pivot(-40);
+    intake->move(-72);
     drive->move(32);
     drive->move(-10);
-    intake->move(127);
-    drive->pivot(128);
-    drive->move(30);
-    drive->pivot(88);
+    drive->pivot(124);
+    drive->move(28.4);
+    drive->pivot(84);
     intake->move(0);
-    drive->move(-30);
+    drive->move(-35);
 
 
     Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile <");
@@ -243,10 +244,10 @@ void autonomous() {
     pros::delay(400);
     Logger::log(LOG_INFO, "Drive back and reset");
     intake->move(0);
-    drive->move(-52);
+    drive->move(-53);
     puncher->prime();
     Logger::log(LOG_INFO, "Turn to face the flags");
-    drive->move(45);
+    drive->move(23);
     drive->pivot(88);
     drive->move(11.5);
     drive->stop();
@@ -260,19 +261,18 @@ void autonomous() {
     pros::delay(1350);
     highRoutine();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
-    drive->turn(15);
+    drive->turn(-16);
     drive->move(40);
-    Logger::log(LOG_INFO, "Drive backward, try again for the high flag and park");
+    Logger::log(LOG_INFO, "Drive backward and park");
     drive->move(-40);
-    pros::delay(200);
-    highRoutine();
-    puncher->unprime();
-    drive->pivot(180);
-    drive->move(40);
-    drive->pivot(90);
-    drive->move(30);
+    drive->pivot(138);
+    drive->move(36);
+    drive->pivot(105);
+    drive->move(-25);
+    drive->move(80);
+    pros::delay(400);
     Logger::log(LOG_INFO, "Shoot the last ball");
-    drive->pivot(70);
+    drive->pivot(74);
     highRoutine();
 
     /*
@@ -368,20 +368,11 @@ void autonomous() {
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
     drive->turn(-15);
     drive->move(33.75);
-    Logger::log(LOG_INFO, "Get in position for next routine");
-    drive->move(-25);
+    Logger::log(LOG_INFO, "Get in position to park");
     intake->move(0);
-    drive->pivot(90);
-    drive->move(-20);
-
-
-    Logger::log(LOG_INFO, "> Current Position: Red Side Flags Starting Tile Left 1 <");
-    Logger::log(LOG_INFO, "Drive and toggle the cap and flag");
-    intake->move(-127);
-    drive->move(50.75);
-    puncher->prime();
-    intake->move(-127);
-    drive->pivot(-80);
+    drive->move(-70);
+    drive->pivot(88);
+    Logger::log(LOG_INFO, "Park");
     drive->move(40);
   } else if (selectedAutonomous == 2) { // Red side far
 
@@ -394,41 +385,31 @@ void autonomous() {
     pros::delay(400);
     Logger::log(LOG_INFO, "Drive back and reset");
     intake->move(0);
-    drive->move(-52);
+    drive->move(-44.8);
     puncher->prime();
     Logger::log(LOG_INFO, "Turn to face the flags");
-    drive->move(5);
-    drive->pivot(87);
-    drive->move(17);
+    drive->pivot(85);
+    drive->move(13.5);
     drive->stop();
     pros::delay(20);
     Logger::log(LOG_INFO, "Articulate and shoot the balls");
     intake->move(127);
-    pros::delay(200);
+    pros::delay(250);
     intake->move(0);
     highRoutine();
     intake->move(127);
-    pros::delay(1350);
+    pros::delay(1200);
     midRoutine();
     puncher->unprime();
     Logger::log(LOG_INFO, "Drive forward and toggle the low flag");
-    drive->turn(15);
+    drive->turn(35);
     drive->move(33.75);
-    Logger::log(LOG_INFO, "Get in position for next routine");
-    drive->move(-25);
+    Logger::log(LOG_INFO, "Get in position to park");
     intake->move(0);
+    drive->move(-70);
     drive->pivot(-88);
-    drive->move(-20);
-
-
-    Logger::log(LOG_INFO, "> Current Position: Blue Side Flags Starting Tile Right 1 <");
-    Logger::log(LOG_INFO, "Drive and toggle the cap and flag");
-    intake->move(-127);
-    drive->move(50.75);
-    puncher->prime();
-    intake->move(-127);
-    drive->pivot(-80);
-    drive->move(40);
+    Logger::log(LOG_INFO, "Park");
+    drive->move(50);
   } else if (selectedAutonomous == 4) { // Blue side far
 
   }
@@ -577,10 +558,8 @@ void opcontrol() {
       puncher->unprime();
 
     // Test skills autonomous run. TO BE REMOVED BEFORE TOURNAMENT
-    if (controllerMain->get_digital_new_press(BUTTON_Y)) {
-      selectedAutonomous = 5;
+    if (controllerMain->get_digital_new_press(BUTTON_Y))
       autonomous();
-    }
 
     // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {
@@ -605,15 +584,6 @@ void opcontrol() {
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-
-    // Test driving forward and backward, TO BE REMOVED BEFORE TOURNAMENT
-    if (selectedAutonomous == 1) {
-      drive->move(-20);
-      selectedAutonomous = 0;
-    } else if (selectedAutonomous == -1) {
-      drive->move(30);
-      selectedAutonomous = 0;
-    }
 
     // Run every 20ms
 		pros::delay(20);

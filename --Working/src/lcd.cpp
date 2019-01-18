@@ -20,7 +20,7 @@ void LCD::initialize() {
 
 void LCD::onLeftButton() {
   // Decrements the selected autonomous and update the LCD
-  selectedAutonomous++;
+  selectedAutonomous--;
   updateSelectedAutonomous();
 }
 
@@ -30,13 +30,14 @@ void LCD::onCenterButton() {
 
 void LCD::onRightButton() {
   // Increments the selected autonomous and update the LCD
-  selectedAutonomous--;
+  selectedAutonomous++;
   updateSelectedAutonomous();
 }
 
 void LCD::updateSelectedAutonomous() {
   // Updates the selected autonomous on the LCD
   setText(0, "Selected autonomous: " + std::to_string(selectedAutonomous));
+  ports::controllerMain->set_text(0, 0, ("Autonomous: " + std::to_string(selectedAutonomous) + "  ").c_str());
 }
 
 void LCD::setStatus(std::string status) {

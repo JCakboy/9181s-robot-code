@@ -499,5 +499,5 @@ void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, 
 
 void DriveFunction::stop() {
   // Moves the robot with a power of 0, stopping it
-  DriveFunction::driveControl->run(0, 0, false, false, false);
+  DriveFunction::driveControl->run(0, 0, true, true, false);
 }
