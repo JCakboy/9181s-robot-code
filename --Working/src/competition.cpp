@@ -62,7 +62,7 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    driveControl->setPID(19, 0.473, 0.000000, 0.530000, true, 110, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    driveControl->setPID(19, 0.473, 0.000000, 0.530000, true, 110, 50, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -505,11 +505,11 @@ void opcontrol() {
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
     // Check for puncher adjustment or outtake and if so, lower the sensitivity
     if (l1Pressed || l2Pressed)
-      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else if (controllerMain->get_digital(BUTTON_R2))
-      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity * 0.5, sensitivity * 0.5);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * 0.5, sensitivity * 0.5);
     else
-      drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, sensitivity, sensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity, sensitivity);
 
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();

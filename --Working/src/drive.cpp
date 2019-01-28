@@ -5,31 +5,69 @@
 
 void DriveControl::runLeftMotors(int voltage) {
   // Iterate through and set the left motors to a given power
-  for (const auto & motor : DriveControl::leftMotors)
+  for (const auto & motor : DriveControl::otherLeftMotors)
+    motor->move(voltage);
+  for (const auto & motor : DriveControl::frontLeftMotors)
+    motor->move(voltage);
+  for (const auto & motor : DriveControl::backLeftMotors)
     motor->move(voltage);
 }
 
 void DriveControl::runRightMotors(int voltage) {
   // Iterate through and set the right motors to a given power
-  for (const auto & motor : DriveControl::rightMotors)
+  for (const auto & motor : DriveControl::otherRightMotors)
     motor->move(voltage);
+  for (const auto & motor : DriveControl::frontRightMotors)
+    motor->move(voltage);
+  for (const auto & motor : DriveControl::backRightMotors)
+    motor->move(voltage);
+}
+
+void DriveControl::runFrontLeftMotors(int power) {
+  // Iterates and runs the front left motors at a given power
+    for (const auto & motor : DriveControl::frontLeftMotors)
+      motor->move(power);
+}
+
+void DriveControl::runBackLeftMotors(int power) {
+  // Iterates and runs the back left motors at a given power
+    for (const auto & motor : DriveControl::backLeftMotors)
+      motor->move(power);
+}
+
+void DriveControl::runFrontRightMotors(int power) {
+  // Iterates and runs the front right motors at a given power
+    for (const auto & motor : DriveControl::frontRightMotors)
+      motor->move(power);
+}
+
+void DriveControl::runBackRightMotors(int power) {
+  // Iterates and runs the back right motors at a given power
+    for (const auto & motor : DriveControl::backRightMotors)
+      motor->move(power);
 }
 
 void DriveControl::setLeftBrake(pros::motor_brake_mode_e_t mode) {
   // Iterate through and set the left motors to a given brake mode
-  for (const auto * motor : DriveControl::leftMotors)
-    if (motor->get_brake_mode() != mode)
-      motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::otherLeftMotors)
+    motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::frontLeftMotors)
+    motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::backLeftMotors)
+    motor->set_brake_mode(mode);
 }
 
 void DriveControl::setRightBrake(pros::motor_brake_mode_e_t mode) {
   // Iterate through and set the right motors to a given brake mode
-  for (const auto * motor : DriveControl::rightMotors)
-    if (motor->get_brake_mode() != mode)
-      motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::otherRightMotors)
+    motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::frontRightMotors)
+    motor->set_brake_mode(mode);
+  for (const auto & motor : DriveControl::backRightMotors)
+    motor->set_brake_mode(mode);
 }
 
-PIDCommand DriveControl::runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor *> motors, int target) {
+PIDCommand DriveControl::runMotorsRelative(PID * pid, PIDCalc * calc, std::vector<pros::Motor *> motors, int target) {
   if (!usePID) if (lock->take(MUTEX_WAIT_TIME)) {
     // PID values are not set, issue simple move command
     for (const auto & motor : motors)
@@ -60,9 +98,10 @@ DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * leftMotor, pro
 
   // PID values have not been set
   DriveControl::usePID = false;
-  DriveControl::pid = NULL;
-  DriveControl::leftPIDCalc = NULL;
-  DriveControl::rightPIDCalc = NULL;
+  DriveControl::frontLeftPID = NULL;
+  DriveControl::backLeftPID = NULL;
+  DriveControl::frontRightPID = NULL;
+  DriveControl::backRightPID = NULL;
 }
 
 DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor) {
@@ -70,27 +109,48 @@ DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor
   // Store the mutex
   DriveControl::lock = motorLock;
   // Add the left motors
-  DriveControl::addLeftMotor(frontLeftMotor);
-  DriveControl::addLeftMotor(rearLeftMotor);
-  // Add the right motor
-  DriveControl::addRightMotor(frontRightMotor);
-  DriveControl::addRightMotor(rearRightMotor);
+  DriveControl::addFrontLeftMotor(frontLeftMotor);
+  DriveControl::addBackLeftMotor(rearLeftMotor);
+  // Add the right motors
+  DriveControl::addFrontRightMotor(frontRightMotor);
+  DriveControl::addBackRightMotor(rearRightMotor);
 
   // PID values have not been set
   DriveControl::usePID = false;
-  DriveControl::pid = NULL;
-  DriveControl::leftPIDCalc = NULL;
-  DriveControl::rightPIDCalc = NULL;
+  DriveControl::frontLeftPID = NULL;
+  DriveControl::backLeftPID = NULL;
+  DriveControl::frontRightPID = NULL;
+  DriveControl::backRightPID = NULL;
 }
 
 void DriveControl::addLeftMotor(pros::Motor * motor) {
   // Add the motor to the list of left motors
-  DriveControl::leftMotors.push_back(motor);
+  DriveControl::otherLeftMotors.push_back(motor);
+}
+
+void DriveControl::addFrontLeftMotor(pros::Motor * motor) {
+  // Adds a motor to the front left motors list
+  DriveControl::frontLeftMotors.push_back(motor);
+}
+
+void DriveControl::addBackLeftMotor(pros::Motor * motor) {
+  // Adds a motor to the back left motors list
+  DriveControl::backLeftMotors.push_back(motor);
 }
 
 void DriveControl::addRightMotor(pros::Motor * motor) {
   // Add the motor to the list of right motors
-  DriveControl::rightMotors.push_back(motor);
+  DriveControl::otherRightMotors.push_back(motor);
+}
+
+void DriveControl::addFrontRightMotor(pros::Motor * motor) {
+  // Adds a motor to the front right motors list
+  DriveControl::frontRightMotors.push_back(motor);
+}
+
+void DriveControl::addBackRightMotor(pros::Motor * motor) {
+  // Adds a motor to the back right motors list
+  DriveControl::backRightMotors.push_back(motor);
 }
 
 void DriveControl::clearMotors() {
@@ -101,26 +161,102 @@ void DriveControl::clearMotors() {
 }
 
 void DriveControl::clearLeftMotors() {
-  // Empty the list of left motors
-  DriveControl::leftMotors.clear();
+  // Clear all left motors
+  DriveControl::otherLeftMotors.clear();
+  DriveControl::clearFrontLeftMotors();
+  DriveControl::clearBackLeftMotors();
 }
 
 void DriveControl::clearRightMotors() {
-  // Empty the list of right motors
-  DriveControl::rightMotors.clear();
+  // Clear all right motors
+  DriveControl::otherRightMotors.clear();
+  DriveControl::clearFrontRightMotors();
+  DriveControl::clearBackRightMotors();
 }
 
-void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0) {
+void DriveControl::clearFrontLeftMotors() {
+  // Empty the list of front left motors
+  DriveControl::frontLeftMotors.clear();
+}
+
+void DriveControl::clearBackLeftMotors() {
+  // Empty the list of back left motors
+  DriveControl::backLeftMotors.clear();
+}
+
+void DriveControl::clearFrontRightMotors() {
+  // Empty the list of front right motors
+  DriveControl::frontRightMotors.clear();
+}
+
+void DriveControl::clearBackRightMotors() {
+  // Empty the list of back right motors
+  DriveControl::backRightMotors.clear();
+}
+
+void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0) {
   // If PID values have been set, clear them
   if (usePID) clearPID();
   // Set PID values to the new ones
   DriveControl::usePID = true;
-  DriveControl::pid = new PID(dt, kp, ki, kd, brake, tLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
+  DriveControl::frontLeftPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
+  DriveControl::backLeftPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
+  DriveControl::frontRightPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
+  DriveControl::backRightPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
 }
 
-PID * DriveControl::getPID() {
+void DriveControl::setPID(PID pid) {
+  // If PID values have been set, clear them
+  if (usePID) clearPID();
+  // Set PID values to the new ones
+  DriveControl::frontLeftPID = new PID(pid);
+  DriveControl::backLeftPID = new PID(pid);
+  DriveControl::frontRightPID = new PID(pid);
+  DriveControl::backRightPID = new PID(pid);
+}
+
+void DriveControl::setPID(PID leftPID, PID rightPID) {
+  // If PID values have been set, clear them
+  if (usePID) clearPID();
+  // Set PID values to the new ones
+  DriveControl::frontLeftPID = new PID(leftPID);
+  DriveControl::backLeftPID = new PID(leftPID);
+  DriveControl::frontRightPID = new PID(rightPID);
+  DriveControl::backRightPID = new PID(rightPID);
+}
+
+void DriveControl::setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID) {
+  // If PID values have been set, clear them
+  if (usePID) clearPID();
+  // Set PID values to the new ones
+  DriveControl::frontLeftPID = frontLeftPID;
+  DriveControl::backLeftPID = backLeftPID;
+  DriveControl::frontRightPID = frontRightPID;
+  DriveControl::backRightPID = backRightPID;
+}
+
+bool DriveControl::usingPID() {
+  return DriveControl::usePID;
+}
+
+PID * DriveControl::getFrontLeftPID() {
   // Returns a pointer to the PID object, allowing for them to be changed
-  return DriveControl::pid;
+  return frontLeftPID;
+}
+
+PID * DriveControl::getBackLeftPID() {
+  // Returns a pointer to the PID object, allowing for them to be changed
+  return backLeftPID;
+}
+
+PID * DriveControl::getFrontRightPID() {
+  // Returns a pointer to the PID object, allowing for them to be changed
+  return frontRightPID;
+}
+
+PID * DriveControl::getBackRightPID() {
+  // Returns a pointer to the PID object, allowing for them to be changed
+  return backRightPID;
 }
 
 void DriveControl::clearPID() {
@@ -128,14 +264,19 @@ void DriveControl::clearPID() {
   if (!usePID) return;
   DriveControl::usePID = false;
   // Free up the memory
-  delete DriveControl::pid;
-  DriveControl::pid = NULL;
+  delete DriveControl::frontLeftPID;
+  delete DriveControl::backLeftPID;
+  delete DriveControl::frontRightPID;
+  delete DriveControl::backRightPID;
+  DriveControl::frontLeftPID = NULL;
+  DriveControl::backLeftPID = NULL;
+  DriveControl::frontRightPID = NULL;
+  DriveControl::backRightPID = NULL;
 }
 
-void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees) {
-  // Calculate the total target, factoring revolutions as well as degrees
-  long leftTarget = std::lround(leftRevolutions * 360) + leftDegrees;
-  long rightTarget = std::lround(rightRevolutions * 360) + rightDegrees;
+void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int frontRightDegrees, int backRightDegrees) {
+  int leftAverage = (frontLeftDegrees + backLeftDegrees) / 2;
+  int rightAverage = (frontRightDegrees + backRightDegrees) / 2;
 
   // The amount of disconnected motors
   int lDisconnect = 0;
@@ -147,14 +288,42 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
    * If not, an event is logged and the motor is temporarily removed from the list
    * If no motors are plugged in on either side, abort
    */
-  for (const auto & motor : DriveControl::leftMotors) {
+  for (const auto & motor : DriveControl::otherLeftMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
     motor->set_brake_mode(BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       lDisconnect++;
   }
-  for (const auto & motor : DriveControl::rightMotors) {
+  for (const auto & motor : DriveControl::frontLeftMotors) {
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode(BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      lDisconnect++;
+  }
+  for (const auto & motor : DriveControl::backLeftMotors) {
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode(BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      lDisconnect++;
+  }
+  for (const auto & motor : DriveControl::otherRightMotors) {
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode(BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      rDisconnect++;
+  }
+  for (const auto & motor : DriveControl::frontRightMotors) {
+    motor->tare_position();
+    motor->set_encoder_units(ENCODER_DEGREES);
+    motor->set_brake_mode(BRAKE_COAST);
+    if (motor->get_efficiency() > 1000)
+      rDisconnect++;
+  }
+  for (const auto & motor : DriveControl::backRightMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
     motor->set_brake_mode(BRAKE_COAST);
@@ -166,15 +335,17 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   bool abort = false;
 
   // Display disconnect errors
-  if (lDisconnect > 0 && leftTarget) {
-    if (DriveControl::leftMotors.size() == lDisconnect)
+  if (lDisconnect > 0) {
+    int totalsize = DriveControl::otherLeftMotors.size() + DriveControl::frontLeftMotors.size() + DriveControl::backLeftMotors.size();
+    if (totalsize == lDisconnect)
       Logger::log(LOG_ERROR, "All of the left side drive motors have been disconnected! Aborting...");
     else
       Logger::log(LOG_ERROR, "Some of the left side drive motors have been disconnected! Aborting...");
     abort = true;
   }
-  if (rDisconnect > 0 && rightTarget) {
-    if (DriveControl::rightMotors.size() == rDisconnect)
+  if (rDisconnect > 0) {
+    int totalsize = DriveControl::otherRightMotors.size() + DriveControl::frontRightMotors.size() + DriveControl::backRightMotors.size();
+    if (totalsize == rDisconnect)
       Logger::log(LOG_ERROR, "All of the right side drive motors have been disconnected! Aborting...");
     else
       Logger::log(LOG_ERROR, "Some of the right side drive motors have been disconnected! Aborting...");
@@ -183,192 +354,323 @@ void DriveControl::moveRelative(double leftRevolutions, int leftDegrees, double 
   if (abort) return;
 
   // Display and log for debugging purposes
-  LCD::setStatus("Auto driving: L" + std::to_string(leftTarget) + ", R" + std::to_string(rightTarget));
-  Logger::log(LOG_INFO, "Auto Driving - Left Target: " + std::to_string(leftTarget) + ", Right Target:" + std::to_string(rightTarget));
+  LCD::setStatus("Auto driving: L:" + std::to_string(leftAverage) + ", R" + std::to_string(rightAverage));
+  Logger::log(LOG_INFO, "Auto Driving - " + std::to_string(frontLeftDegrees) + "\t" + std::to_string(backLeftDegrees));
+  Logger::log(LOG_INFO, "Auto Driving - " + std::to_string(frontRightDegrees) + "\t" + std::to_string(backRightDegrees));
 
   if (!usePID) {
     // PID values have not been set, issue simple move commands
-    if (leftTarget != 0) DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget);
-    if (rightTarget != 0) DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
+    if (leftAverage != 0) DriveControl::runMotorsRelative(NULL, NULL, otherLeftMotors, leftAverage);
+    if (rightAverage != 0) DriveControl::runMotorsRelative(NULL, NULL, otherRightMotors, rightAverage);
 
     // Loop until done
     while (true) {
       bool done = true;
       int count = 0;
       long total = 0;
-      // Run the left motors
-      for (const auto & motor : leftMotors) {
-        if (util::abs(leftTarget - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
+
+      // Run the front left motors
+      for (const auto & motor : frontLeftMotors) {
+        if (util::abs(frontLeftDegrees - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
           count++;
-          LCD::setText(2, "Left error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(leftTarget - motor->get_position()));
-        }
         total += motor->get_position();
       }
       // Check for completion
-      if (count == DriveControl::leftMotors.size()) {
+      if (count == DriveControl::frontLeftMotors.size()) {
         done = false;
-        DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget - (total / util::sign(leftMotors.size())));
-      } else DriveControl::runLeftMotors(0);
-
-      LCD::setText(4, "Left drive avg " + std::to_string(total / util::sign(DriveControl::rightMotors.size())));
+        DriveControl::runMotorsRelative(NULL, NULL, frontLeftMotors, frontLeftDegrees - (total / util::sign(frontLeftMotors.size())));
+      } else for (const auto & motor : frontLeftMotors) motor->move(0);
 
       count = 0;
       total = 0;
-      // Run the right motors
-      for (const auto & motor : rightMotors) {
-        if (util::abs(rightTarget - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD) {
+      // Run the front right motors
+      for (const auto & motor : frontRightMotors) {
+        if (util::abs(frontRightDegrees - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
           count++;
-          LCD::setText(2, "Right error (T" + std::to_string(MOTOR_MOVE_RELATIVE_THRESHOLD) + "): " + std::to_string(rightTarget - motor->get_position()));
-        }
         total += motor->get_position();
       }
       // Check for completion
-      if (count == DriveControl::rightMotors.size()) {
+      if (count == DriveControl::frontRightMotors.size()) {
         done = false;
-        DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget - (total / util::sign(rightMotors.size())));
-      } else DriveControl::runRightMotors(0);
+        DriveControl::runMotorsRelative(NULL, NULL, frontRightMotors, frontRightDegrees - (total / util::sign(frontRightMotors.size())));
+      } else for (const auto & motor : frontRightMotors) motor->move(0);
 
-      LCD::setText(5, "Right drive avg " + std::to_string(total / util::sign(DriveControl::rightMotors.size())));
+      count = 0;
+      total = 0;
+      // Run the back left motors
+      for (const auto & motor : backLeftMotors) {
+        if (util::abs(backLeftDegrees - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
+          count++;
+        total += motor->get_position();
+      }
+      // Check for completion
+      if (count == DriveControl::backLeftMotors.size()) {
+        done = false;
+        DriveControl::runMotorsRelative(NULL, NULL, backLeftMotors, backLeftDegrees - (total / util::sign(backLeftMotors.size())));
+      } else for (const auto & motor : backLeftMotors) motor->move(0);
+
+      count = 0;
+      total = 0;
+      // Run the back right motors
+      for (const auto & motor : backRightMotors) {
+        if (util::abs(backRightDegrees - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
+          count++;
+        total += motor->get_position();
+      }
+      // Check for completion
+      if (count == DriveControl::backRightMotors.size()) {
+        done = false;
+        DriveControl::runMotorsRelative(NULL, NULL, backRightMotors, backRightDegrees - (total / util::sign(backRightMotors.size())));
+      } else for (const auto & motor : backRightMotors) motor->move(0);
+
+      count = 0;
+      total = 0;
+      // Run the other left motors
+      for (const auto & motor : otherLeftMotors) {
+        if (util::abs(leftAverage - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
+          count++;
+        total += motor->get_position();
+      }
+      // Check for completion
+      if (count == DriveControl::otherLeftMotors.size()) {
+        done = false;
+        DriveControl::runMotorsRelative(NULL, NULL, otherLeftMotors, leftAverage - (total / util::sign(otherLeftMotors.size())));
+      } else for (const auto & motor : otherLeftMotors) motor->move(0);
+
+      count = 0;
+      total = 0;
+      // Run the other right motors
+      for (const auto & motor : otherRightMotors) {
+        if (util::abs(rightAverage - motor->get_position()) > MOTOR_MOVE_RELATIVE_THRESHOLD)
+          count++;
+        total += motor->get_position();
+      }
+      // Check for completion
+      if (count == DriveControl::otherRightMotors.size()) {
+        done = false;
+        DriveControl::runMotorsRelative(NULL, NULL, otherRightMotors, rightAverage - (total / util::sign(otherRightMotors.size())));
+      } else for (const auto & motor : otherRightMotors) motor->move(0);
 
       // If both sides are done, exit
       if (done) break;
       // Run every 20ms
       pros::delay(20);
     }
-
+    // Stop the motors together
+    DriveControl::runLeftMotors(0);
+    DriveControl::runRightMotors(0);
+    // Log the completion
+    LCD::setStatus("Movement Complete ");
+    Logger::log(LOG_INFO, "Movement Complete");
   } else {
     // Create calculation classes
-    DriveControl::leftPIDCalc = new PIDCalc();
-    DriveControl::rightPIDCalc = new PIDCalc();
+    PIDCalc * frontLeftPIDCalc = new PIDCalc();
+    PIDCalc * backLeftPIDCalc = new PIDCalc();
+    PIDCalc * frontRightPIDCalc = new PIDCalc();
+    PIDCalc * backRightPIDCalc = new PIDCalc();
+    PIDCalc * otherLeftPIDCalc = new PIDCalc();
+    PIDCalc * otherRightPIDCalc = new PIDCalc();
     // Check whether to move the motors
-    bool leftComplete = leftTarget == 0;
-    bool rightComplete = rightTarget == 0;
-    int leftPower = 0;
-    int rightPower = 0;
-
-    // If the difference in target of both sides are insignificant, always assign the same power to all motors
-    bool link = util::abs(leftTarget - rightTarget) < pid->dThreshold;
+    bool frontLeftComplete = frontLeftDegrees == 0;
+    bool backLeftComplete = backLeftDegrees == 0;
+    bool frontRightComplete = frontRightDegrees == 0;
+    bool backRightComplete = backRightDegrees == 0;
+    bool otherLeftComplete = leftAverage == 0;
+    bool otherRightComplete = rightAverage == 0;
+    int frontLeftPower = 0;
+    int backLeftPower = 0;
+    int frontRightPower = 0;
+    int backRightPower = 0;
+    int otherLeftPower = 0;
+    int otherRightPower = 0;
 
     // Completion string
     std::string message;
 
-    if (!link) {
-      while (!(leftComplete && rightComplete)) {
-        // Calculate individual powers for each side
-        // Calculate a power for the left motors
-        PIDCommand left = DriveControl::runMotorsRelative(leftPIDCalc, leftMotors, leftTarget);
-        leftPower = left.result;
+    while (!(frontLeftComplete && backLeftComplete && frontRightComplete && backRightComplete)) {
+      // Calculate individual powers for each side
 
-        if (!leftComplete) {
-          // Left side is not complete, check for completion signal
-          if (left.type == E_COMMAND_EXIT_FAILURE || left.type == E_COMMAND_EXIT_SUCCESS) {
+      if (frontLeftMotors.size() != 0) {
+        // Calculate a power for the front left motors
+        PIDCommand frontLeft = DriveControl::runMotorsRelative(frontLeftPID, frontLeftPIDCalc, frontLeftMotors, frontLeftDegrees);
+        frontLeftPower = frontLeft.result;
+
+        if (!frontLeftComplete) {
+          // Front left side is not complete, check for completion signal
+          if (frontLeft.type == E_COMMAND_EXIT_FAILURE || frontLeft.type == E_COMMAND_EXIT_SUCCESS) {
             // An exit command was issued, signifying either success or failure
-            if (left.type == E_COMMAND_EXIT_FAILURE) {
-              // Left side failed to complete, stuck on an object
-              message += "LF";
-              Logger::log(LOG_WARNING, "Left Side has existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
+            if (frontLeft.type == E_COMMAND_EXIT_FAILURE) {
+              // Front left side failed to complete, stuck on an object
+              message += "FLF";
+              Logger::log(LOG_WARNING, "Front Left has existed with a failure status! Threshold: " + std::to_string(frontLeftPID->dThreshold) + ", Error: " + std::to_string(frontLeftPIDCalc->lastError));
             } else {
-              // Left side successfully completed
-              message += "LS";
-              Logger::log(LOG_INFO, "Left Side has existed with a success status. Error: " + std::to_string(leftPIDCalc->lastError));
+              // Front left side successfully completed
+              message += "FLS";
+              Logger::log(LOG_INFO, "Front Left has existed with a success status. Error: " + std::to_string(frontLeftPIDCalc->lastError));
             }
-            leftComplete = true;
+            frontLeftComplete = true;
           }
         }
+      }
 
-        // Calculate a power for the right motors
-        PIDCommand right = DriveControl::runMotorsRelative(rightPIDCalc, rightMotors, rightTarget);
-        rightPower = right.result;
+      if (frontRightMotors.size() != 0) {
+        // Calculate a power for the front left motors
+        PIDCommand frontRight = DriveControl::runMotorsRelative(frontRightPID, frontRightPIDCalc, frontRightMotors, frontRightDegrees);
+        frontRightPower = frontRight.result;
 
-        if (!rightComplete) {
-          // Right is not complete, check for completion signal
-          if (right.type == E_COMMAND_EXIT_FAILURE || right.type == E_COMMAND_EXIT_SUCCESS) {
+        if (!frontRightComplete) {
+          // Front right side is not complete, check for completion signal
+          if (frontRight.type == E_COMMAND_EXIT_FAILURE || frontRight.type == E_COMMAND_EXIT_SUCCESS) {
             // An exit command was issued, signifying either success or failure
-            if (right.type == E_COMMAND_EXIT_FAILURE) {
-              // Right side failed to complete, stuck on an object
-              message += "RF";
-              Logger::log(LOG_WARNING, "Right Side has existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(rightPIDCalc->lastError));
+            if (frontRight.type == E_COMMAND_EXIT_FAILURE) {
+              // Front right side failed to complete, stuck on an object
+              message += "FRF";
+              Logger::log(LOG_WARNING, "Front Right has existed with a failure status! Threshold: " + std::to_string(frontRightPID->dThreshold) + ", Error: " + std::to_string(frontRightPIDCalc->lastError));
             } else {
-              // Right side successfully completed
-              message += "RS";
-              Logger::log(LOG_INFO, "Right Side has existed with a success status. Error: " + std::to_string(rightPIDCalc->lastError));
+              // Front right side successfully completed
+              message += "FRS";
+              Logger::log(LOG_INFO, "Front Right has existed with a success status. Error: " + std::to_string(frontRightPIDCalc->lastError));
             }
-            rightComplete = true;
+            frontRightComplete = true;
           }
         }
-
-        if (lock->take(MUTEX_WAIT_TIME)) {
-          // Iterate through and issue the commands to the motors
-          for (const auto & motor : DriveControl::leftMotors)
-            motor->move(leftPower);
-          for (const auto & motor : DriveControl::rightMotors)
-            motor->move(rightPower);
-          lock->give();
-        }
-
-        // Delay for the specified time delta
-        pros::delay(pid->dt);
       }
-    } else {
-      // Calculate the same power for each side
-      // Join the motors to one complete list
-      std::vector<pros::Motor*> allMotors;
-      for (const auto motor : DriveControl::rightMotors)
-        allMotors.push_back(motor);
-      for (const auto motor : DriveControl::leftMotors)
-        allMotors.push_back(motor);
-      while (!leftComplete) {
-        PIDCommand left = DriveControl::runMotorsRelative(leftPIDCalc, allMotors, leftTarget);
-        leftPower = left.result;
 
-        // Linked sides are not complete, check for completion signal
-        if (left.type == E_COMMAND_EXIT_FAILURE || left.type == E_COMMAND_EXIT_SUCCESS) {
-          // An exit command was issued, signifying either success or failure
-          if (left.type == E_COMMAND_EXIT_FAILURE) {
-            // Linked sides failed to complete, stuck on an object
-            message += "Linked Failure";
-            Logger::log(LOG_WARNING, "Linked Sides have existed with a failure status! Threshold: " + std::to_string(pid->dThreshold) + ", Error: " + std::to_string(leftPIDCalc->lastError));
-          } else {
-            // Left side successfully completed
-            message += "Linked Success";
-            Logger::log(LOG_INFO, "Linked Sides have existed with a success status. Error: " + std::to_string(leftPIDCalc->lastError));
+      if (backLeftMotors.size() != 0) {
+        // Calculate a power for the back left motors
+        PIDCommand backLeft = DriveControl::runMotorsRelative(backLeftPID, backLeftPIDCalc, backLeftMotors, backLeftDegrees);
+        backLeftPower = backLeft.result;
+
+        if (!backLeftComplete) {
+          // Back left side is not complete, check for completion signal
+          if (backLeft.type == E_COMMAND_EXIT_FAILURE || backLeft.type == E_COMMAND_EXIT_SUCCESS) {
+            // An exit command was issued, signifying either success or failure
+            if (backLeft.type == E_COMMAND_EXIT_FAILURE) {
+              // Back left side failed to complete, stuck on an object
+              message += "FLF";
+              Logger::log(LOG_WARNING, "Back Left has existed with a failure status! Threshold: " + std::to_string(backLeftPID->dThreshold) + ", Error: " + std::to_string(backLeftPIDCalc->lastError));
+            } else {
+              // Back left side successfully completed
+              message += "FLS";
+              Logger::log(LOG_INFO, "Back Left has existed with a success status. Error: " + std::to_string(backLeftPIDCalc->lastError));
+            }
+            backLeftComplete = true;
           }
-          leftComplete = true;
         }
-
-        if (lock->take(MUTEX_WAIT_TIME)) {
-          // Iterate through and issue the commands to the motors
-          for (const auto & motor : leftMotors)
-            motor->move(leftPower);
-          for (const auto & motor : rightMotors)
-            motor->move(leftPower);
-          lock->give();
-        }
-        pros::delay(pid->dt);
       }
+
+      if (backRightMotors.size() != 0) {
+        // Calculate a power for the back left motors
+        PIDCommand backRight = DriveControl::runMotorsRelative(backRightPID, backRightPIDCalc, backRightMotors, backRightDegrees);
+        backRightPower = backRight.result;
+
+        if (!backRightComplete) {
+          // Back right side is not complete, check for completion signal
+          if (backRight.type == E_COMMAND_EXIT_FAILURE || backRight.type == E_COMMAND_EXIT_SUCCESS) {
+            // An exit command was issued, signifying either success or failure
+            if (backRight.type == E_COMMAND_EXIT_FAILURE) {
+              // Back right side failed to complete, stuck on an object
+              message += "FRF";
+              Logger::log(LOG_WARNING, "Back Right has existed with a failure status! Threshold: " + std::to_string(backRightPID->dThreshold) + ", Error: " + std::to_string(backRightPIDCalc->lastError));
+            } else {
+              // Back right side successfully completed
+              message += "FRS";
+              Logger::log(LOG_INFO, "Back Right has existed with a success status. Error: " + std::to_string(backRightPIDCalc->lastError));
+            }
+            backRightComplete = true;
+          }
+        }
+      }
+
+      if (otherLeftMotors.size() != 0) {
+        // Calculate a power for the other left motors
+        PIDCommand otherLeft = DriveControl::runMotorsRelative(frontLeftPID, otherLeftPIDCalc, otherLeftMotors, leftAverage);
+        otherLeftPower = otherLeft.result;
+
+        if (!otherLeftComplete) {
+          // Other left side is not complete, check for completion signal
+          if (otherLeft.type == E_COMMAND_EXIT_FAILURE || otherLeft.type == E_COMMAND_EXIT_SUCCESS) {
+            // An exit command was issued, signifying either success or failure
+            if (otherLeft.type == E_COMMAND_EXIT_FAILURE) {
+              // Other left side failed to complete, stuck on an object
+              message += "OLF";
+              Logger::log(LOG_WARNING, "Other Left has existed with a failure status! Threshold: " + std::to_string(frontLeftPID->dThreshold) + ", Error: " + std::to_string(otherLeftPIDCalc->lastError));
+            } else {
+              // Other left side successfully completed
+              message += "OLS";
+              Logger::log(LOG_INFO, "Other Left has existed with a success status. Error: " + std::to_string(otherLeftPIDCalc->lastError));
+            }
+            otherLeftComplete = true;
+          }
+        }
+      }
+
+      if (otherRightMotors.size() != 0) {
+        // Calculate a power for the other left motors
+        PIDCommand otherRight = DriveControl::runMotorsRelative(frontRightPID, otherRightPIDCalc, otherRightMotors, rightAverage);
+        otherRightPower = otherRight.result;
+
+        if (!otherRightComplete) {
+          // Other right side is not complete, check for completion signal
+          if (otherRight.type == E_COMMAND_EXIT_FAILURE || otherRight.type == E_COMMAND_EXIT_SUCCESS) {
+            // An exit command was issued, signifying either success or failure
+            if (otherRight.type == E_COMMAND_EXIT_FAILURE) {
+              // Other right side failed to complete, stuck on an object
+              message += "ORF";
+              Logger::log(LOG_WARNING, "Other Right has existed with a failure status! Threshold: " + std::to_string(frontRightPID->dThreshold) + ", Error: " + std::to_string(otherRightPIDCalc->lastError));
+            } else {
+              // Other right side successfully completed
+              message += "ORS";
+              Logger::log(LOG_INFO, "Other Right has existed with a success status. Error: " + std::to_string(otherRightPIDCalc->lastError));
+            }
+            otherRightComplete = true;
+          }
+        }
+      }
+
+      if (lock->take(MUTEX_WAIT_TIME)) {
+        // Iterate through and issue the commands to the motors
+        for (const auto & motor : DriveControl::frontLeftMotors)
+          motor->move(frontLeftPower);
+        for (const auto & motor : DriveControl::frontRightMotors)
+          motor->move(frontRightPower);
+        for (const auto & motor : DriveControl::backLeftMotors)
+          motor->move(backLeftPower);
+        for (const auto & motor : DriveControl::backRightMotors)
+          motor->move(backRightPower);
+        for (const auto & motor : DriveControl::otherLeftMotors)
+          motor->move(otherLeftPower);
+        for (const auto & motor : DriveControl::otherRightMotors)
+          motor->move(otherRightPower);
+        lock->give();
+      }
+
+      // Delay for the average time delta across all PID constants
+      pros::delay((frontLeftPID->dt + backLeftPID->dt + frontRightPID->dt + backRightPID->dt)/4);
     }
+
     // Stop the motors together
-    for (const auto & motor : DriveControl::leftMotors)
-      motor->move(0);
-    for (const auto & motor : DriveControl::rightMotors)
-      motor->move(0);
+    DriveControl::runLeftMotors(0);
+    DriveControl::runRightMotors(0);
     // Log the completion
     LCD::setStatus("PID Complete " + message);
     Logger::log(LOG_INFO, "PID Complete");
     // Free up memory
-    delete DriveControl::leftPIDCalc;
-    delete DriveControl::rightPIDCalc;
-    DriveControl::leftPIDCalc = NULL;
-    DriveControl::rightPIDCalc = NULL;
+    delete frontLeftPIDCalc;
+    delete backLeftPIDCalc;
+    delete frontRightPIDCalc;
+    delete backRightPIDCalc;
+    delete otherLeftPIDCalc;
+    delete otherRightPIDCalc;
   }
 }
 
-void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse) {
+void DriveControl::run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse) {
   // Pass the call to the longer run() function
-  DriveControl::run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse, 1.0, 1.0);
+  DriveControl::runH(moveVoltage, turnVoltage, brake, flipReverse, 1.0, 1.0);
 }
 
-void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
+void DriveControl::runH(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
   // Flip the left and right outputs if reversing, meant to better map the analog stick positions to actual robot movement
   bool flip = flipReverse && moveVoltage < MOTOR_REVERSE_FLIP_THRESHOLD;
 
@@ -382,12 +684,70 @@ void DriveControl::run(double moveVoltage, double turnVoltage, bool leftBrake, b
 
   if (lock->take(MUTEX_WAIT_TIME)) {
     // Issue the move and brake commands to the motors
-    setLeftBrake(leftBrake ? BRAKE_BRAKE : BRAKE_COAST);
-    setRightBrake(rightBrake ? BRAKE_BRAKE : BRAKE_COAST);
-    runLeftMotors(leftBrake ? 0 : leftVoltage);
-    runRightMotors(rightBrake ? 0 : rightVoltage);
+    setLeftBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
+    setRightBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
+    runLeftMotors(leftVoltage);
+    runRightMotors(rightVoltage);
     lock->give();
   }
+}
+
+void DriveControl::runStrafe(double moveVoltage, double turnStrafeVoltage, bool strafe, bool brake, bool flipReverse, double moveSensitivity, double turnStrafeSensitivity) {
+    // Pass the call to runX while interpreting the turnStrafeVoltage
+    DriveControl::runX(moveVoltage, strafe ? turnStrafeVoltage : 0, strafe ? 0 : turnStrafeVoltage, brake, flipReverse, moveSensitivity, strafe ? turnStrafeSensitivity : 0, strafe ? 0 : turnStrafeSensitivity);
+}
+
+void DriveControl::runX(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
+  // Flip the left and right outputs if reversing, meant to better map the analog stick positions to actual robot movement
+  bool flip = flipReverse && moveVoltage < MOTOR_REVERSE_FLIP_THRESHOLD;
+
+  // Multiply the voltages by the sensitivity
+  moveVoltage *= moveSensitivity;
+  strafeVoltage *= strafeSensitivity;
+  turnVoltage *= turnSensitivity;
+
+  // Variables for calculating motor outputs
+  double frontLeftVoltage = 0;
+  double backLeftVoltage = 0;
+  double frontRightVoltage = 0;
+  double backRightVoltage = 0;
+
+  // Calculate the motor outputs
+  if (moveVoltage != 0) {
+    frontLeftVoltage += moveVoltage;
+    backLeftVoltage += moveVoltage;
+    frontRightVoltage += moveVoltage;
+    backRightVoltage += moveVoltage;
+  }
+  if (strafeVoltage != 0) {
+    // Flip the left and right outputs if reversing, meant to better map the analog stick positions to actual robot movement
+    frontLeftVoltage += strafeVoltage;
+    backLeftVoltage -= strafeVoltage;
+    frontRightVoltage -= strafeVoltage;
+    backRightVoltage += strafeVoltage;
+  }
+  if (turnVoltage != 0) {
+    if (flip) turnVoltage = -turnVoltage;
+    frontLeftVoltage += moveVoltage;
+    backLeftVoltage += moveVoltage;
+    frontRightVoltage -= moveVoltage;
+    backRightVoltage -= moveVoltage;
+  }
+
+  if (lock->take(MUTEX_WAIT_TIME)) {
+    // Issue the move and brake commands to the motors
+    setLeftBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
+    setRightBrake(brake ? BRAKE_BRAKE : BRAKE_COAST);
+    runFrontLeftMotors(frontLeftVoltage);
+    runBackLeftMotors(backLeftVoltage);
+    runFrontRightMotors(frontRightVoltage);
+    runBackRightMotors(backRightVoltage);
+    lock->give();
+  }
+}
+
+void DriveControl::stop(bool brake) {
+  DriveControl::runX(0, 0, 0, brake, false, 1.0, 1.0, 1.0);
 }
 
 DriveFunction::DriveFunction(DriveControl * driveControl) {
@@ -487,17 +847,32 @@ void DriveFunction::moveRevolutions(double revolutions, int degrees) {
   DriveFunction::driveControl->moveRelative(revolutions, degrees, revolutions, degrees);
 }
 
-void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse) {
-  // Passes the call to the DriveControl object run()
-  DriveFunction::driveControl->run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse);
+void DriveFunction::run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse) {
+  // Passes the call to the DriveControl object
+  DriveFunction::driveControl->run(moveVoltage, turnVoltage, brake, flipReverse);
 }
 
-void DriveFunction::run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
-  // Passes the call to the DriveControl object run()
-  DriveFunction::driveControl->run(moveVoltage, turnVoltage, leftBrake, rightBrake, flipReverse, moveSensitivity, turnSensitivity);
+void DriveFunction::runH(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity) {
+  // Passes the call to the DriveControl object
+  DriveFunction::driveControl->runH(moveVoltage, turnVoltage, brake, flipReverse, moveSensitivity,turnSensitivity);
+}
+
+void DriveFunction::runStrafe(double moveVoltage, double turnStrafeVoltage, bool strafe, bool brake, bool flipReverse, double moveSensitivity, double turnStrafeSensitivity) {
+  // Passes the call to the DriveControl object
+  DriveFunction::driveControl->runStrafe(moveVoltage, turnStrafeVoltage, strafe, brake, flipReverse,moveSensitivity, turnStrafeSensitivity);
+}
+
+void DriveFunction::runX(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double strafeSensitivity, double turnSensitivity) {
+  // Passes the call to the DriveControl object
+  DriveFunction::driveControl->runX(moveVoltage, strafeVoltage, turnVoltage, brake, flipReverse,moveSensitivity, strafeSensitivity, turnSensitivity);
 }
 
 void DriveFunction::stop() {
   // Moves the robot with a power of 0, stopping it
-  DriveFunction::driveControl->run(0, 0, true, true, false);
+  DriveFunction::driveControl->stop(MOTOR_DEFAULT_BRAKE);
+}
+
+void DriveFunction::stop(bool brake) {
+  // Moves the robot with a power of 0, stopping it
+  DriveFunction::driveControl->stop(brake);
 }

@@ -16,6 +16,8 @@
 // How long to wait for a mutex to be released
 #define MUTEX_WAIT_TIME 1000 // in ms
 
+// Whether, by default, to brake the motors
+#define MOTOR_DEFAULT_BRAKE true
 
 // Threshold for horizontally flipping while reversing
 #define MOTOR_REVERSE_FLIP_THRESHOLD -55 // should be negative value

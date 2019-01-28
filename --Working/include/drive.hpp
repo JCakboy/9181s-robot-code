@@ -16,28 +16,46 @@
  */
 
 class DriveControl {
-  friend void ::autonomous();
   private:
-    // Lists of motors for right and left sides
-    std::vector<pros::Motor*> leftMotors;
-    std::vector<pros::Motor*> rightMotors;
     // The mutex to take before attempting to move the motors
     pros::Mutex * lock;
 
-    // PID constant and calculation variables
+    // Lists of motors for the left sides
+    std::vector<pros::Motor*> otherLeftMotors;
+    std::vector<pros::Motor*> frontLeftMotors;
+    std::vector<pros::Motor*> backLeftMotors;
+
+    // Lists of motors for the right sides
+    std::vector<pros::Motor*> otherRightMotors;
+    std::vector<pros::Motor*> frontRightMotors;
+    std::vector<pros::Motor*> backRightMotors;
+
+    // Whether to use PID for the motor movement
     bool usePID;
-    PID * pid;
-    PIDCalc * leftPIDCalc;
-    PIDCalc * rightPIDCalc;
 
-    int pidSe;
-    int pidLastError;
+    // PID constants
+    PID * frontLeftPID;
+    PID * backLeftPID;
+    PID * frontRightPID;
+    PID * backRightPID;
 
-    // Iterates and runs left motors at a given voltage
-    void runLeftMotors(int voltage);
+    // Iterates and runs left motors at a given power
+    void runLeftMotors(int power);
 
-    // Iterates and runs right motors at a given voltage
-    void runRightMotors(int voltage);
+    // Iterates and runs right motors at a given power
+    void runRightMotors(int power);
+
+    // Iterates and runs the front left motors at a given power
+    void runFrontLeftMotors(int power);
+
+    // Iterates and runs the back left motors at a given power
+    void runBackLeftMotors(int power);
+
+    // Iterates and runs the front right motors at a given power
+    void runFrontRightMotors(int power);
+
+    // Iterates and runs the back right motors at a given power
+    void runBackRightMotors(int power);
 
     // Iterates and sets the brake mode of all left motors to a given mode
     void setLeftBrake(pros::motor_brake_mode_e_t mode);
@@ -46,7 +64,7 @@ class DriveControl {
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
     // The middleman to facilitate choosing between a PID calculation or a simple move_relative() motor command
-    PIDCommand runMotorsRelative(PIDCalc * calc, std::vector<pros::Motor*> motors, int target);
+    PIDCommand runMotorsRelative(PID * pid, PIDCalc * calc, std::vector<pros::Motor*> motors, int target);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -63,26 +81,71 @@ class DriveControl {
      */
     explicit DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor);
 
-    // Adds a motor to the left position list
+    // Adds a motor to the general left motors list
     void addLeftMotor(pros::Motor * motor);
 
-    // Adds a motor to the right position list
+    // Adds a motor to the front left motors list
+    void addFrontLeftMotor(pros::Motor * motor);
+
+    // Adds a motor to the back left motors list
+    void addBackLeftMotor(pros::Motor * motor);
+
+    // Adds a motor to the general right motors list
     void addRightMotor(pros::Motor * motor);
+
+    // Adds a motor to the front right motors list
+    void addFrontRightMotor(pros::Motor * motor);
+
+    // Adds a motor to the back right motors list
+    void addBackRightMotor(pros::Motor * motor);
 
     // Clears all motors from the motor lists
     void clearMotors();
 
-    // Clears all motors from the left position list
+    // Clears all motors from the general left motors list
     void clearLeftMotors();
 
-    // Clears all motors from the right position list
+    // Clears all motors from the front left motors list
+    void clearFrontLeftMotors();
+
+    // Clears all motors from the back left motors list
+    void clearBackLeftMotors();
+
+    // Clears all motors from the general right motors list
     void clearRightMotors();
 
-    // Sets PID constants, see PID documentation
-    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
+    // Clears all motors from the front right motors list
+    void clearFrontRightMotors();
 
-    // Gets PID constants
-    PID * getPID();
+    // Clears all motors from the back right motors list
+    void clearBackRightMotors();
+
+    // Sets left and right PID constants to the same values, see PID documentation
+    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
+
+    // Sets all PID constants to the same values, see PID documentation
+    void setPID(PID pid);
+
+    // Sets left and right PID constants, see PID documentation
+    void setPID(PID leftPID, PID rightPID);
+
+    // Sets all PID constants, see PID documentation
+    void setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
+
+    // Returns whether or not it is using PID control
+    bool usingPID();
+
+    // Gets front left PID constants, see PID documentation
+    PID * getFrontLeftPID();
+
+    // Gets back left PID constants, see PID documentation
+    PID * getBackLeftPID();
+
+    // Gets front right PID constants, see PID documentation
+    PID * getFrontRightPID();
+
+    // Gets back right PID constants, see PID documentation
+    PID * getBackRightPID();
 
     // Clears PID constants
     void clearPID();
@@ -90,38 +153,65 @@ class DriveControl {
     /*
      * Runs the Drive Control relative to the current position
      * This method pauses execution until the desired sensor value is reached
-     * Given both revolutions and degrees, this method will take into account both values
      * If PID consants have been set, PID will control this operation
      *
-     * leftRevolutions: the amount of revolutions to move the left motors forward
-     * leftDegrees: the amount of degrees to move the left motors forward
-     * rightRevolutions: the amount of revolutions to move the right motors forward
-     * rightDegrees: the amount of degrees to move the right motors forward
+     * frontLeftDegrees: the amount of degrees to move the front left motors forward
+     * backLeftDegrees: the amount of degrees to move the back left motors forward
+     * frontRightDegrees: the amount of degrees to move the front right motors forward
+     * backRightDegrees: the amount of degrees to move the back right motors forward
      */
-    void moveRelative(double leftRevolutions, int leftDegrees, double rightRevolutions, int rightDegrees);
+    void moveRelative(int frontLeftDegrees, int backLeftDegrees, int frontRightDegrees, int backRightDegrees);
 
-    // Runs the Drive Control with a 1.0 sensitivity. See below
-    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
+    // Runs the Robot H-Drive Control with a 1.0 sensitivity. See below
+    void run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse);
 
     /*
-     * Runs the Drive Control by calculating the values for the left and right motors
+     * Runs the Robot H-Drive Control by calculating the values for the left and right motors
      *
      * moveVoltage: the movement voltage, forward or backward, ranging from -127 to 127
      * turnVoltage: the turning voltage ranging from -127 to 127
-     * leftBrake: whether to brake the left motors. Braking involves a physical brake while reducing movement 10 fold
-     * rightBrake: whether to brake the right motors. Braking involves a physical brake while reducing movement 10 fold
-     * flipReverse: whether to flip left or right movement when reversing, used to more closely mimic movement
+     * brake: whether to physically brake the motors when stopped
+     * flipReverse: whether to flip left or right movement when reversing, used to more closely mimic joystick movement
      * moveSensitivity: multiplier to make movement forward or backward move or less sensitive. Output voltages will still be in valid ranges
      * turnSensitivity: multiplier to make turning move or less sensitive. Output voltages will still be in valid ranges.
      */
-    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
+    void runH(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity);
 
+    /*
+     * Runs the Robot Mecanum H-Drive Control by calculating the values for the all drive motors
+     *
+     * moveVoltage: the movement voltage, forward or backward, ranging from -127 to 127
+     * turnStrafeVoltage: the strafing or turning voltage ranging from -127 to 127. This value will be interpreted using the value set in strafe
+     * strafe: whether to interpret turnStrafeVoltage as a strafe voltage, otherwise, will be turn voltage
+     * brake: whether to physically brake the motors when stopped
+     * flipReverse: whether to flip left or right movement when reversing, used to more closely mimic joystick movement
+     * moveSensitivity: multiplier to make movement forward or backward more or less sensitive. Output voltages will still be in valid ranges
+     * turnStrafeSensitivity: multiplier to make turning or strafing more or less sensitive. Output voltages will still be in valid ranges.
+     */
+    void runStrafe(double moveVoltage, double turnStrafeVoltage, bool strafe, bool brake, bool flipReverse, double moveSensitivity, double turnStrafeSensitivity);
+
+    /*
+     * Runs the Robot Mecanum H-Drive Control or X-Drive Control by calculating the values for the all drive motors
+     *
+     * moveVoltage: the movement voltage, forward or backward, ranging from -127 to 127
+     * strafeVoltage: the movement voltage, left or right, ranging from -127 to 127
+     * turnVoltage: the turning voltage ranging from -127 to 127
+     * brake: whether to physically brake the motors when stopped
+     * flipReverse: whether to flip left or right movement when reversing, used to more closely mimic joystick movement
+     * moveSensitivity: multiplier to make movement forward or backward more or less sensitive. Output voltages will still be in valid ranges
+     * strafeSensitivity: multiplier to make movement left or right more or less sensitive. Output voltages will still be in valud ranges
+     * turnSensitivity: multiplier to make turning more or less sensitive. Output voltages will still be in valid ranges.
+     */
+    void runX(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
+
+    // Stops all drive motors, braking if requested
+    void stop(bool brake);
 };
 
 /*
  * Class meant to wrap Drive Control
  *
- * Interfaces turning and pivoting to better code autonomous
+ * Interfaces turning, pivoting and strafing (if applicable) to better code autonomous
  * Passes through necessary functions to Drive Control
  * See Drive Control for documentation
  */
@@ -186,14 +276,17 @@ class DriveFunction {
     // Moves the robot forward the given amount of revolutions and degrees
     void moveRevolutions(double revolutions, int degrees);
 
-    // See Drive Control
-    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse);
-
-    // See Drive Control
-    void run(double moveVoltage, double turnVoltage, bool leftBrake, bool rightBrake, bool flipReverse, double moveSensitivity, double turnSensitivity);
+    // Pass through functions to DriveControl. See above for documentation
+    void run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse);
+    void runH(double moveVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double turnSensitivity);
+    void runStrafe(double moveVoltage, double turnStrafeVoltage, bool strafe, bool brake, bool flipReverse, double moveSensitivity, double turnStrafeSensitivity);
+    void runX(double moveVoltage, double strafeVoltage, double turnVoltage, bool brake, bool flipReverse, double moveSensitivity, double strafeSensitivity, double turnSensitivity);
 
     // Stops the robot
     void stop();
+
+    // Stops the robot, braking if requested
+    void stop(bool brake);
 };
 
 #endif

@@ -36,19 +36,19 @@ namespace util {
 	double tankScaleJoystick(double amt);
 
 	// Returns whether a given value has an absolute of equal to or less x
-	bool withinX(int x, int a);
+	bool withinX(double x, double a);
 
 	// Returns ±x, whichever is closer, if the value has an absolute greater than x. Otherwise, it returns the given value
-	int limitX(int x, int a);
+	int limitX(double x, double a);
 
 	// Returns whether the value has an absolute of equal to or less than 127
-	bool within127(int a);
+	bool within127(double a);
 
 	// Returns ±127, whichever is closer, if the value has an absolute greater than 127. Otherwise, it returns the given value
-	int limit127(int a);
+	int limit127(double a);
 
 	// Adds or subtracts 1 from the given value, whicher gets it closer to 0
-	int step0(int a);
+	int step0(double a);
 
 	// Ensures an amount of digits of an integer in string format, adding 0s for padding
 	std::string ensureDigits(int amount, int i);

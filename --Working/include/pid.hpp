@@ -2,6 +2,7 @@
 #define _PID_HPP_
 
 #include "main.h"
+#include <vector>
 
 /*
  * A class meant to hold and manipulate robot-specific PID constants
@@ -16,6 +17,7 @@ class PID {
     double kd;
     bool brake;
     int tLimit;
+    int aLimit;
     int iLimit;
     int iZone;
     bool iReset;
@@ -32,6 +34,7 @@ class PID {
      * kd (derivitive gain): the constant for derivitive gain
      * brake: whether to brake when error is 0, allows for a more aggressive acceleration profile but more abrupt movement
      * tLimit (total limit): the maximum value for the sum of all PID terms; the maximum motor power, should be 127
+     * aLimit (acceleration limit): the maximum increase in power for each calculation
      * iLimit (integral limit): the maximum value the integral term can be, before being multiplied to ki
      * iZone (integral zone): the error at which the integral term will contribute to the output
      * iReset (integral reset): whether to reset after the error is insignificant, should be true for movement and false for velocity
@@ -39,7 +42,7 @@ class PID {
      * tThreshold (time threshold): the minimum number of cycles the motor must hold within the delta threshold to consider the operation complete
      * de0 (hang threshold): the maximum number of cycles the motor holds an error delta of 0 before the operation is considered hung, use 0 to disable
      */
-    explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, bool iReset,  int dThreshold, int tThreshold, int de0);
+    explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0);
 
     /*
      * Calculates the output of the PID controller using the constants given at initialization
@@ -61,6 +64,8 @@ class PIDCalc {
   public:
     // The error in the last calculation loop
     int lastError;
+    // The last power sent to the motors
+    double lastPower;
     // The sum of errors throughout the PID calculations
     int Se;
     // The amount of cycles where the motor has held an error delta of 0

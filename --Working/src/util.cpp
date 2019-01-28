@@ -52,28 +52,30 @@ namespace util {
 		return amt / std::cos(degrees_to_radians(45));
 	}
 
-	bool withinX(int x, int a) {
+
+
+	bool withinX(double x, double a) {
 		return limitX(x, a) == a;
 	}
 
-	int limitX(int x, int a) {
+	int limitX(double x, double a) {
 		x = std::abs(x);
 		return util::max(util::min(a, x), -x);
 	}
 
-	bool within127(int a) {
+	bool within127(double a) {
 		return limit127(a) == a;
 	}
 
-	int limit127(int a) {
+	int limit127(double a) {
 		return limitX(127, a);
 	}
 
-	int step0(int a) {
+	int step0(double a) {
 		if (a > 0)
-			a--;
+			a = a - 1;
 		else if (a < 0)
-			a++;
+			a = a + 1;
 		return a;
 	}
 

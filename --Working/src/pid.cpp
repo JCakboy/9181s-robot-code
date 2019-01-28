@@ -1,6 +1,6 @@
 #include "main.h"
 
-PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0){
+PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0){
   // Store all values
   PID::dt = dt;
   PID::kp = kp;
@@ -8,6 +8,7 @@ PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int iL
   PID::kd = kd;
   PID::brake = brake;
   PID::tLimit = tLimit;
+  PID::aLimit = aLimit;
   PID::iLimit = iLimit;
   PID::iZone = iZone;
   PID::iReset = iReset;
@@ -46,22 +47,30 @@ PIDCommand PID::calculate(PIDCalc * calc, int position, int target) {
   LCD::setText(2, "Error (T" + std::to_string(PID::dThreshold) + "): " + std::to_string(error));
 
   // Calculate the output of each term
-  int p = error * PID::kp;
-  int i = util::limitX(PID::iLimit, calc->Se * PID::ki);
-  int d = de * PID::kd;
+  double p = error * PID::kp;
+  double i = util::limitX(PID::iLimit, calc->Se * PID::ki);
+  double d = de * PID::kd;
 
-  LCD::setText(3, "Power " + std::to_string(p + i + d));
+  double power = util::limitX(PID::tLimit, p + i + d);
+
+  // Account for max acceleration
+  while (util::abs(power - calc->lastPower) > PID::aLimit && std::lround(power) != 0) power = util::step0(power);
+
+  long rpower = std::lround(power);
+  LCD::setText(3, "Power " + std::to_string(rpower));
 
   // Store the error in the calculation object's lastError
   calc->lastError = error;
+  // Store the power in the calculation object's lastPower
+  calc->lastPower = power;
 
   // Return the PID command to the caller
-  if ((p + i + d) == 0)
+  if (rpower == 0)
     if (PID::brake)
       return PIDCommand(E_COMMAND_STOP_BRAKE, 0);
     else return PIDCommand(E_COMMAND_STOP, 0);
   else
-    return PIDCommand(E_COMMAND_CONTINUE, util::limitX(PID::tLimit, p + i + d));
+    return PIDCommand(E_COMMAND_CONTINUE, rpower);
 }
 
 PIDCommand::PIDCommand(pid_command_type type, int result) {

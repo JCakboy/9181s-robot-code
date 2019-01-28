@@ -170,6 +170,9 @@ void Debugger::_task(void * param) {
 }
 
 std::vector<std::string> Debugger::command(std::string command) {
+  // Store the original command
+  std::string originalCommand = command;
+
   // When running a command, set the priority higher than operator control so it does not interrupt
   task->set_priority(TASK_PRIORITY_DEFAULT + 1);
 
@@ -1110,7 +1113,6 @@ std::vector<std::string> Debugger::command(std::string command) {
 
     if (command.size() == 0) {
       std::pair<int, int> ptkt = drive->getTurnValues();
-      PID * pid = driveControl->getPID();
 
       ret.push_back("Drive Management:");
       ret.push_back("    Sensitivity:");
@@ -1123,23 +1125,11 @@ std::vector<std::string> Debugger::command(std::string command) {
       ret.push_back("    Turn Values:");
       ret.push_back("        Proportion: " + std::to_string(ptkt.first));
       ret.push_back("        Constant: " + std::to_string(ptkt.second));
-      if (pid == NULL)
+      if (!driveControl->usingPID())
         ret.push_back("    PID Values: Not Set");
-      else {
-        std::string braking = (pid->brake) ? "true" : "false";
-        ret.push_back("    PID Values:");
-        ret.push_back("        dt: " + std::to_string(pid->dt));
-        ret.push_back("        kp: " + std::to_string(pid->kp));
-        ret.push_back("        ki: " + std::to_string(pid->ki));
-        ret.push_back("        kd: " + std::to_string(pid->kd));
-        ret.push_back("        brake: " + braking);
-        ret.push_back("        tLimit: " + std::to_string(pid->tLimit));
-        ret.push_back("        iLimit: " + std::to_string(pid->iLimit));
-        ret.push_back("        iZone: " + std::to_string(pid->iZone));
-        ret.push_back("        dThreshold: " + std::to_string(pid->dThreshold));
-        ret.push_back("        tThreshold: " + std::to_string(pid->tThreshold));
-        ret.push_back("        hangThreshold: " + std::to_string(pid->de0));
-      }
+      else
+        ret.push_back("    PID Values: Set");
+
     } else if (command.rfind(".sens", 0) == 0) {
       command = command.substr(5);
       if (command.rfind("itivity", 0) == 0) command = command.substr(7);
@@ -1469,12 +1459,59 @@ std::vector<std::string> Debugger::command(std::string command) {
       else
         ret.push_back("Unknown subcommand in \"drive.gearing\". Set values with \"set\" or retrieve values such as \"input\" or \"output\"");
     } else if (command.rfind(".pd", 0) == 0) {
-      PID * pid = driveControl->getPID();
+
+      PID * pid = NULL;
       command = command.substr(3);
+      bool invalid = true;
+      bool all = false;
+
+      if (command.size() == 0) {
+        ret.push_back("Please specify a corner to retrieve PID values from, such as \"frontleft\" or \"br\"");
+        goto end;
+      } else if (command.rfind(".f", 0) == 0) {
+        command = command.substr(2);
+        if (command.rfind("ront", 0) == 0) command = command.substr(4);
+        if (command.rfind("l", 0) == 0) {
+          command = command.substr(1);
+          if (command.rfind("eft", 0) == 0) command = command.substr(3);
+          pid = driveControl->getFrontLeftPID();
+          invalid = false;
+        } else if (command.rfind("r", 0) == 0) {
+          command = command.substr(1);
+          if (command.rfind("ight", 0) == 0) command = command.substr(4);
+          pid = driveControl->getFrontRightPID();
+          invalid = false;
+        }
+      } else if (command.rfind(".b", 0) == 0) {
+        command = command.substr(2);
+        if (command.rfind("ack", 0) == 0) command = command.substr(3);
+        if (command.rfind("l", 0) == 0) {
+          command = command.substr(1);
+          if (command.rfind("eft", 0) == 0) command = command.substr(3);
+          pid = driveControl->getBackLeftPID();
+          invalid = false;
+        } else if (command.rfind("r", 0) == 0) {
+          command = command.substr(1);
+          if (command.rfind("ight", 0) == 0) command = command.substr(4);
+          pid = driveControl->getBackRightPID();
+          invalid = false;
+        }
+      } else if (command.rfind(".a", 0) == 0) {
+        if (command.rfind("ll", 0) == 0) command = command.substr(2);
+        pid = driveControl->getFrontLeftPID();
+        invalid = false;
+        all = true;
+      }
+      if (invalid) {
+        ret.push_back("\"" + command + "\" is not a known side! Acceptable values include \"frontleft\" or \"br\"");
+        goto end;
+      }
 
       if (command.size() == 0) {
         if (pid == NULL)
           ret.push_back("Drive PID Values: Not Set");
+        else if (all)
+          ret.push_back("No display is available for all PID");
         else {
           std::string braking = (pid->brake) ? "true" : "false";
           ret.push_back("Drive PID Values:");
@@ -1502,8 +1539,8 @@ std::vector<std::string> Debugger::command(std::string command) {
         }
 
         if (pid == NULL) {
-          driveControl->setPID(20, 0, 0, 0, false, 127, 0, 0, 10, 50, 50);
-          pid = driveControl->getPID();
+          driveControl->setPID(20, 0, 0, 0, false, 127, 50, 0, 0, 10, 50, 50);
+          return Debugger::command(originalCommand);
         }
 
         if (command.rfind(".dth", 0) == 0) {
@@ -1529,6 +1566,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->dThreshold = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->dThreshold = sel;
+            driveControl->getBackLeftPID()->dThreshold = sel;
+            driveControl->getFrontRightPID()->dThreshold = sel;
+            driveControl->getBackRightPID()->dThreshold = sel;
+          }
           ret.push_back("Set Drive PID dThreshold to: " + selstr);
         } else if (command.rfind(".kp", 0) == 0) {
           command = command.substr(3);
@@ -1552,6 +1595,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->kp = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->kp = sel;
+            driveControl->getBackLeftPID()->kp = sel;
+            driveControl->getFrontRightPID()->kp = sel;
+            driveControl->getBackRightPID()->kp = sel;
+          }
           ret.push_back("Set Drive PID kp to: " + selstr);
         } else if (command.rfind(".ki", 0) == 0) {
           command = command.substr(3);
@@ -1575,6 +1624,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->ki = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->ki = sel;
+            driveControl->getBackLeftPID()->ki = sel;
+            driveControl->getFrontRightPID()->ki = sel;
+            driveControl->getBackRightPID()->ki = sel;
+          }
           ret.push_back("Set Drive PID ki to: " + selstr);
         } else if (command.rfind(".kd", 0) == 0) {
           command = command.substr(3);
@@ -1598,6 +1653,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->kd = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->kd = sel;
+            driveControl->getBackLeftPID()->kd = sel;
+            driveControl->getFrontRightPID()->kd = sel;
+            driveControl->getBackRightPID()->kd = sel;
+          }
           ret.push_back("Set Drive PID kd to: " + selstr);
         } else if (command.rfind(".brake", 0) == 0) {
           command = command.substr(6);
@@ -1621,6 +1682,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->brake = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->brake = sel;
+            driveControl->getBackLeftPID()->brake = sel;
+            driveControl->getFrontRightPID()->brake = sel;
+            driveControl->getBackRightPID()->brake = sel;
+          }
           ret.push_back("Set Drive PID brake to: " + command);
         } else if (command.rfind(".tl", 0) == 0) {
           command = command.substr(3);
@@ -1645,6 +1712,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->tLimit = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->tLimit = sel;
+            driveControl->getBackLeftPID()->tLimit = sel;
+            driveControl->getFrontRightPID()->tLimit = sel;
+            driveControl->getBackRightPID()->tLimit = sel;
+          }
           ret.push_back("Set Drive PID tLimit to: " + selstr);
         } else if (command.rfind(".il", 0) == 0) {
           command = command.substr(3);
@@ -1669,6 +1742,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->iLimit = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->iLimit = sel;
+            driveControl->getBackLeftPID()->iLimit = sel;
+            driveControl->getFrontRightPID()->iLimit = sel;
+            driveControl->getBackRightPID()->iLimit = sel;
+          }
           ret.push_back("Set Drive PID iLimit to: " + selstr);
         } else if (command.rfind(".iz", 0) == 0) {
           command = command.substr(3);
@@ -1693,6 +1772,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->iZone = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->iZone = sel;
+            driveControl->getBackLeftPID()->iZone = sel;
+            driveControl->getFrontRightPID()->iZone = sel;
+            driveControl->getBackRightPID()->iZone = sel;
+          }
           ret.push_back("Set Drive PID iZone to: " + selstr);
         } else if (command.rfind(".dt", 0) == 0) {
           command = command.substr(3);
@@ -1716,6 +1801,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->dt = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->dt = sel;
+            driveControl->getBackLeftPID()->dt = sel;
+            driveControl->getFrontRightPID()->dt = sel;
+            driveControl->getBackRightPID()->dt = sel;
+          }
           ret.push_back("Set Drive PID dt to: " + selstr);
         } else if (command.rfind(".tt", 0) == 0) {
           command = command.substr(3);
@@ -1740,6 +1831,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->tThreshold = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->tThreshold = sel;
+            driveControl->getBackLeftPID()->tThreshold = sel;
+            driveControl->getFrontRightPID()->tThreshold = sel;
+            driveControl->getBackRightPID()->tThreshold = sel;
+          }
           ret.push_back("Set Drive PID tThreshold to: " + selstr);
         } else if (command.rfind(".de", 0) == 0 || command.rfind("ht", 0) == 0) {
           command = command.substr(3);
@@ -1766,6 +1863,12 @@ std::vector<std::string> Debugger::command(std::string command) {
           }
 
           pid->de0 = sel;
+          if (all) {
+            driveControl->getFrontLeftPID()->de0 = sel;
+            driveControl->getBackLeftPID()->de0 = sel;
+            driveControl->getFrontRightPID()->de0 = sel;
+            driveControl->getBackRightPID()->de0 = sel;
+          }
           ret.push_back("Set Drive PID hangThreshold to: " + selstr);
         } else
           ret.push_back("\"" + command + "\" is not a known value! Acceptable values include \"kp\" or \"tlimit\"");
@@ -1774,11 +1877,13 @@ std::vector<std::string> Debugger::command(std::string command) {
           ret.push_back("Drive PID Values are not set!");
         else {
           driveControl->clearPID();
-          ret.push_back("Drive PID Values have been cleared");
+          ret.push_back("All Drive PID Values have been cleared");
         }
       } else {
         if (pid == NULL)
           ret.push_back("Drive PID Values: Not Set");
+        else if (all)
+          ret.push_back("No display is available for all PID");
         else if (command.rfind(".dth", 0) == 0)
           ret.push_back("Drive PID dThreshold: " + std::to_string(pid->dThreshold));
         else if (command.rfind(".kp", 0) == 0)
