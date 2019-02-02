@@ -85,8 +85,8 @@ using namespace ports;
 void initialize() {
   // Initialize the ports
   ports::init();
-  // Initialize the LCD
-  LCD::initialize();
+  // Initialize the LCD of the brain and the controllers
+  LCD::initialize(controllerMain, controllerPartner);
   // Initialize all the loggers that log to the microSD card
   Logger::initializeDefaultLoggers();
   // Initialize the USB debugger
@@ -500,6 +500,8 @@ void opcontrol() {
 	while (runOperatorControlLoop) {
     // Runs the debugger and executes any required methods
     Debugger::run();
+    // Updates the LCD on every cycle
+    LCD::updateScreen();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
@@ -625,6 +627,8 @@ void opcontrol() {
   while (!runOperatorControlLoop) {
     // Runs the debugger and executes any required methods
     Debugger::run();
+    // Updates the LCD on every cycle
+    LCD::updateScreen();
 
     // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {
