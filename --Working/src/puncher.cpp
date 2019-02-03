@@ -22,6 +22,12 @@ Puncher::Puncher(pros::Mutex * lock, pros::Motor * motor) {
   Puncher::punching = false;
   Puncher::punchWaiting = false;
   Puncher::isprimed = false;
+
+  // Set the aligner to null
+  Puncher::useAligner = false;
+  Puncher::driveControl = NULL;
+  Puncher::vision = NULL;
+  Puncher::strafeAlign = false;
 }
 
 void Puncher::prime() {
@@ -60,6 +66,54 @@ void Puncher::shoot() {
 bool Puncher::primed() {
   // Returns whether the puncher is primed
   return Puncher::isprimed;
+}
+
+void Puncher::setAligner(bool enabled, DriveControl * driveControl, pros::Vision * vision, bool strafeAlign) {
+  if (enabled) {
+    // Aligner requested to be disabled
+    Puncher::useAligner = false;
+    Puncher::driveControl = NULL;
+    Puncher::vision = NULL;
+    Puncher::strafeAlign = false;
+    return;
+  }
+  // If either of the required object pointers are null, ignore this call
+  if (driveControl == NULL || vision == NULL)
+    return;
+  // Set a new aligner
+  Puncher::useAligner = enabled;
+  Puncher::driveControl = driveControl;
+  Puncher::vision = vision;
+  Puncher::strafeAlign = strafeAlign;
+}
+
+void Puncher::align(bool pause) {
+  // If the aligner is disabled, ignore this call
+  if (!Puncher::useAligner) return;
+
+  // Whether the puncher is aligned
+  bool aligned = false;
+
+  // Run at least one, if pausing is requested, continue until aligned
+  do {
+    // Read the vision signature
+    pros::vision_object_s_t signature = vision->get_by_sig(0, (LCD::isAutonomousRed() ? redSigID : blueSigID));
+
+    // Align
+    if ((util::sign(signature.x_middle_coord) - visionMidXPos) < -5)
+      driveControl->runStrafe(0, 35, strafeAlign, true, false, 1.0, 1.0);
+    else if ((util::sign(signature.x_middle_coord) - visionMidXPos) > 5)
+      driveControl->runStrafe(0, -35, strafeAlign, true, false, 1.0, 1.0);
+    else {
+      aligned = true;
+      driveControl->stop(true);
+      if (PUNCHER_VISION_ALIGNMENT_RUMBLE)
+        ports::controllerMain->rumble(PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN);
+    } 
+
+    // Delay for 20ms if looping
+    if (pause) pros::delay(20);
+  } while (pause && !aligned);
 }
 
 void Puncher::run() {

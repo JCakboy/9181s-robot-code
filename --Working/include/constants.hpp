@@ -23,7 +23,7 @@
 #define MOTOR_REVERSE_FLIP_THRESHOLD -55 // should be negative value
 
 // Default threshold for move relative
-#define MOTOR_MOVE_RELATIVE_THRESHOLD 8
+#define MOTOR_MOVE_RELATIVE_THRESHOLD 8 // in degrees
 
 // Maximum speed for move relative
 #define MOTOR_MOVE_RELATIVE_MAX_SPEED 100
@@ -31,9 +31,19 @@
 // Proportional constant for move relative
 #define MOTOR_MOVE_RELATIVE_KP .43
 
-// Amount to move the puncher back for priming
-#define PUNCHER_PRIME_AMOUNT 260
 
+// Amount to move the puncher back for priming
+#define PUNCHER_PRIME_AMOUNT 260 // in degrees
+// Whether to use the vision sensor for puncher alignment
+#define PUNCHER_USE_VISION_ALIGNMENT true
+// Whether to strafe for vision sensor alignment
+#define PUNCHER_STRAFE_ALIGN true
+// THe threshold for vision sensor alignemmt
+#define PUNCHER_VISION_ALIGNMENT_THRESHOLD 5 // in pixels
+// Whether to rumble the controller when complete
+#define PUNCHER_VISION_ALIGNMENT_RUMBLE true
+// The pattern to rumble the controller when complete
+#define PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN ". . "
 
 // Default logs path
 #define LOGS_PATH "/usd/logs/"

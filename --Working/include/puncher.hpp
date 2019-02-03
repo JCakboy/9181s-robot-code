@@ -22,6 +22,22 @@ class Puncher {
     // Whether the puncher is pulled back and primed
     bool isprimed;
 
+    // Whether an aligner is set for the puncher
+    bool useAligner;
+    // The DriveControl object to align with
+    DriveControl * driveControl;
+    // The Vision sensor to align with
+    pros::Vision * vision;
+    // Whether to strafe when aligning
+    bool strafeAlign;
+
+    // The center position of the vision sensor
+    static const int visionMidXPos = 158;
+    // The signiture ID for the blue flag
+    static const int blueSigID = 0;
+    // The signiture ID for the red flag
+    static const int redSigID = 1;
+
     // Moves the puncher motor forward the given degrees
     void move(int degrees);
 
@@ -43,6 +59,12 @@ class Puncher {
 
     // Fires the puncher
     void shoot();
+
+    // Sets the aligner
+    void setAligner(bool enabled, DriveControl * driveControl, pros::Vision * vision, bool strafeAlign);
+
+    // Aligns the puncher
+    void align(bool pause);
 
     // Runs the puncher, meant to be called on each pass of the operator control loop
     void run();
