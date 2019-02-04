@@ -97,7 +97,7 @@ void Puncher::align(bool pause) {
   // Run at least one, if pausing is requested, continue until aligned
   do {
     // Read the vision signature
-    pros::vision_object_s_t signature = vision->get_by_sig(0, (LCD::isAutonomousRed() ? redSigID : blueSigID));
+    pros::vision_object_s_t signature = vision->get_by_sig(0, (LCD::isAutonomousRed() ? blueSigID : redSigID));
 
     // Align
     if ((util::sign(signature.x_middle_coord) - visionMidXPos) < -5)
@@ -109,7 +109,7 @@ void Puncher::align(bool pause) {
       driveControl->stop(true);
       if (PUNCHER_VISION_ALIGNMENT_RUMBLE)
         ports::controllerMain->rumble(PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN);
-    } 
+    }
 
     // Delay for 20ms if looping
     if (pause) pros::delay(20);

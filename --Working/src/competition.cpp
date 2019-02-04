@@ -27,13 +27,13 @@ namespace ports {
   Unused * port10 = new Unused(10);
   Unused * port11 = new Unused(11);
   pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port15 = new Unused(15);
   pros::Motor * port16 = new pros::Motor(16, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port17 = new pros::Motor(17, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_100, FWD, ENCODER_DEGREES);
-  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
   Unused * port21 = new Unused(21);
 
@@ -69,7 +69,7 @@ namespace ports {
     drive->setTurnValues(501, 50);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(450);
+    puncherVariable->set_current_limit(1500);
   }
 }
 
@@ -109,9 +109,10 @@ void initialize() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
-
-
+void competition_initialize() {
+  Logger::log(LOG_INFO, "---===( Competition Initialized )===---");
+  LCD::setStatus("Competition Initialized");
+}
 
 void highRoutine() {
   Logger::log(LOG_INFO, "Puncher High Routine");
@@ -446,7 +447,6 @@ void autonomous() {
 
   }
 
-
   end:
   autonomousComplete = true;
 }
@@ -469,7 +469,7 @@ void autonomous() {
 bool runOperatorControlLoop = true;
 // Driving sensitivity, has external linkage
 double sensitivity = 1.0;
-double adjustingSensitivity = 0.25;
+double adjustingSensitivity = 0.4;
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "---===( Operator Control )===---");
@@ -507,23 +507,26 @@ void opcontrol() {
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
     // Check for puncher adjustment or outtake and if so, lower the sensitivity
     if (l1Pressed || l2Pressed)
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else if (controllerMain->get_digital(BUTTON_R2))
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * 0.5, sensitivity * 0.5);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0.25), sensitivity * (adjustingSensitivity + 0.25));
     else
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity, sensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity, sensitivity);
 
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
 
-    // Map the right analog stick to the descorer arm
-    arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
+    // If the robot is punching, reset the arm to a horizontal position, otherwise, map the right analog stick to the scoring arm
+    if (l1Pressed || l2Pressed)
+      arm->move_absolute(180, 100);
+    else
+      arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
 
     // Intake code, R1 intakes balls, R2 outtakes balls and flips ground caps
     if (controllerMain->get_digital(BUTTON_R1))
       intake->move(127);
     else if (controllerMain->get_digital(BUTTON_R2))
-      intake->move(-90);
+      intake->move(-80);
     else
       intake->move(0);
 
@@ -581,17 +584,11 @@ void opcontrol() {
         puncher->unprime();
     }
 
-    // Buttons A, X and B deal with puncher priming. See Puncher for documentation
-    if (controllerMain->get_digital_new_press(BUTTON_A))
+    // If X is pressed, toggle the prime status of the puncher
+    if (controllerMain->get_digital_new_press(BUTTON_X))
       puncher->togglePrime();
 
-    if (controllerMain->get_digital_new_press(BUTTON_X))
-      puncher->prime();
-
-    if (controllerMain->get_digital_new_press(BUTTON_B))
-      puncher->unprime();
-
-    // Test skills autonomous run. TO BE REMOVED BEFORE TOURNAMENT
+    // Test autonomous run. TO BE REMOVED BEFORE TOURNAMENT
     if (controllerMain->get_digital_new_press(BUTTON_Y))
       autonomous();
 
