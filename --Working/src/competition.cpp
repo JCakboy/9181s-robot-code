@@ -34,7 +34,7 @@ namespace ports {
   pros::Motor * port17 = new pros::Motor(17, GEARSET_100, FWD, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
   Unused * port19 = new Unused(19);
-  pros::Motor * port20 = new pros::Motor(20, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port20 = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
   Unused * port21 = new Unused(21);
 
   // Mapping
@@ -74,7 +74,7 @@ namespace ports {
     //puncher->setAligner(true, driveControl, flagVision, true);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(1500);
+    puncherVariable->set_current_limit(1250);
     // Brake the arm
     arm->set_brake_mode(BRAKE_HOLD);
   }
@@ -246,7 +246,7 @@ void opcontrol() {
 
     // If the robot is punching, reset the arm to a horizontal position, otherwise, map the right analog stick to the scoring arm
     if ((controllerMain->get_analog(ANALOG_RIGHT_Y) == 0 && armLock) || l1Pressed || l2Pressed)
-        arm->move_absolute(-290, 100);
+        arm->move_absolute(275, 100);
     else {
       if (armLock) armLock = false;
       arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
