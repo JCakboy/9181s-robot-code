@@ -37,9 +37,9 @@ namespace ports {
   extern Unused * port6;
   extern Unused * port7;
   extern Unused * port8;
-  extern Unused * port9;
+  extern pros::Vision * port9;
   extern Unused * port10;
-  extern Unused * port11;
+  extern pros::Motor * port11;
   extern pros::Motor * port12;
   extern pros::Motor * port13;
   extern pros::Motor * port14;
@@ -47,7 +47,7 @@ namespace ports {
   extern pros::Motor * port16;
   extern pros::Motor * port17;
   extern pros::Motor * port18;
-  extern pros::Motor * port19;
+  extern Unused * port19;
   extern pros::Motor * port20;
   extern Unused * port21;
 

@@ -87,8 +87,8 @@ void LCD::updateScreen() {
 
   // Add checking
   LCD::cycles++;
-  if (cycles == 3) {
-    LCD::setControllerText("Auto: " + LCD::getAutonomousName() + "               ");
+  if (cycles >= 5) {
+    LCD::setControllerText("Auto: " + LCD::getAutonomousName() + "     ");
     LCD::cycles = 0;
   }
 }

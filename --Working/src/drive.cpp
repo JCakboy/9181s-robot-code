@@ -728,10 +728,10 @@ void DriveControl::runX(double moveVoltage, double strafeVoltage, double turnVol
   }
   if (turnVoltage != 0) {
     if (flip) turnVoltage = -turnVoltage;
-    frontLeftVoltage += moveVoltage;
-    backLeftVoltage += moveVoltage;
-    frontRightVoltage -= moveVoltage;
-    backRightVoltage -= moveVoltage;
+    frontLeftVoltage += turnVoltage;
+    backLeftVoltage += turnVoltage;
+    frontRightVoltage -= turnVoltage;
+    backRightVoltage -= turnVoltage;
   }
 
   if (lock->take(MUTEX_WAIT_TIME)) {
