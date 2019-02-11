@@ -121,7 +121,7 @@ class DriveControl {
     void clearBackRightMotors();
 
     // Sets left and right PID constants to the same values, see PID documentation
-    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
+    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
 
     // Sets all PID constants to the same values, see PID documentation
     void setPID(PID pid);
@@ -230,12 +230,21 @@ class DriveFunction {
     int pt;
     int kt;
 
+    // The amount to move the motors to strafe one inch
+    int ks;
+
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
     DriveFunction(DriveControl * driveControl);
 
     // Returns the Drive Control
     DriveControl * getDriveControl();
+
+    // Sets the strafe constant, the amount to move the motors to strafe one inch
+    void setStrafeValue(int ks);
+
+    // Returns the strafe constant
+    int getStrafeValue();
 
     // Sets the turn porpotional value and the turn constant, used to calculate the amount to move the motors to turn the robot
     void setTurnValues(int pt, int kt);
@@ -266,6 +275,9 @@ class DriveFunction {
 
     // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
+
+    // Stafes the robot, given the amount of inches
+    void strafe(double inches);
 
     // Moves the robot forward the given amount of inches, calculated using the given gear ratio
     void move(double inches);

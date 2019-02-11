@@ -28,6 +28,7 @@ Puncher::Puncher(pros::Mutex * lock, pros::Motor * motor) {
   Puncher::driveControl = NULL;
   Puncher::vision = NULL;
   Puncher::strafeAlign = false;
+  Puncher::alignTime = 0;
 }
 
 void Puncher::prime() {
@@ -69,7 +70,7 @@ bool Puncher::primed() {
 }
 
 void Puncher::setAligner(bool enabled, DriveControl * driveControl, pros::Vision * vision, bool strafeAlign) {
-  if (enabled) {
+  if (!enabled) {
     // Aligner requested to be disabled
     Puncher::useAligner = false;
     Puncher::driveControl = NULL;
@@ -88,9 +89,8 @@ void Puncher::setAligner(bool enabled, DriveControl * driveControl, pros::Vision
 }
 
 void Puncher::align(bool pause) {
-  // If the aligner is disabled, ignore this call
-  if (!Puncher::useAligner) return;
-
+  // If the aligner is disabled or not enough time has passed since another alignment, ignore this call
+  if (!Puncher::useAligner || (pros::millis() < (alignTime + 750))) return;
   // Whether the puncher is aligned
   bool aligned = false;
 
@@ -99,16 +99,25 @@ void Puncher::align(bool pause) {
     // Read the vision signature
     pros::vision_object_s_t signature = vision->get_by_sig(0, (LCD::isAutonomousRed() ? blueSigID : redSigID));
 
+    int middleCoord = util::sign(signature.x_middle_coord);
+
+    if (middleCoord < -2000) {
+      ports::controllerMain->rumble(PUNCHER_VISION_ALIGNMENT_FAILURE_RUMBLE_PATTERN);
+      driveControl->stop(true);
+      break;
+    }
+
     // Align
-    if ((util::sign(signature.x_middle_coord) - visionMidXPos) < -5)
-      driveControl->runStrafe(0, 35, strafeAlign, true, false, 1.0, 1.0);
-    else if ((util::sign(signature.x_middle_coord) - visionMidXPos) > 5)
-      driveControl->runStrafe(0, -35, strafeAlign, true, false, 1.0, 1.0);
+    if ((util::sign(middleCoord) - visionMidXPos) < -6)
+      driveControl->runStrafe(0, -50, strafeAlign, true, false, 1.0, 1.0);
+    else if ((util::sign(middleCoord) - visionMidXPos) > 6)
+      driveControl->runStrafe(0, 50, strafeAlign, true, false, 1.0, 1.0);
     else {
       aligned = true;
       driveControl->stop(true);
       if (PUNCHER_VISION_ALIGNMENT_RUMBLE)
         ports::controllerMain->rumble(PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN);
+      alignTime = pros::millis();
     }
 
     // Delay for 20ms if looping

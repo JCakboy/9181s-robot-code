@@ -71,7 +71,7 @@ namespace util {
 		return limitX(127, a);
 	}
 
-	int step0(double a) {
+	double step0(double a) {
 		if (a > 0)
 			a = a - 1;
 		else if (a < 0)

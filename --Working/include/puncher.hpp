@@ -30,13 +30,15 @@ class Puncher {
     pros::Vision * vision;
     // Whether to strafe when aligning
     bool strafeAlign;
+    // The time at the last successful alignment
+    unsigned int alignTime;
 
     // The center position of the vision sensor
     static const int visionMidXPos = 158;
     // The signiture ID for the blue flag
-    static const int blueSigID = 0;
+    static const int blueSigID = 1;
     // The signiture ID for the red flag
-    static const int redSigID = 1;
+    static const int redSigID = 2;
 
     // Moves the puncher motor forward the given degrees
     void move(int degrees);

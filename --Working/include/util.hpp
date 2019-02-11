@@ -48,7 +48,7 @@ namespace util {
 	int limit127(double a);
 
 	// Adds or subtracts 1 from the given value, whicher gets it closer to 0
-	int step0(double a);
+	double step0(double a);
 
 	// Ensures an amount of digits of an integer in string format, adding 0s for padding
 	std::string ensureDigits(int amount, int i);

@@ -82,6 +82,7 @@ class Logger {
     static std::vector<Logger*> getLoggers();
 
     // Log the message to all log output streams with the specified logging level
+    // WARNING: This is a slow process. This method should be used sparingly during competition, but can be freely used during testing
     static void log(logging_levels level, std::string message);
 
     // Gets the plaintext name of the logging level

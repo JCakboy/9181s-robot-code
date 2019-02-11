@@ -42,8 +42,10 @@
 #define PUNCHER_VISION_ALIGNMENT_THRESHOLD 5 // in pixels
 // Whether to rumble the controller when complete
 #define PUNCHER_VISION_ALIGNMENT_RUMBLE true
+// The pattern to rumble the controller when failed
+#define PUNCHER_VISION_ALIGNMENT_FAILURE_RUMBLE_PATTERN "-"
 // The pattern to rumble the controller when complete
-#define PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN ". . "
+#define PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN ". "
 
 // Default logs path
 #define LOGS_PATH "/usd/logs/"

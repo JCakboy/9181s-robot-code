@@ -30,7 +30,7 @@ namespace ports {
   pros::Motor * port13 = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, REV, ENCODER_DEGREES);
   Unused * port15 = new Unused(15);
-  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port17 = new pros::Motor(17, GEARSET_100, FWD, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
   Unused * port19 = new Unused(19);
@@ -65,18 +65,21 @@ namespace ports {
 
   void init() {
     // Set the PID values
-    //driveControl->setPID(19, 0.473, 0.000000, 0.530000, true, 110, 50, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    driveControl->setPID(19, 0.35000, 0.00000, 0.00000, true, 110, 50, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
     drive->setTurnValues(501, 50);
     // Sets the vision alignment system
-    //puncher->setAligner(true, driveControl, flagVision, true);
+    puncher->setAligner(true, driveControl, flagVision, false);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
     puncherVariable->set_current_limit(1250);
-    // Brake the arm
-    arm->set_brake_mode(BRAKE_HOLD);
+    // Limit torque on drive motors to ensure straight driving
+    backLeftDrive->set_current_limit(550);
+    frontLeftDrive->set_current_limit(550);
+    backRightDrive->set_current_limit(1500);
+    frontRightDrive->set_current_limit(1500);
   }
 }
 
@@ -171,6 +174,7 @@ int selectedAutonomous = 0;
 // Whether the autonomous was completed successfully. Used to determine whether the autonomous routine takes too long to complete
 bool autonomousComplete = true;
 void autonomous() {
+  autonomousComplete = false;
   end:
   autonomousComplete = true;
 }
@@ -193,7 +197,7 @@ void autonomous() {
 bool runOperatorControlLoop = true;
 // Driving sensitivity, has external linkage
 double sensitivity = 1.0;
-double adjustingSensitivity = 0.4;
+double adjustingSensitivity = 0.38;
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "---===( Operator Control )===---");
@@ -220,6 +224,8 @@ void opcontrol() {
 
   // Puncher should hold its angle
   puncherVariable->set_brake_mode(BRAKE_BRAKE);
+  // Brake the arm
+  arm->set_brake_mode(BRAKE_HOLD);
 
   start:
 
@@ -234,10 +240,13 @@ void opcontrol() {
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
     /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
     // Check for puncher adjustment or outtake and if so, lower the sensitivity
-    if (l1Pressed || l2Pressed)
+    // If B is pressed, align with the flags
+    if (controllerMain->get_digital(BUTTON_B))
+      puncher->align(false);
+    else if (l1Pressed || l2Pressed)
       drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else if (controllerMain->get_digital(BUTTON_R2))
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0.125), sensitivity * (adjustingSensitivity + 0.125));
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0.1), sensitivity * (adjustingSensitivity + 0.1));
     else
       drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity, sensitivity);
 
@@ -246,7 +255,7 @@ void opcontrol() {
 
     // If the robot is punching, reset the arm to a horizontal position, otherwise, map the right analog stick to the scoring arm
     if ((controllerMain->get_analog(ANALOG_RIGHT_Y) == 0 && armLock) || l1Pressed || l2Pressed)
-        arm->move_absolute(275, 100);
+      arm->move_absolute(283, 100);
     else {
       if (armLock) armLock = false;
       arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
@@ -352,6 +361,7 @@ void opcontrol() {
 
   // Code loop when the operator control loop is paused. Runs
   while (!runOperatorControlLoop) {
+
     // Runs the debugger and executes any required methods
     Debugger::run();
     // Updates the LCD on every cycle

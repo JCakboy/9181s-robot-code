@@ -17,7 +17,7 @@ class PID {
     double kd;
     bool brake;
     int tLimit;
-    int aLimit;
+    double aLimit;
     int iLimit;
     int iZone;
     bool iReset;
@@ -42,7 +42,7 @@ class PID {
      * tThreshold (time threshold): the minimum number of cycles the motor must hold within the delta threshold to consider the operation complete
      * de0 (hang threshold): the maximum number of cycles the motor holds an error delta of 0 before the operation is considered hung, use 0 to disable
      */
-    explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0);
+    explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0);
 
     /*
      * Calculates the output of the PID controller using the constants given at initialization

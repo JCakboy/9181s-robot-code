@@ -194,7 +194,7 @@ void DriveControl::clearBackRightMotors() {
   DriveControl::backRightMotors.clear();
 }
 
-void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0) {
+void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0) {
   // If PID values have been set, clear them
   if (usePID) clearPID();
   // Set PID values to the new ones
@@ -291,42 +291,42 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
   for (const auto & motor : DriveControl::otherLeftMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || frontLeftPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       lDisconnect++;
   }
   for (const auto & motor : DriveControl::frontLeftMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || frontLeftPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       lDisconnect++;
   }
   for (const auto & motor : DriveControl::backLeftMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || backLeftPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       lDisconnect++;
   }
   for (const auto & motor : DriveControl::otherRightMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || frontRightPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       rDisconnect++;
   }
   for (const auto & motor : DriveControl::frontRightMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || frontRightPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       rDisconnect++;
   }
   for (const auto & motor : DriveControl::backRightMotors) {
     motor->tare_position();
     motor->set_encoder_units(ENCODER_DEGREES);
-    motor->set_brake_mode(BRAKE_COAST);
+    motor->set_brake_mode(!usePID || backRightPID->brake ? BRAKE_HOLD : BRAKE_COAST);
     if (motor->get_efficiency() > 1000)
       rDisconnect++;
   }
@@ -355,8 +355,8 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
 
   // Display and log for debugging purposes
   LCD::setStatus("Auto driving: L:" + std::to_string(leftAverage) + ", R" + std::to_string(rightAverage));
-  Logger::log(LOG_INFO, "Auto Driving - " + std::to_string(frontLeftDegrees) + "\t" + std::to_string(backLeftDegrees));
-  Logger::log(LOG_INFO, "Auto Driving - " + std::to_string(frontRightDegrees) + "\t" + std::to_string(backRightDegrees));
+  Logger::log(LOG_INFO, "Auto Driving - \t" + std::to_string(frontLeftDegrees) + "\t\t" + std::to_string(frontRightDegrees));
+  Logger::log(LOG_INFO, "Auto Driving - \t" + std::to_string(backLeftDegrees) + "\t\t" + std::to_string(backRightDegrees));
 
   if (!usePID) {
     // PID values have not been set, issue simple move commands
@@ -646,7 +646,7 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
       }
 
       // Delay for the average time delta across all PID constants
-      pros::delay((frontLeftPID->dt + backLeftPID->dt + frontRightPID->dt + backRightPID->dt)/4);
+      pros::delay((frontLeftPID->dt + backLeftPID->dt + frontRightPID->dt + backRightPID->dt) / 4.0);
     }
 
     // Stop the motors together
@@ -750,6 +750,7 @@ void DriveControl::stop(bool brake) {
   DriveControl::runX(0, 0, 0, brake, false, 1.0, 1.0, 1.0);
 }
 
+
 DriveFunction::DriveFunction(DriveControl * driveControl) {
   // Store the DriveControl object to wrap/call
   DriveFunction::driveControl = driveControl;
@@ -762,11 +763,22 @@ DriveFunction::DriveFunction(DriveControl * driveControl) {
   // Turn values has not been set
   DriveFunction::pt = 0;
   DriveFunction::kt = 0;
+
+  // Strafe value has not been set
+  DriveFunction::ks = 0;
 }
 
 DriveControl * DriveFunction::getDriveControl() {
   // Returns the stored DriveControl Object pointer
   return DriveFunction::driveControl;
+}
+
+void DriveFunction::setStrafeValue(int ks) {
+  DriveFunction::ks = ks;
+}
+
+int DriveFunction::getStrafeValue() {
+  return ks;
 }
 
 void DriveFunction::setTurnValues(int pt, int kt) {
@@ -814,37 +826,50 @@ void DriveFunction::turn(int degrees) {
 
 void DriveFunction::turn(bool backward, int degrees) {
   // Using the turn values, calculate and call the DriveControl object to move a certain amount to turn the robot the given degrees
+  int leftAmt = 0;
+  int rightAmt = 0;
   if (backward)
-    if (degrees > 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -((degrees / 90 * pt) + kt));
-    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, ((degrees / 90 * pt) - kt), 0, 0);
+    if (degrees > 0) rightAmt = -((degrees / 90 * pt) + kt);
+    else if (degrees < 0) leftAmt = ((degrees / 90 * pt) - kt);
     else;
   else
-    if (degrees > 0) DriveFunction::driveControl->moveRelative(0, (degrees / 90 * pt) + kt, 0, 0);
-    else if (degrees < 0) DriveFunction::driveControl->moveRelative(0, 0, 0, -((degrees / 90 * pt) - kt));
+    if (degrees > 0) leftAmt = (degrees / 90 * pt) + kt;
+    else if (degrees < 0) rightAmt = -((degrees / 90 * pt) - kt);
+  // Run the drive command
+  DriveFunction::driveControl->moveRelative(leftAmt, leftAmt, rightAmt, rightAmt);
 }
 
 void DriveFunction::pivot(int degrees) {
   // Using the turn values, calculate and call the DriveControl object to move a certain amount to pivot the robot the given degrees
+  int amt = 0;
   if (degrees > 0)
-    DriveFunction::driveControl->moveRelative(0, 0.5 * (((degrees / 90.0) * pt) + kt), 0, -0.5 * ((degrees / 90.0 * pt) + kt));
+    int amt = 0.5 * (((degrees / 90.0) * pt) + kt);
   else
-    DriveFunction::driveControl->moveRelative(0, 0.5 * (((degrees / 90.0) * pt) - kt), 0, -0.5 * ((degrees / 90.0 * pt) - kt));
+    int amt = 0.5 * (((degrees / 90.0) * pt) - kt);
+  // Run the drive command
+  DriveFunction::driveControl->moveRelative(amt, amt, -amt, -amt);
+}
+
+void DriveFunction::strafe(double inches) {
+  // Using the strafe value, calculate and call the DriveControl objects to strafe the given amount of inches
+  double amt = DriveFunction::ks * inches;
+  DriveFunction::driveControl->moveRelative(amt, -amt, amt, -amt);
 }
 
 void DriveFunction::move(double inches) {
   // Using the gear ratio, calculate and call the DriveControl object to move forward the given amount of inches
-  double gearRatio = DriveFunction::getFullRatio();
-  DriveFunction::driveControl->moveRelative(0, inches * gearRatio, 0, inches * gearRatio);
+  double amt = DriveFunction::getFullRatio() * inches;
+  DriveFunction::driveControl->moveRelative(amt, amt, amt, amt);
 }
 
 void DriveFunction::moveDegrees(int degrees) {
   // Using the gear ratio, calculate and call the DriveControl object to move forward the given amount of degrees
-  DriveFunction::driveControl->moveRelative(0, degrees, 0, degrees);
+  DriveFunction::driveControl->moveRelative(degrees, degrees, degrees, degrees);
 }
 
 void DriveFunction::moveRevolutions(double revolutions, int degrees) {
   // Using the gear ratio, calculate and call the DriveControl object to move forward the given amount of revolutions
-  DriveFunction::driveControl->moveRelative(revolutions, degrees, revolutions, degrees);
+  DriveFunction::moveDegrees(revolutions * 360 + degrees);
 }
 
 void DriveFunction::run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse) {

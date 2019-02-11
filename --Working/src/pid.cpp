@@ -1,6 +1,6 @@
 #include "main.h"
 
-PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, int aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0){
+PID::PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0){
   // Store all values
   PID::dt = dt;
   PID::kp = kp;
@@ -54,7 +54,13 @@ PIDCommand PID::calculate(PIDCalc * calc, int position, int target) {
   double power = util::limitX(PID::tLimit, p + i + d);
 
   // Account for max acceleration
-  while (util::abs(power - calc->lastPower) > PID::aLimit && std::lround(power) != 0) power = util::step0(power);
+  if (util::abs(power) - util::abs(calc->lastPower) > PID::aLimit) {
+    if (power > 0.0)
+      power = calc->lastPower + PID::aLimit;
+    if (power < 0.0)
+      power = calc->lastPower - PID::aLimit;
+    calc->hangCycles = 0;
+  }
 
   long rpower = std::lround(power);
   LCD::setText(3, "Power " + std::to_string(rpower));

@@ -20,7 +20,7 @@ std::string LCD::getAutonomousName() {
     case 4:
       return "Blue Far";
     case 5:
-      return "Skils";
+      return "Skills";
     default:
       return (std::to_string(selectedAutonomous) + ((selectedAutonomous % 2 == 0) ? " (Blue)" : " (Red)"));
   }
@@ -67,33 +67,38 @@ void LCD::initialize(pros::Controller * controllerMain, pros::Controller * contr
 void LCD::onLeftButton() {
   // Decrements the selected autonomous and update the LCD
   selectedAutonomous--;
-  updateScreen();
+  updateScreen(true);
 }
 
 void LCD::onCenterButton() {
   // No action set
-  updateScreen();
+  updateScreen(true);
 }
 
 void LCD::onRightButton() {
   // Increments the selected autonomous and update the LCD
   selectedAutonomous++;
-  updateScreen();
+  updateScreen(true);
 }
 
 void LCD::updateScreen() {
+  updateScreen(false);
+}
+
+void LCD::updateScreen(bool forceController) {
   // Updates the selected autonomous on the LCD
   setText(0, "Selected autonomous: " + LCD::getAutonomousName());
 
-  // Add checking
+  // Check to see whether the controller should updates its LCD
+  if (cycles == 2 || forceController)
+    LCD::setControllerText("Auto: " + LCD::getAutonomousName());
   LCD::cycles++;
-  if (cycles >= 5) {
-    LCD::setControllerText("Auto: " + LCD::getAutonomousName() + "     ");
-    LCD::cycles = 0;
-  }
+  if (LCD::cycles > 200 || forceController) LCD::cycles = 0;
 }
 
 void LCD::setControllerText(std::string text) {
+  // Make sure the text is padded to clear the existing text
+  while (text.size() < 18) text += " ";
   // Iterate through the controllers and, if connected, update their text
   for (const auto & controller : LCD::controllers)
     if (controller != NULL && controller->is_connected())
