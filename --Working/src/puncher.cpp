@@ -109,9 +109,9 @@ void Puncher::align(bool pause) {
 
     // Align
     if ((util::sign(middleCoord) - visionMidXPos) < -6)
-      driveControl->runStrafe(0, -50, strafeAlign, true, false, 1.0, 1.0);
+      driveControl->runStrafe(0, -39, strafeAlign, true, false, 1.0, 1.0);
     else if ((util::sign(middleCoord) - visionMidXPos) > 6)
-      driveControl->runStrafe(0, 50, strafeAlign, true, false, 1.0, 1.0);
+      driveControl->runStrafe(0, 39, strafeAlign, true, false, 1.0, 1.0);
     else {
       aligned = true;
       driveControl->stop(true);

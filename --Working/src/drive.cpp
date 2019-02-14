@@ -721,8 +721,8 @@ void DriveControl::runX(double moveVoltage, double strafeVoltage, double turnVol
   }
   if (strafeVoltage != 0) {
     // Flip the left and right outputs if reversing, meant to better map the analog stick positions to actual robot movement
-    frontLeftVoltage += strafeVoltage;
-    backLeftVoltage -= strafeVoltage;
+    frontLeftVoltage -= strafeVoltage;
+    backLeftVoltage += strafeVoltage;
     frontRightVoltage += strafeVoltage;
     backRightVoltage -= strafeVoltage;
   }
@@ -853,7 +853,7 @@ void DriveFunction::pivot(int degrees) {
 void DriveFunction::strafe(double inches) {
   // Using the strafe value, calculate and call the DriveControl objects to strafe the given amount of inches
   double amt = DriveFunction::ks * inches;
-  DriveFunction::driveControl->moveRelative(amt, -amt, amt, -amt);
+  DriveFunction::driveControl->moveRelative(-amt, amt, amt, -amt);
 }
 
 void DriveFunction::move(double inches) {

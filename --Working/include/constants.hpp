@@ -39,7 +39,7 @@
 // Whether to strafe for vision sensor alignment
 #define PUNCHER_STRAFE_ALIGN true
 // THe threshold for vision sensor alignemmt
-#define PUNCHER_VISION_ALIGNMENT_THRESHOLD 5 // in pixels
+#define PUNCHER_VISION_ALIGNMENT_THRESHOLD 3 // in pixels
 // Whether to rumble the controller when complete
 #define PUNCHER_VISION_ALIGNMENT_RUMBLE true
 // The pattern to rumble the controller when failed

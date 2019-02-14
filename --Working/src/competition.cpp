@@ -64,8 +64,13 @@ namespace ports {
   Puncher * puncher = new Puncher(launcherLock, ports::puncherMotor);
 
   void init() {
+    // Individual PID values
+    PID * frontLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontRightPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backRightPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Set the PID values
-    driveControl->setPID(19, 0.35000, 0.00000, 0.00000, true, 110, 50, 10000, 200, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
@@ -76,10 +81,10 @@ namespace ports {
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
     puncherVariable->set_current_limit(1250);
     // Limit torque on drive motors to ensure straight driving
-    backLeftDrive->set_current_limit(550);
-    frontLeftDrive->set_current_limit(550);
-    backRightDrive->set_current_limit(1500);
-    frontRightDrive->set_current_limit(1500);
+    backLeftDrive->set_current_limit(2500);
+    frontLeftDrive->set_current_limit(2500);
+    backRightDrive->set_current_limit(2500);
+    frontRightDrive->set_current_limit(2500);
   }
 }
 
@@ -244,11 +249,11 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_B))
       puncher->align(false);
     else if (l1Pressed || l2Pressed)
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else if (controllerMain->get_digital(BUTTON_R2))
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0.1), sensitivity * (adjustingSensitivity + 0.1));
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * (adjustingSensitivity + 0.1), sensitivity * (adjustingSensitivity + 0.1));
     else
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity, sensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity, sensitivity);
 
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
