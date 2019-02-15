@@ -34,7 +34,7 @@ class Puncher {
     unsigned int alignTime;
 
     // The center position of the vision sensor
-    static const int visionMidXPos = 158;
+    static const int visionMidXPos = 152;
     // The signiture ID for the blue flag
     static const int blueSigID = 1;
     // The signiture ID for the red flag

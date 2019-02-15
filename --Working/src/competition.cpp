@@ -65,10 +65,10 @@ namespace ports {
 
   void init() {
     // Individual PID values
-    PID * frontLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * frontRightPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backRightPID = new PID(19, 0.35000, 0.00000, 0.00000, false, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontRightPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backRightPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Set the PID values
     driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
     // Sets the gear ratio of drive
@@ -79,7 +79,7 @@ namespace ports {
     puncher->setAligner(true, driveControl, flagVision, false);
     // Limit the current of the variable puncher motor to reduce clicking
     // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(1250);
+    puncherVariable->set_current_limit(800);
     // Limit torque on drive motors to ensure straight driving
     backLeftDrive->set_current_limit(2500);
     frontLeftDrive->set_current_limit(2500);
@@ -202,7 +202,7 @@ void autonomous() {
 bool runOperatorControlLoop = true;
 // Driving sensitivity, has external linkage
 double sensitivity = 1.0;
-double adjustingSensitivity = 0.38;
+double adjustingSensitivity = 0.45;
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "---===( Operator Control )===---");
@@ -249,11 +249,11 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_B))
       puncher->align(false);
     else if (l1Pressed || l2Pressed)
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
     else if (controllerMain->get_digital(BUTTON_R2))
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity * (adjustingSensitivity + 0.1), sensitivity * (adjustingSensitivity + 0.1));
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0), sensitivity * (adjustingSensitivity + 0));
     else
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), false, true, sensitivity, sensitivity);
+      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity, sensitivity);
 
     // Run puncher code. Should never be changed, unless a puncher is no longer desired
     puncher->run();
@@ -384,6 +384,8 @@ void opcontrol() {
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    // Resets the arm motor if the down button is pressed
+    if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
 
     // Run every 20ms
     pros::delay(20);

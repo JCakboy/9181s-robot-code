@@ -721,10 +721,10 @@ void DriveControl::runX(double moveVoltage, double strafeVoltage, double turnVol
   }
   if (strafeVoltage != 0) {
     // Flip the left and right outputs if reversing, meant to better map the analog stick positions to actual robot movement
-    frontLeftVoltage -= strafeVoltage;
-    backLeftVoltage += strafeVoltage;
-    frontRightVoltage += strafeVoltage;
-    backRightVoltage -= strafeVoltage;
+    frontLeftVoltage += strafeVoltage;
+    backLeftVoltage -= strafeVoltage;
+    frontRightVoltage -= strafeVoltage;
+    backRightVoltage += strafeVoltage;
   }
   if (turnVoltage != 0) {
     if (flip) turnVoltage = -turnVoltage;
