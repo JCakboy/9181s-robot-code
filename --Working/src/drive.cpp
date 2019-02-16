@@ -203,6 +203,7 @@ void DriveControl::setPID(int dt, double kp, double ki, double kd, bool brake, i
   DriveControl::backLeftPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
   DriveControl::frontRightPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
   DriveControl::backRightPID = new PID(dt, kp, ki, kd, brake, tLimit, aLimit, iLimit, iZone, true, dThreshold, tThreshold, de0);
+  DriveControl::usePID = true;
 }
 
 void DriveControl::setPID(PID pid) {
@@ -213,6 +214,7 @@ void DriveControl::setPID(PID pid) {
   DriveControl::backLeftPID = new PID(pid);
   DriveControl::frontRightPID = new PID(pid);
   DriveControl::backRightPID = new PID(pid);
+  DriveControl::usePID = true;
 }
 
 void DriveControl::setPID(PID leftPID, PID rightPID) {
@@ -223,6 +225,7 @@ void DriveControl::setPID(PID leftPID, PID rightPID) {
   DriveControl::backLeftPID = new PID(leftPID);
   DriveControl::frontRightPID = new PID(rightPID);
   DriveControl::backRightPID = new PID(rightPID);
+  DriveControl::usePID = true;
 }
 
 void DriveControl::setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID) {
@@ -233,6 +236,7 @@ void DriveControl::setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRigh
   DriveControl::backLeftPID = backLeftPID;
   DriveControl::frontRightPID = frontRightPID;
   DriveControl::backRightPID = backRightPID;
+  DriveControl::usePID = true;
 }
 
 bool DriveControl::usingPID() {
@@ -460,7 +464,7 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
     DriveControl::runLeftMotors(0);
     DriveControl::runRightMotors(0);
     // Log the completion
-    LCD::setStatus("Movement Complete ");
+    LCD::setStatus("Movement Complete");
     Logger::log(LOG_INFO, "Movement Complete");
   } else {
     // Create calculation classes
@@ -486,7 +490,6 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
 
     // Completion string
     std::string message;
-
     while (!(frontLeftComplete && backLeftComplete && frontRightComplete && backRightComplete)) {
       // Calculate individual powers for each side
 
@@ -648,7 +651,6 @@ void DriveControl::moveRelative(int frontLeftDegrees, int backLeftDegrees, int f
       // Delay for the average time delta across all PID constants
       pros::delay((frontLeftPID->dt + backLeftPID->dt + frontRightPID->dt + backRightPID->dt) / 4.0);
     }
-
     // Stop the motors together
     DriveControl::runLeftMotors(0);
     DriveControl::runRightMotors(0);
@@ -725,6 +727,10 @@ void DriveControl::runX(double moveVoltage, double strafeVoltage, double turnVol
     backLeftVoltage -= strafeVoltage;
     frontRightVoltage -= strafeVoltage;
     backRightVoltage += strafeVoltage;
+    frontLeftVoltage += 20;
+    backLeftVoltage += 20;
+    frontRightVoltage += 20;
+    backRightVoltage += 20;
   }
   if (turnVoltage != 0) {
     if (flip) turnVoltage = -turnVoltage;
@@ -843,9 +849,9 @@ void DriveFunction::pivot(int degrees) {
   // Using the turn values, calculate and call the DriveControl object to move a certain amount to pivot the robot the given degrees
   int amt = 0;
   if (degrees > 0)
-    int amt = 0.5 * (((degrees / 90.0) * pt) + kt);
+    amt = 0.5 * (((degrees / 90.0) * pt) + kt);
   else
-    int amt = 0.5 * (((degrees / 90.0) * pt) - kt);
+    amt = 0.5 * (((degrees / 90.0) * pt) - kt);
   // Run the drive command
   DriveFunction::driveControl->moveRelative(amt, amt, -amt, -amt);
 }

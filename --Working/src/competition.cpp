@@ -65,16 +65,16 @@ namespace ports {
 
   void init() {
     // Individual PID values
-    PID * frontLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * frontRightPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backLeftPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 25, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backRightPID = new PID(19, 0.35000, 0.00000, 0.00000, true, 100, 50, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 0.25000, true, 109, 60.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontRightPID = new PID(20, 0.39800, 0.00000, 1.73200, true, 127, 126, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backLeftPID = new PID(20, 0.43000, 0.00000, 0.25000, true, 109, 60.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * backRightPID = new PID(20, 0.39800, 0.00000, 1.73200, true, 127, 126, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
     // Set the PID values
     driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
     // Sets the gear ratio of drive
     drive->setGearRatio(1, 1, 4);
     // Sets the turn values of drive
-    drive->setTurnValues(501, 50);
+    drive->setTurnValues(935, 50);
     // Sets the vision alignment system
     puncher->setAligner(true, driveControl, flagVision, false);
     // Limit the current of the variable puncher motor to reduce clicking
@@ -259,7 +259,7 @@ void opcontrol() {
     puncher->run();
 
     // If the robot is punching, reset the arm to a horizontal position, otherwise, map the right analog stick to the scoring arm
-    if ((controllerMain->get_analog(ANALOG_RIGHT_Y) == 0 && armLock) || l1Pressed || l2Pressed)
+    if ((controllerMain->get_analog(ANALOG_RIGHT_Y) == 0 && armLock) || l1Pressed || l2Pressed || puncher->primed())
       arm->move_absolute(283, 100);
     else {
       if (armLock) armLock = false;
@@ -357,8 +357,12 @@ void opcontrol() {
     */
 
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
-    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(40);
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(10);
+    // Resets the arm motor if the down button is pressed
+    if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
 
     // Run every 20ms
     pros::delay(20);
@@ -382,8 +386,10 @@ void opcontrol() {
     }
 
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
-    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(40);
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(10);
     // Resets the arm motor if the down button is pressed
     if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
 
