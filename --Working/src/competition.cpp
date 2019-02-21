@@ -65,10 +65,10 @@ namespace ports {
 
   void init() {
     // Individual PID values
-    PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * frontRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
-    PID * backRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 20, 21);
+    PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+    PID * frontRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+    PID * backLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+    PID * backRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
     // Set the PID values
     driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
     // Sets the gear ratio of drive
@@ -183,7 +183,7 @@ void autonomous() {
 
   if (selectedAutonomous == 1) { // Red flags
     // Lock the arm
-    // arm->move_absolute(296, 100);
+    arm->move_absolute(296, 100);
     // Drive forward and intake the ball
     intake->move(85);
     pros::delay(50);
@@ -224,51 +224,60 @@ void autonomous() {
     drive->move(30);
     */
   } else if (selectedAutonomous == 2) { // Red far
+    // Reset the arm
+    arm->move(-127);
     // Drive forward and intake the ball
-    intake->move(85);
+    intake->move(60);
     pros::delay(50);
     drive->move(45);
+    arm->move(0);
+    arm->tare_position();
     intake->move(0);
     pros::delay(250);
     drive->move(-3);
     // Turn and shoot the balls
     arm->move_absolute(296, 100);
-    drive->pivot(-80);
+    drive->pivot(-85);
     highRoutine();
     intake->move(127);
     pros::delay(750);
     midRoutine();
     puncher->unprime();
     intake->move(0);
-    // Grab the cap
+    // Tip the cap
     arm->move_absolute(0, 100);
-    drive->pivot(-30);
-    drive->move(-25);
-    pros::delay(200);
-    arm->move_absolute(160, 75);
-    drive->move(21);
-    // Head the the post
-    drive->pivot(-53);
-    drive->move(20);
-    arm->move_absolute(296, 100);
-    pros::delay(200);
-    drive->pivot(-108);
-    // Score the cap
-    drive->move(32);
-    arm->move(127);
-    pros::delay(1000);
-    arm->move(-90);
-    drive->move(-24);
-    /*
+    drive->pivot(-22);
+    drive->move(-12);
+    arm->move_absolute(240, 100);
+    pros::delay(600);
+    arm->move_absolute(0, 100);
     // Park
-    drive->pivot(-90);
-    drive->move(18);
-    drive->pivot(-90);
-    drive->move(24);
-    */
+    drive->pivot(-70);
+    drive->move(6);
+    drive->pivot(90);
+    intake->move(127);
+    drive->move(42);
+    // drive->move(21);
+    // // Head the the post
+    // drive->pivot(-90);
+    // drive->move(18);
+    // arm->move_absolute(296, 100);
+    // pros::delay(200);
+    // drive->pivot(-75);
+    // // Score the cap
+    // drive->move(32);
+    // arm->move(127);
+    // pros::delay(1000);
+    // arm->move(-90);
+    // drive->move(-24);
+    // // Park
+    // drive->pivot(-90);
+    // drive->move(9);
+    // drive->pivot(-90);
+    // drive->move(40);
   } else if (selectedAutonomous == 3) { // Blue flags
     // Lock the arm
-    // arm->move_absolute(296, 100);
+    arm->move_absolute(296, 100);
     // Drive forward and intake the ball
     intake->move(85);
     pros::delay(50);
@@ -309,50 +318,59 @@ void autonomous() {
     drive->move(30);
     */
   } else if (selectedAutonomous == 4) { // Blue far
+    // Reset the arm
+    arm->move(-127);
     // Drive forward and intake the ball
-    intake->move(93);
+    intake->move(60);
     pros::delay(50);
     drive->move(45);
+    arm->move(0);
+    arm->tare_position();
     intake->move(0);
     pros::delay(250);
     drive->move(-3);
     // Turn and shoot the balls
     arm->move_absolute(296, 100);
-    drive->pivot(80);
+    drive->pivot(85);
     highRoutine();
     intake->move(127);
     pros::delay(750);
     midRoutine();
     puncher->unprime();
     intake->move(0);
-    // Grab the cap
+    // Tip the cap
     arm->move_absolute(0, 100);
-    drive->pivot(30);
-    drive->move(-25);
-    pros::delay(200);
-    arm->move_absolute(160, 75);
-    drive->move(21);
-    // Head the the post
-    drive->pivot(53);
-    drive->move(20);
-    arm->move_absolute(296, 100);
-    pros::delay(200);
-    drive->pivot(108);
-    // Score the cap
-    drive->move(32);
-    arm->move(127);
-    pros::delay(1000);
-    arm->move(-90);
-    drive->move(-24);
-    /*
+    drive->pivot(22);
+    drive->move(-12);
+    arm->move_absolute(240, 100);
+    pros::delay(600);
+    arm->move_absolute(0, 100);
     // Park
-    drive->pivot(90);
-    drive->move(18);
-    drive->pivot(90);
-    drive->move(24);
-    */
+    drive->pivot(70);
+    drive->move(6);
+    drive->pivot(-90);
+    intake->move(127);
+    drive->move(42);
+    // drive->move(21);
+    // // Head the the post
+    // drive->pivot(90);
+    // drive->move(18);
+    // arm->move_absolute(296, 100);
+    // pros::delay(200);
+    // drive->pivot(75);
+    // // Score the cap
+    // drive->move(32);
+    // arm->move(127);
+    // pros::delay(1000);
+    // arm->move(-90);
+    // drive->move(-24);
+    // // Park
+    // drive->pivot(90);
+    // drive->move(9);
+    // drive->pivot(90);
+    // drive->move(40);
   } else if (selectedAutonomous == 5) { // Skills
-    
+
   } else if (selectedAutonomous == 0)
     Logger::log(LOG_WARNING, "No autonomous was selected but was called");
   else
@@ -448,7 +466,7 @@ void opcontrol() {
     if (controllerMain->get_digital(BUTTON_R1))
       intake->move(127);
     else if (controllerMain->get_digital(BUTTON_R2))
-      intake->move(-80);
+      intake->move(-95);
     else
       intake->move(0);
 
