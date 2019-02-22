@@ -182,47 +182,49 @@ void autonomous() {
   autonomousComplete = false;
 
   if (selectedAutonomous == 1) { // Red flags
-    // Lock the arm
-    arm->move_absolute(296, 100);
+    // Reset the arm
+    arm->move(-127);
     // Drive forward and intake the ball
-    intake->move(85);
+    intake->move(90);
     pros::delay(50);
-    drive->move(45);
+    drive->move(46);
+    arm->tare_position();
     intake->move(0);
     pros::delay(450);
+    arm->move_absolute(360, 75);
     // Reset and prime the puncher
-    drive->move(-49);
+    drive->move(-51);
     puncher->prime();
-    drive->move(9);
+    drive->move(11);
     // Turn to face the flags
     drive->pivot(-88);
     drive->move(-3);
     // Shoot the balls
-    arm->move_absolute(296, 100);
+    arm->move_absolute(360, 100);
     highRoutine();
     intake->move(127);
     pros::delay(750);
     midRoutine();
     puncher->unprime();
     // Drive forward and toggle the low flag
-    drive->pivot(-7);
+    // drive->pivot(-7);
     intake->move(90);
+    drive->move(52);
     // Get in position for next routine
-    drive->move(45);
+    drive->move(-27);
     intake->move(0);
-    drive->move(-20);
     drive->pivot(90);
     drive->move(-10);
-    /*
     // Drive forward and toggle the cap
-    intake->move(-85);
+    intake->move(-70);
     drive->move(30);
     // Attempt the middle flag
-    drive->pivot(-37);
+    drive->pivot(-45);
     midRoutine();
+    drive->pivot(-10);
     // Ram into the low flag
-    drive->move(30);
-    */
+    drive->move(37);
+    drive->pivot(-30);
   } else if (selectedAutonomous == 2) { // Red far
     // Reset the arm
     arm->move(-127);
@@ -247,16 +249,16 @@ void autonomous() {
     // Tip the cap
     arm->move_absolute(0, 100);
     drive->pivot(-22);
-    drive->move(-12);
+    drive->move(-10);
     arm->move_absolute(240, 100);
     pros::delay(600);
     arm->move_absolute(0, 100);
     // Park
     drive->pivot(-70);
-    drive->move(6);
+    drive->move(7);
     drive->pivot(90);
     intake->move(127);
-    drive->move(42);
+    drive->move(46);
     // drive->move(21);
     // // Head the the post
     // drive->pivot(-90);
@@ -276,47 +278,49 @@ void autonomous() {
     // drive->pivot(-90);
     // drive->move(40);
   } else if (selectedAutonomous == 3) { // Blue flags
-    // Lock the arm
-    arm->move_absolute(296, 100);
+    // Reset the arm
+    arm->move(-127);
     // Drive forward and intake the ball
-    intake->move(85);
+    intake->move(90);
     pros::delay(50);
-    drive->move(45);
+    drive->move(46);
+    arm->tare_position();
     intake->move(0);
     pros::delay(450);
+    arm->move_absolute(360, 75);
     // Reset and prime the puncher
-    drive->move(-49);
+    drive->move(-51);
     puncher->prime();
-    drive->move(9);
+    drive->move(11);
     // Turn to face the flags
     drive->pivot(88);
     drive->move(-3);
     // Shoot the balls
-    arm->move_absolute(296, 100);
+    arm->move_absolute(360, 100);
     highRoutine();
     intake->move(127);
     pros::delay(750);
     midRoutine();
     puncher->unprime();
     // Drive forward and toggle the low flag
-    drive->pivot(7);
+    drive->pivot(5);
     intake->move(90);
+    drive->move(52);
     // Get in position for next routine
-    drive->move(45);
+    drive->move(-27);
     intake->move(0);
-    drive->move(-20);
     drive->pivot(-90);
     drive->move(-10);
-    /*
     // Drive forward and toggle the cap
-    intake->move(-85);
+    intake->move(-70);
     drive->move(30);
     // Attempt the middle flag
-    drive->pivot(37);
+    drive->pivot(45);
     midRoutine();
+    drive->pivot(10);
     // Ram into the low flag
-    drive->move(30);
-    */
+    drive->move(37);
+    drive->pivot(30);
   } else if (selectedAutonomous == 4) { // Blue far
     // Reset the arm
     arm->move(-127);
@@ -331,7 +335,7 @@ void autonomous() {
     drive->move(-3);
     // Turn and shoot the balls
     arm->move_absolute(296, 100);
-    drive->pivot(85);
+    drive->pivot(84);
     highRoutine();
     intake->move(127);
     pros::delay(750);
@@ -350,7 +354,7 @@ void autonomous() {
     drive->move(6);
     drive->pivot(-90);
     intake->move(127);
-    drive->move(42);
+    drive->move(46);
     // drive->move(21);
     // // Head the the post
     // drive->pivot(90);
