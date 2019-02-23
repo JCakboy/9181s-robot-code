@@ -14,4 +14,4 @@ Autonomous: `src\competition.cpp - ::autonomous()`
 Operator control: `src\competition.cpp - ::operatorControl()`
 
 
-Output binary: `bin\output.bin` or `bin\output.elf`
+Output binary: `bin\monolith.bin`

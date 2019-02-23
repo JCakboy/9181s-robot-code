@@ -260,24 +260,6 @@ void autonomous() {
     drive->pivot(90);
     intake->move(127);
     drive->move(50);
-    // drive->move(21);
-    // // Head the the post
-    // drive->pivot(-90);
-    // drive->move(18);
-    // arm->move_absolute(296, 100);
-    // pros::delay(200);
-    // drive->pivot(-75);
-    // // Score the cap
-    // drive->move(32);
-    // arm->move(127);
-    // pros::delay(1000);
-    // arm->move(-90);
-    // drive->move(-24);
-    // // Park
-    // drive->pivot(-90);
-    // drive->move(9);
-    // drive->pivot(-90);
-    // drive->move(40);
   } else if (selectedAutonomous == 3) { // Blue flags
     // Reset the arm
     arm->move(-127);
@@ -356,24 +338,6 @@ void autonomous() {
     drive->pivot(-90);
     intake->move(127);
     drive->move(50);
-    // drive->move(21);
-    // // Head the the post
-    // drive->pivot(90);
-    // drive->move(18);
-    // arm->move_absolute(296, 100);
-    // pros::delay(200);
-    // drive->pivot(75);
-    // // Score the cap
-    // drive->move(32);
-    // arm->move(127);
-    // pros::delay(1000);
-    // arm->move(-90);
-    // drive->move(-24);
-    // // Park
-    // drive->pivot(90);
-    // drive->move(9);
-    // drive->pivot(90);
-    // drive->move(40);
   } else if (selectedAutonomous == 5) { // Skills
     /*
       Red Far Autonomous
@@ -412,8 +376,58 @@ void autonomous() {
     // Get in position for next routine
     drive->pivot(90);
     arm->move_absolute(365, 100);
-    drive->move(48);
+    drive->move(50);
     drive->pivot(90);
+    drive->move(-12);
+    /*
+      Red Flag Autonomous
+    */
+    // Drive forward and intake the ball
+    intake->move(90);
+    pros::delay(50);
+    drive->move(46);
+    arm->tare_position();
+    intake->move(0);
+    pros::delay(450);
+    arm->move_absolute(365, 75);
+    // Reset and prime the puncher
+    drive->move(-53);
+    puncher->prime();
+    drive->move(11);
+    // Turn to face the flags
+    drive->pivot(-88);
+    drive->move(-3);
+    // Shoot the balls
+    arm->move_absolute(365, 100);
+    highRoutine();
+    intake->move(127);
+    pros::delay(750);
+    midRoutine();
+    puncher->unprime();
+    // Drive forward and toggle the low flag
+    // drive->pivot(-7);
+    intake->move(90);
+    drive->move(52);
+    // Get in position for next routine
+    drive->move(-27);
+    intake->move(0);
+    drive->pivot(90);
+    drive->move(-12);
+    // Drive forward and toggle the cap
+    intake->move(-80);
+    drive->move(35);
+    // Attempt the middle flag
+    drive->pivot(-45);
+    midRoutine();
+    pros::delay(400);
+    // Drive back and park
+    drive->pivot(45);
+    drive->move(-40);
+    drive->move(11);
+    drive->pivot(90);
+    drive->move(50);
+    drive->pivot(-90);
+    drive->move(100);
   } else if (selectedAutonomous == 0)
     Logger::log(LOG_WARNING, "No autonomous was selected but was called");
   else
