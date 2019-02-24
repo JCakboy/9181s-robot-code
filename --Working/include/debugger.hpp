@@ -40,9 +40,13 @@ class Debugger {
     // Properly cooks the PROS terminal and is responsible for waiting for, getting and parsing a command for command()
     static void _task(void * param);
 
+    // The variables from the ports namespace required to function properly
+    static DriveControl * driveControl;
+    static DriveFunction * drive;
+
   public:
     // Starts the debugging task
-    static void start();
+    static void start(DriveControl * driveControl, DriveFunction * drive);
 
     // Runs the debugger, meant to be called in the operator control loop to give direct access to methods
     static void run();

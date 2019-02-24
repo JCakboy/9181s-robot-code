@@ -78,11 +78,11 @@ void opcontrol(void);
 //#include <iostream>
 #include "forward.hpp"
 #include "battery.hpp"
-#include "competition.hpp"
 #include "constants.hpp"
 #include "debugger.hpp"
 #include "definitions.hpp"
 #include "drive.hpp"
+#include "global.hpp"
 #include "lcd.hpp"
 #include "logger.hpp"
 #include "pid.hpp"

@@ -81,6 +81,12 @@ class DriveControl {
      */
     explicit DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor);
 
+    // Reinitializes the motors of the Drive Control object with 2 motors
+    void reinitialize(pros::Motor * leftMotor, pros::Motor * rightMotor);
+
+    // Reinitializes the motors of the Drive Control object with 4 motors
+    void reinitialize(pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor);
+
     // Adds a motor to the general left motors list
     void addLeftMotor(pros::Motor * motor);
 

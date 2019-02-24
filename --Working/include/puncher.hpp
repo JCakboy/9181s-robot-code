@@ -47,6 +47,9 @@ class Puncher {
     // Creates the puncher object given a mutex to respect and a puncher motor
     explicit Puncher(pros::Mutex * lock, pros::Motor * motor);
 
+    // Reinitializes the Puncher object with a new motor
+    void reinitialize(pros::Motor * motor);
+
     // Brakes and primes the motor for a punch, reducing firing time from button press
     void prime();
 

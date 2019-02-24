@@ -1,5 +1,5 @@
-#ifndef _COMPETITION_HPP_
-#define _COMPETITION_HPP_
+#ifndef _GLOBAL_HPP_
+#define _GLOBAL_HPP_
 
 #include "main.h"
 
@@ -51,6 +51,7 @@ namespace ports {
   extern pros::Motor * port20;
   extern Unused * port21;
 
+  // Mapping
   extern pros::Motor * frontLeftDrive;
   extern pros::Motor * frontRightDrive;
   extern pros::Motor * intake;
@@ -60,14 +61,20 @@ namespace ports {
   extern pros::Motor * backRightDrive;
   extern pros::Motor * backLeftDrive;
 
+  // Vision
+  extern pros::Vision * flagVision;
+
+  // Mutexes
   extern pros::Mutex * driveLock;
   extern pros::Mutex * launcherLock;
   extern pros::Mutex * intakeLock;
   extern pros::Mutex * liftLock;
 
+  // Driving
   extern DriveControl * driveControl;
   extern DriveFunction * drive;
 
+  // Puncher
   extern Puncher * puncher;
 
   // Fully initializes the port configuration. Should be called on intitalize()
@@ -75,11 +82,8 @@ namespace ports {
 
 };
 
-// Routine to shoot the high flag
-void highRoutine();
-// Routine to shoot the mid flag
-void midRoutine();
-
+// Whether the autonomous completed successfully
+extern bool autonomousComplete;
 // The currently selected autonomous
 extern int selectedAutonomous;
 // Whether the operator control loop should run

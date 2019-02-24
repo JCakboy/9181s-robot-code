@@ -31,6 +31,26 @@ Puncher::Puncher(pros::Mutex * lock, pros::Motor * motor) {
   Puncher::alignTime = 0;
 }
 
+void Puncher::reinitialize(pros::Motor * motor) {
+  // Store the new puncher motor
+  Puncher::motor = motor;
+
+  // Set the puncher target to 0
+  Puncher::puncherTarget = 0;
+
+  // Set the puncher flags to false
+  Puncher::punching = false;
+  Puncher::punchWaiting = false;
+  Puncher::isprimed = false;
+
+  // Set the aligner to null
+  Puncher::useAligner = false;
+  Puncher::driveControl = NULL;
+  Puncher::vision = NULL;
+  Puncher::strafeAlign = false;
+  Puncher::alignTime = 0;
+}
+
 void Puncher::prime() {
   if (!Puncher::isprimed) {
     // Reset the puncher position and Flags, brake the motor, and pull it back
