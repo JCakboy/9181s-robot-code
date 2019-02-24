@@ -1,94 +1,46 @@
 #include "main.h"
 #include <cmath>
 
-Unused::Unused() {}
-Unused::Unused(int i) {}
+void ports::init() {
+  /*
+   * Include temporary port changes here
+   * Be sure to delete the existing pointer to the port before reinitializing it
+   */
 
-namespace ports {
-  // Controllers
-  pros::Controller * controllerMain = new pros::Controller(CONTROLLER_MAIN);
-  pros::Controller * controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
+  // If there are temporary port changes, driveControl may need to be reinitialized
+  // driveControl.reinitialize(ports::frontLeftDrive, ports::backLeftDrive, ports::frontRightDrive, ports::backRightDrive);
 
-  // Batteries
-  BrainBattery * brainBattery;
-  ControllerBattery * controllerMainBattery;
-  ControllerBattery * controllerPartnerBattery;
+  // If there are temporary port changes, puncher may need to be reinitialized
+  // puncher.reinitialize(ports::puncherMotor);
 
-  // Ports
-  Unused * port1 = new Unused(1);
-  Unused * port2 = new Unused(2);
-  Unused * port3 = new Unused(3);
-  Unused * port4 = new Unused(4);
-  Unused * port5 = new Unused(5);
-  Unused * port6 = new Unused(6);
-  Unused * port7 = new Unused(7);
-  Unused * port8 = new Unused(8);
-  pros::Vision * port9 = new pros::Vision(9);
-  Unused * port10 = new Unused(10);
-  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port14 = new pros::Motor(14, GEARSET_200, REV, ENCODER_DEGREES);
-  Unused * port15 = new Unused(15);
-  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port17 = new pros::Motor(17, GEARSET_100, FWD, ENCODER_DEGREES);
-  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
-  Unused * port19 = new Unused(19);
-  pros::Motor * port20 = new pros::Motor(20, GEARSET_200, REV, ENCODER_DEGREES);
-  Unused * port21 = new Unused(21);
+  // Driving sensitivity
+  ::sensitivity = 1.0;
+  ::adjustingSensitivity = 0.45;
 
-  // Mapping
-  pros::Motor * backLeftDrive = ports::port11;
-  pros::Motor * frontLeftDrive = ports::port12;
-  pros::Motor * backRightDrive = ports::port13;
-  pros::Motor * frontRightDrive = ports::port14;
-  pros::Motor * puncherVariable = ports::port16;
-  pros::Motor * puncherMotor = ports::port17;
-  pros::Motor * intake = ports::port18;
-  pros::Motor * arm = ports::port20;
-
-  // Vision
-  pros::Vision * flagVision = ports::port9;
-
-  // Mutexes
-  pros::Mutex * driveLock = new pros::Mutex();
-  pros::Mutex * launcherLock = new pros::Mutex();
-  pros::Mutex * intakeLock = new pros::Mutex();
-  pros::Mutex * liftLock = new pros::Mutex();
-
-  // Driving
-  DriveControl * driveControl = new DriveControl(ports::driveLock, ports::frontLeftDrive, ports::backLeftDrive, ports::frontRightDrive, ports::backRightDrive);
-  DriveFunction * drive = new DriveFunction(ports::driveControl);
-
-  // Puncher
-  Puncher * puncher = new Puncher(launcherLock, ports::puncherMotor);
-
-  void init() {
-    // Individual PID values
-    PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-    PID * frontRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-    PID * backLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-    PID * backRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-    // Set the PID values
-    driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
-    // Sets the gear ratio of drive
-    drive->setGearRatio(1, 1, 4);
-    // Sets the turn values of drive
-    drive->setTurnValues(852, 54);
-    // Sets the vision alignment system
-    puncher->setAligner(true, driveControl, flagVision, false);
-    // Limit the current of the variable puncher motor to reduce clicking
-    // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-    puncherVariable->set_current_limit(800);
-    // Limit torque on drive motors to ensure straight driving
-    backLeftDrive->set_current_limit(2500);
-    frontLeftDrive->set_current_limit(2500);
-    backRightDrive->set_current_limit(2500);
-    frontRightDrive->set_current_limit(2500);
-  }
+  // Individual PID values
+  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 17, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  // Set the PID values
+  driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
+  // Sets the gear ratio of drive
+  drive->setGearRatio(1, 1, 4);
+  // Sets the turn values of drive
+  drive->setTurnValues(852, 54);
+  // Sets the vision alignment system
+  puncher->setAligner(true, driveControl, flagVision, false);
+  // Limit the current of the variable puncher motor to reduce clicking
+  // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
+  puncherVariable->set_current_limit(800);
+  // Limit torque on drive motors to ensure straight driving
+  backLeftDrive->set_current_limit(2500);
+  frontLeftDrive->set_current_limit(2500);
+  backRightDrive->set_current_limit(2500);
+  frontRightDrive->set_current_limit(2500);
 }
 
-// This file uses many of the fields above. Dump it into the global namespace for ease of programming
+// This file uses many of the fields in the ports namespace. Dump it into the global namespace for ease of programming
 using namespace ports;
 
 /**
@@ -105,7 +57,7 @@ void initialize() {
   // Initialize all the loggers that log to the microSD card
   Logger::initializeDefaultLoggers();
   // Initialize the USB debugger
-  Debugger::start();
+  Debugger::start(driveControl, drive);
 
   // Simple header to signal the start of a new program in a log file
   Logger::log(LOG_INFO, "#####################################");
@@ -173,11 +125,6 @@ void midRoutine() {
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-
-// The currently selected autonomous, has external linkage (meaning its global throughout the project)
-int selectedAutonomous = 0;
-// Whether the autonomous was completed successfully. Used to determine whether the autonomous routine takes too long to complete
-bool autonomousComplete = true;
 void autonomous() {
   autonomousComplete = false;
 
@@ -437,11 +384,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 
- // Whether the operator control loop should run, has external linkage
-bool runOperatorControlLoop = true;
-// Driving sensitivity, has external linkage
-double sensitivity = 1.0;
-double adjustingSensitivity = 0.45;
+
 void opcontrol() {
   // Log the start of operator control to signify in a log file the location of the log
   Logger::log(LOG_INFO, "---===( Operator Control )===---");

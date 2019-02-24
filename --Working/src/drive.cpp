@@ -123,6 +123,28 @@ DriveControl::DriveControl(pros::Mutex * motorLock, pros::Motor * frontLeftMotor
   DriveControl::backRightPID = NULL;
 }
 
+void DriveControl::reinitialize(pros::Motor * leftMotor, pros::Motor * rightMotor) {
+  // Clear the existing drive configuration
+  DriveControl::clearMotors();
+  // Two wheel drive initialization
+  // Add the new left motor
+  DriveControl::addLeftMotor(leftMotor);
+  // Add the new right motor
+  DriveControl::addRightMotor(rightMotor);
+}
+
+void DriveControl::reinitialize(pros::Motor * frontLeftMotor, pros::Motor * rearLeftMotor, pros::Motor * frontRightMotor, pros::Motor * rearRightMotor) {
+  // Clear the existing drive configuration
+  DriveControl::clearMotors();
+  // Four wheel drive initialization
+  // Add the new left motors
+  DriveControl::addFrontLeftMotor(frontLeftMotor);
+  DriveControl::addBackLeftMotor(rearLeftMotor);
+  // Add the new right motors
+  DriveControl::addFrontRightMotor(frontRightMotor);
+  DriveControl::addBackRightMotor(rearRightMotor);
+}
+
 void DriveControl::addLeftMotor(pros::Motor * motor) {
   // Add the motor to the list of left motors
   DriveControl::otherLeftMotors.push_back(motor);

@@ -7,9 +7,6 @@
 #include <string>
 #include <vector>
 
-// Uses some elements of this namespace. Dump it into the global namespace for ease of programming
-using namespace ports;
-
 // The static initializations of private Debugger fields. See the header file for documentation
 bool Debugger::stopped = true;
 pros::Task * Debugger::task = NULL;
@@ -25,44 +22,21 @@ std::string Debugger::parameter2;
 std::string Debugger::parameter3;
 std::string Debugger::completion;
 
-void Debugger::start() {
+DriveControl * Debugger::driveControl;
+DriveFunction * Debugger::drive;
+
+void Debugger::start(DriveControl * driveControl, DriveFunction * drive) {
   // If the debugger is stopped, start the debugger
   if (Debugger::stopped) {
+    Debugger::driveControl = driveControl;
+    Debugger::drive = drive;
     Debugger::task = new pros::Task(Debugger::_task, NULL, TASK_PRIORITY_DEFAULT - 1, TASK_STACK_DEPTH_DEFAULT, "Debugger");
     Debugger::stopped = false;
   }
 }
 
-void Debugger::run() {
-  // If the debugger is not running, ignore
-  if (Debugger::stopped) return;
-  // If no call is waiting, continue
-  if (Debugger::callCode == 0x00) return;
-
-  try { // Catch all exceptions, should never error here
-    // Call codes starting from 0x01 to 0x0f refer to general robot commands
-    if (Debugger::callCode == 0x01) // Run autonomous
-      autonomous();
-
-    // Call codes starting from 0x10 to 0x1f refer to drive
-    if (Debugger::callCode == 0x10)  // DriveFunction::move
-      ports::drive->move(std::stoi(parameter1));
-    else if (Debugger::callCode == 0x11)  // DriveFunction::moveDegrees
-      ports::drive->moveDegrees(std::stoi(parameter1));
-    else if (Debugger::callCode == 0x12)  // DriveFunction::pivot
-      ports::drive->pivot(std::stoi(parameter1));
-    else if (Debugger::callCode == 0x13)  // DriveFunction::turn
-      ports::drive->turn(std::stoi(parameter1));
-
-  } catch (std::exception e) {}
-
-  // Reset the call code and parameters
-  Debugger::callCode = 0x00;
-  Debugger::parameter1 = "";
-  Debugger::parameter2 = "";
-  Debugger::parameter3 = "";
-  Logger::log(LOG_INFO, completion);
-}
+// This definition resides in global.cpp; it refers to the ports namespace which resides in the hot image
+// void Debugger::run() {}
 
 void Debugger::stop() {
   // If the debugger is not stopped, erase the debugger task from memory as well as from the PROS RTOS API
@@ -182,6 +156,10 @@ std::vector<std::string> Debugger::command(std::string command) {
   // Trim the command
   command.erase(std::find_if(command.rbegin(), command.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), command.end());
   command.erase(command.begin(), std::find_if(command.begin(), command.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+
+  // Create controllers
+  pros::Controller controllerMain (CONTROLLER_MAIN);
+  pros::Controller controllerPartner (CONTROLLER_PARTNER);
 
   // Handle the command
   if (command.rfind("echo ", 0) == 0) {
@@ -402,16 +380,16 @@ std::vector<std::string> Debugger::command(std::string command) {
       ret.push_back("        Temperature: " + std::to_string(pros::battery::get_temperature()) + " ºC");
       ret.push_back("        Voltage: " + std::to_string(pros::battery::get_voltage() / 1000.0) + " V");
       ret.push_back("        Current: " + std::to_string(pros::battery::get_current() / 1000.0) + " A");
-      if (controllerMain->is_connected()) {
+      if (controllerMain.is_connected()) {
         ret.push_back("    Main Controller Battery:");
-        ret.push_back("        Capacity: " + std::to_string(controllerMain->get_battery_capacity()) + "%");
-        ret.push_back("        Voltage: " + std::to_string(controllerMain->get_battery_level() / 1000.0) + " V");
+        ret.push_back("        Capacity: " + std::to_string(controllerMain.get_battery_capacity()) + "%");
+        ret.push_back("        Voltage: " + std::to_string(controllerMain.get_battery_level() / 1000.0) + " V");
       } else
         ret.push_back("    Main Controller Battery: Not Connected");
-      if (controllerPartner->is_connected()) {
+      if (controllerPartner.is_connected()) {
         ret.push_back("    Partner Controller Battery:");
-        ret.push_back("        Capacity: " + std::to_string(controllerPartner->get_battery_capacity()) + "%");
-        ret.push_back("        Voltage: " + std::to_string(controllerPartner->get_battery_level() / 1000.0) + " V");
+        ret.push_back("        Capacity: " + std::to_string(controllerPartner.get_battery_capacity()) + "%");
+        ret.push_back("        Voltage: " + std::to_string(controllerPartner.get_battery_level() / 1000.0) + " V");
       } else
         ret.push_back("    Partner Controller Battery: Not Connected");
 
@@ -437,36 +415,36 @@ std::vector<std::string> Debugger::command(std::string command) {
 
     } else if (command.rfind(".cmain", 0) == 0) {
 
-      if (!controllerMain->is_connected()) {
+      if (!controllerMain.is_connected()) {
         ret.push_back("Main Controller Battery: Not Connected");
       } else {
         command = command.substr(6);
         if (command.size() == 0) {
           ret.push_back("Main Controller Battery:");
-          ret.push_back("    Capacity: " + std::to_string(controllerMain->get_battery_capacity()) + "%");
-          ret.push_back("    Voltage: " + std::to_string(controllerMain->get_battery_level() / 1000.0) + " V");
+          ret.push_back("    Capacity: " + std::to_string(controllerMain.get_battery_capacity()) + "%");
+          ret.push_back("    Voltage: " + std::to_string(controllerMain.get_battery_level() / 1000.0) + " V");
         } else if (command.compare(".c") == 0)
-          ret.push_back("Main Controller Capacity: " + std::to_string(controllerMain->get_battery_capacity()) + "%");
+          ret.push_back("Main Controller Capacity: " + std::to_string(controllerMain.get_battery_capacity()) + "%");
         else if (command.compare(".v") == 0)
-          ret.push_back("Main Controller Voltage: " + std::to_string(controllerMain->get_battery_level() / 1000.0) + " V");
+          ret.push_back("Main Controller Voltage: " + std::to_string(controllerMain.get_battery_level() / 1000.0) + " V");
         else
           ret.push_back("Unknown command in \"battery.cmain\". Access fields \"capacity\" or \"voltage\" to narrow information");
       }
 
     } else if (command.rfind(".csecond", 0) == 0 || command.rfind(".cprtner", 0) == 0) {
 
-      if (!controllerPartner->is_connected()) {
+      if (!controllerPartner.is_connected()) {
         ret.push_back("Partner Controller Battery: Not Connected");
       } else {
         command = command.substr(8);
         if (command.size() == 0) {
           ret.push_back("Partner Controller Battery:");
-          ret.push_back("    Capacity: " + std::to_string(controllerPartner->get_battery_capacity()) + "%");
-          ret.push_back("    Voltage: " + std::to_string(controllerPartner->get_battery_level() / 1000.0) + " V");
+          ret.push_back("    Capacity: " + std::to_string(controllerPartner.get_battery_capacity()) + "%");
+          ret.push_back("    Voltage: " + std::to_string(controllerPartner.get_battery_level() / 1000.0) + " V");
         } else if (command.compare(".c") == 0)
-          ret.push_back("Partner Controller Capacity: " + std::to_string(controllerPartner->get_battery_capacity()) + "%");
+          ret.push_back("Partner Controller Capacity: " + std::to_string(controllerPartner.get_battery_capacity()) + "%");
         else if (command.compare(".v") == 0)
-          ret.push_back("Partner Controller Voltage: " + std::to_string(controllerPartner->get_battery_level() / 1000.0) + " V");
+          ret.push_back("Partner Controller Voltage: " + std::to_string(controllerPartner.get_battery_level() / 1000.0) + " V");
         else
           ret.push_back("Unknown command in \"battery.csecond\". Access fields \"capacity\" or \"voltage\" to narrow information");
       }
