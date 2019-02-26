@@ -18,10 +18,10 @@ void ports::init() {
   ::adjustingSensitivity = 0.45;
 
   // Individual PID values
-  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 16, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 19, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backRightPID = new PID(20, 0.43000, 0.00000, 3.30000, true, 127, 16, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 1.40000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 4.65000, true, 100, 8.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 1.40000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backRightPID = new PID(20, 0.43000, 0.00000, 4.65000, true, 100, 8.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
   // Set the PID values
   driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
   // Sets the gear ratio of drive
@@ -607,10 +607,10 @@ void opcontrol() {
     */
 
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
-    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(40);
-    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(10);
+    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(100);
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(50);
     // Resets the arm motor if the down button is pressed
     if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
     // Calls autonomous. TO BE REMOVED BEFORE TOURNAMENT
