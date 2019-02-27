@@ -110,7 +110,7 @@ void Puncher::setAligner(bool enabled, DriveControl * driveControl, pros::Vision
 
 void Puncher::align(bool pause) {
   // If the aligner is disabled or not enough time has passed since another alignment, ignore this call
-  if (!Puncher::useAligner || (pros::millis() < (alignTime + 750))) return;
+  if (!Puncher::useAligner || (pros::millis() < (alignTime + 400))) return;
   // Whether the puncher is aligned
   bool aligned = false;
 
@@ -128,10 +128,10 @@ void Puncher::align(bool pause) {
     }
 
     // Align
-    if ((util::sign(middleCoord) - visionMidXPos) < -6)
-      driveControl->runStrafe(0, -35, strafeAlign, true, false, 1.0, 1.0);
-    else if ((util::sign(middleCoord) - visionMidXPos) > 6)
-      driveControl->runStrafe(0, 35, strafeAlign, true, false, 1.0, 1.0);
+    if ((util::sign(middleCoord) - visionMidXPos) < -5)
+      driveControl->runStrafe(0, -20, strafeAlign, true, false, 1.0, 1.0);
+    else if ((util::sign(middleCoord) - visionMidXPos) > 5)
+      driveControl->runStrafe(0, 20, strafeAlign, true, false, 1.0, 1.0);
     else {
       aligned = true;
       driveControl->stop(true);

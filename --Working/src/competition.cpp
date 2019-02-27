@@ -18,10 +18,10 @@ void ports::init() {
   ::adjustingSensitivity = 0.45;
 
   // Individual PID values
-  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 1.40000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 4.65000, true, 100, 8.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 1.40000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backRightPID = new PID(20, 0.43000, 0.00000, 4.65000, true, 100, 8.5, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 0.90000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 4.75000, true, 100, 8.75, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 0.90000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * backRightPID = new PID(20, 0.43000, 0.00000, 4.75000, true, 100, 8.75, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
   // Set the PID values
   driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
   // Sets the gear ratio of drive
@@ -122,323 +122,345 @@ void midRoutine() {
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
+void autonomousRedFlags() {
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(127);
+  pros::delay(50);
+  drive->move(46);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(450);
+  arm->move_absolute(365, 75);
+  // Reset and prime the puncher
+  drive->move(-51);
+  puncher->prime();
+  drive->move(11);
+  // Turn to face the flags
+  drive->pivot(-88);
+  drive->move(-5);
+  // Shoot the balls
+  arm->move_absolute(365, 100);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  arm->tare_position();
+  // Drive forward and toggle the low flag
+  // drive->pivot(-7);
+  intake->move(90);
+  drive->move(52);
+  // Get in position for next routine
+  drive->move(-27);
+  intake->move(0);
+  drive->pivot(90);
+  drive->move(-12);
+  // Drive forward and toggle the cap
+  intake->move(-120);
+  drive->move(35);
+  // Attempt the middle flag
+  drive->pivot(-45);
+  midRoutine();
+  pros::delay(400);
+  drive->pivot(-10);
+  // Ram into the low flag
+  drive->move(37);
+  drive->pivot(-30);
+}
+
+void autonomousRedFar() {
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(90);
+  pros::delay(50);
+  drive->move(45);
+  arm->move(0);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(250);
+  drive->move(-3);
+  // Turn and shoot the balls
+  arm->move_absolute(296, 100);
+  drive->pivot(-80);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  intake->move(0);
+  // Tip the cap
+  arm->move_absolute(0, 100);
+  drive->pivot(-22);
+  drive->move(-11);
+  arm->move_absolute(240, 100);
+  pros::delay(600);
+  arm->move_absolute(0, 100);
+  // Park
+  drive->pivot(-70);
+  drive->move(7);
+  drive->pivot(90);
+  intake->move(127);
+  drive->move(50);
+}
+
+void autonomousBlueFlags() {
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(90);
+  pros::delay(50);
+  drive->move(46);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(450);
+  arm->move_absolute(365, 75);
+  // Reset and prime the puncher
+  drive->move(-53);
+  puncher->prime();
+  drive->move(11);
+  // Turn to face the flags
+  drive->pivot(88);
+  drive->move(-3);
+  // Shoot the balls
+  arm->move_absolute(365, 100);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  // Drive forward and toggle the low flag
+  drive->pivot(5);
+  intake->move(90);
+  drive->move(52);
+  // Get in position for next routine
+  drive->move(-27);
+  intake->move(0);
+  drive->pivot(-90);
+  drive->move(-12);
+  // Drive forward and toggle the cap
+  intake->move(-80);
+  drive->move(35);
+  // Attempt the middle flag
+  drive->pivot(45);
+  midRoutine();
+  pros::delay(400);
+  drive->pivot(10);
+  // Ram into the low flag
+  drive->move(37);
+}
+
+void autonomousBlueFar() {
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(90);
+  pros::delay(50);
+  drive->move(45);
+  arm->move(0);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(250);
+  drive->move(-3);
+  // Turn and shoot the balls
+  arm->move_absolute(296, 100);
+  drive->pivot(80);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  intake->move(0);
+  // Tip the cap
+  arm->move_absolute(0, 100);
+  drive->pivot(22);
+  drive->move(-12);
+  arm->move_absolute(240, 100);
+  pros::delay(600);
+  arm->move_absolute(0, 100);
+  // Park
+  drive->pivot(70);
+  drive->move(6);
+  drive->pivot(-90);
+  intake->move(127);
+  drive->move(50);
+}
+
+void autonomousSkills() {
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(100);
+  pros::delay(50);
+  drive->move(46);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(450);
+  arm->move_absolute(365, 75);
+  // Reset and prime the puncher
+  drive->move(-51);
+  puncher->prime();
+  drive->move(11);
+  // Turn to face the flags
+  drive->pivot(-88);
+  drive->move(-5);
+  // Shoot the balls
+  arm->move_absolute(365, 100);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  // Drive forward and toggle the low flag
+  // drive->pivot(-7);
+  intake->move(90);
+  drive->move(52);
+  // Get in position for next routine
+  drive->move(-27);
+  intake->move(0);
+  drive->pivot(90);
+  drive->move(-12);
+  // Drive forward and toggle the cap
+  intake->move(-120);
+  drive->move(35);
+  // Attempt the middle flag
+  drive->pivot(-45);
+  midRoutine();
+  pros::delay(600);
+  puncher->unprime();
+  puncherMotor->move(0);
+  // Drive back and park
+  drive->pivot(45);
+  drive->move(-41);
+  drive->move(11);
+  drive->pivot(90);
+  intake->move(60);
+  arm->move_absolute(600, 100);
+  drive->move(47);
+  drive->pivot(-90);
+  drive->move(-18);
+  arm->move_absolute(0, 50);
+  drive->move(115);
+  /*
+    Red Far Autonomous
+  */
+  /*// Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(100);
+  pros::delay(50);
+  drive->move(45);
+  arm->move(0);
+  arm->tare_position();
+  intake->move(0);
+  pros::delay(250);
+  drive->move(-3);
+  // Turn and shoot the balls
+  arm->move_absolute(296, 100);
+  drive->pivot(-80);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  intake->move(0);
+  // Tip the cap
+  arm->move_absolute(0, 100);
+  drive->pivot(-22);
+  drive->move(-11);
+  arm->move_absolute(240, 100);
+  pros::delay(600);
+  arm->move_absolute(0, 100);
+  // Drive to reset
+  drive->pivot(-70);
+  intake->move(60);
+  drive->move(58);
+  drive->move(-10);
+  // Get in position for next routine
+  drive->pivot(90);
+  arm->move_absolute(365, 100);
+  drive->move(49);
+  intake->move(0);
+  drive->pivot(90);
+  drive->move(-12);*/
+  /*
+    Red Flag Autonomous
+  *//*
+  // Reset the arm
+  arm->move(-127);
+  // Drive forward and intake the ball
+  intake->move(90);
+  pros::delay(50);
+  drive->move(46);
+  intake->move(0);
+  pros::delay(450);
+  arm->move_absolute(365, 75);
+  // Reset and prime the puncher
+  drive->move(-53);
+  puncher->prime();
+  drive->move(11);
+  // Turn to face the flags
+  drive->pivot(-88);
+  drive->move(-3);
+  // Shoot the balls
+  arm->move_absolute(365, 100);
+  highRoutine();
+  intake->move(127);
+  pros::delay(750);
+  midRoutine();
+  puncher->unprime();
+  // Drive forward and toggle the low flag
+  // drive->pivot(-7);
+  intake->move(90);
+  drive->move(52);
+  // Get in position for next routine
+  drive->move(-27);
+  intake->move(0);
+  drive->pivot(90);
+  drive->move(-12);
+  // Drive forward and toggle the cap
+  intake->move(-80);
+  drive->move(35);
+  // Attempt the middle flag
+  drive->pivot(-45);
+  midRoutine();
+  pros::delay(400);
+  // Drive back and park
+  drive->pivot(45);
+  drive->move(-40);
+  drive->move(11);
+  drive->pivot(90);
+  intake->move(60);
+  drive->move(50);
+  drive->pivot(-90);
+  drive->move(-12);
+  drive->move(100);
+  */
+}
+
 void autonomous() {
   autonomousComplete = false;
 
-  //if (selectedAutonomous == 1) { // Red flags
-    // Reset the arm
-    arm->move(-127);
-    // // Drive forward and intake the ball
-    // intake->move(127);
-    // pros::delay(50);
-    // drive->move(46);
-    // arm->tare_position();
-    // intake->move(0);
-    // pros::delay(450);
-    // arm->move_absolute(365, 75);
-    // // Reset and prime the puncher
-    // drive->move(-51);
-    // puncher->prime();
-    // drive->move(11);
-    // // Turn to face the flags
-    // drive->pivot(-88);
-    // drive->move(-5);
-    // // Shoot the balls
-    // arm->move_absolute(365, 100);
-    highRoutine();
-    intake->move(127);
-    pros::delay(750);
-    midRoutine();
-    puncher->unprime();
-    arm->tare_position();
-    // Drive forward and toggle the low flag
-    // drive->pivot(-7);
-    intake->move(90);
-    drive->move(52);
-    // Get in position for next routine
-    drive->move(-27);
-    intake->move(0);
-    drive->pivot(90);
-    drive->move(-12);
-    // Drive forward and toggle the cap
-    intake->move(-120);
-    drive->move(35);
-    // Attempt the middle flag
-    drive->pivot(-45);
-    midRoutine();
-    pros::delay(400);
-    drive->pivot(-10);
-    // Ram into the low flag
-    drive->move(37);
-    drive->pivot(-30);
-  // } else if (selectedAutonomous == 2) { // Red far
-  //   // Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(90);
-  //   pros::delay(50);
-  //   drive->move(45);
-  //   arm->move(0);
-  //   arm->tare_position();
-  //   intake->move(0);
-  //   pros::delay(250);
-  //   drive->move(-3);
-  //   // Turn and shoot the balls
-  //   arm->move_absolute(296, 100);
-  //   drive->pivot(-80);
-  //   highRoutine();
-  //   intake->move(127);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   intake->move(0);
-  //   // Tip the cap
-  //   arm->move_absolute(0, 100);
-  //   drive->pivot(-22);
-  //   drive->move(-11);
-  //   arm->move_absolute(240, 100);
-  //   pros::delay(600);
-  //   arm->move_absolute(0, 100);
-  //   // Park
-  //   drive->pivot(-70);
-  //   drive->move(7);
-  //   drive->pivot(90);
-  //   intake->move(127);
-  //   drive->move(50);
-  // } else if (selectedAutonomous == 3) { // Blue flags
-  //   // Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(90);
-  //   pros::delay(50);
-  //   drive->move(46);
-  //   arm->tare_position();
-  //   intake->move(0);
-  //   pros::delay(450);
-  //   arm->move_absolute(365, 75);
-  //   // Reset and prime the puncher
-  //   drive->move(-53);
-  //   puncher->prime();
-  //   drive->move(11);
-  //   // Turn to face the flags
-  //   drive->pivot(88);
-  //   drive->move(-3);
-  //   // Shoot the balls
-  //   arm->move_absolute(365, 100);
-  //   highRoutine();
-  //   intake->move(127);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   // Drive forward and toggle the low flag
-  //   drive->pivot(5);
-  //   intake->move(90);
-  //   drive->move(52);
-  //   // Get in position for next routine
-  //   drive->move(-27);
-  //   intake->move(0);
-  //   drive->pivot(-90);
-  //   drive->move(-12);
-  //   // Drive forward and toggle the cap
-  //   intake->move(-80);
-  //   drive->move(35);
-  //   // Attempt the middle flag
-  //   drive->pivot(45);
-  //   midRoutine();
-  //   pros::delay(400);
-  //   drive->pivot(10);
-  //   // Ram into the low flag
-  //   drive->move(37);
-  // } else if (selectedAutonomous == 4) { // Blue far
-  //   // Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(90);
-  //   pros::delay(50);
-  //   drive->move(45);
-  //   arm->move(0);
-  //   arm->tare_position();
-  //   intake->move(0);
-  //   pros::delay(250);
-  //   drive->move(-3);
-  //   // Turn and shoot the balls
-  //   arm->move_absolute(296, 100);
-  //   drive->pivot(80);
-  //   highRoutine();
-  //   intake->move(127);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   intake->move(0);
-  //   // Tip the cap
-  //   arm->move_absolute(0, 100);
-  //   drive->pivot(22);
-  //   drive->move(-12);
-  //   arm->move_absolute(240, 100);
-  //   pros::delay(600);
-  //   arm->move_absolute(0, 100);
-  //   // Park
-  //   drive->pivot(70);
-  //   drive->move(6);
-  //   drive->pivot(-90);
-  //   intake->move(127);
-  //   drive->move(50);
-  // } else if (selectedAutonomous == 5) { // Skills
-  //   // Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(100);
-  //   pros::delay(50);
-  //   drive->move(46);
-  //   arm->tare_position();
-  //   intake->move(0);
-  //   pros::delay(450);
-  //   arm->move_absolute(365, 75);
-  //   // Reset and prime the puncher
-  //   drive->move(-51);
-  //   puncher->prime();
-  //   drive->move(11);
-  //   // Turn to face the flags
-  //   drive->pivot(-88);
-  //   drive->move(-5);
-  //   // Shoot the balls
-  //   arm->move_absolute(365, 100);
-  //   highRoutine();
-  //   intake->move(127);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   // Drive forward and toggle the low flag
-  //   // drive->pivot(-7);
-  //   intake->move(90);
-  //   drive->move(52);
-  //   // Get in position for next routine
-  //   drive->move(-27);
-  //   intake->move(0);
-  //   drive->pivot(90);
-  //   drive->move(-12);
-  //   // Drive forward and toggle the cap
-  //   intake->move(-120);
-  //   drive->move(35);
-  //   // Attempt the middle flag
-  //   drive->pivot(-45);
-  //   midRoutine();
-  //   pros::delay(600);
-  //   puncher->unprime();
-  //   puncherMotor->move(0);
-  //   // Drive back and park
-  //   drive->pivot(45);
-  //   drive->move(-41);
-  //   drive->move(11);
-  //   drive->pivot(90);
-  //   intake->move(60);
-  //   arm->move_absolute(600, 100);
-  //   drive->move(47);
-  //   drive->pivot(-90);
-  //   drive->move(-18);
-  //   arm->move_absolute(0, 50);
-  //   drive->move(115);
-  //   /*
-  //     Red Far Autonomous
-  //   */
-  //   /*// Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(100);
-  //   pros::delay(50);
-  //   drive->move(45);
-  //   arm->move(0);
-  //   arm->tare_position();
-  //   intake->move(0);
-  //   pros::delay(250);
-  //   drive->move(-3);
-  //   // Turn and shoot the balls
-  //   arm->move_absolute(296, 100);
-  //   drive->pivot(-80);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   intake->move(0);
-  //   // Tip the cap
-  //   arm->move_absolute(0, 100);
-  //   drive->pivot(-22);
-  //   drive->move(-11);
-  //   arm->move_absolute(240, 100);
-  //   pros::delay(600);
-  //   arm->move_absolute(0, 100);
-  //   // Drive to reset
-  //   drive->pivot(-70);
-  //   intake->move(60);
-  //   drive->move(58);
-  //   drive->move(-10);
-  //   // Get in position for next routine
-  //   drive->pivot(90);
-  //   arm->move_absolute(365, 100);
-  //   drive->move(49);
-  //   intake->move(0);
-  //   drive->pivot(90);
-  //   drive->move(-12);*/
-  //   /*
-  //     Red Flag Autonomous
-  //   *//*
-  //   // Reset the arm
-  //   arm->move(-127);
-  //   // Drive forward and intake the ball
-  //   intake->move(90);
-  //   pros::delay(50);
-  //   drive->move(46);
-  //   intake->move(0);
-  //   pros::delay(450);
-  //   arm->move_absolute(365, 75);
-  //   // Reset and prime the puncher
-  //   drive->move(-53);
-  //   puncher->prime();
-  //   drive->move(11);
-  //   // Turn to face the flags
-  //   drive->pivot(-88);
-  //   drive->move(-3);
-  //   // Shoot the balls
-  //   arm->move_absolute(365, 100);
-  //   highRoutine();
-  //   intake->move(127);
-  //   pros::delay(750);
-  //   midRoutine();
-  //   puncher->unprime();
-  //   // Drive forward and toggle the low flag
-  //   // drive->pivot(-7);
-  //   intake->move(90);
-  //   drive->move(52);
-  //   // Get in position for next routine
-  //   drive->move(-27);
-  //   intake->move(0);
-  //   drive->pivot(90);
-  //   drive->move(-12);
-  //   // Drive forward and toggle the cap
-  //   intake->move(-80);
-  //   drive->move(35);
-  //   // Attempt the middle flag
-  //   drive->pivot(-45);
-  //   midRoutine();
-  //   pros::delay(400);
-  //   // Drive back and park
-  //   drive->pivot(45);
-  //   drive->move(-40);
-  //   drive->move(11);
-  //   drive->pivot(90);
-  //   intake->move(60);
-  //   drive->move(50);
-  //   drive->pivot(-90);
-  //   drive->move(-12);
-  //   drive->move(100);
-  //   */
-  // } else if (selectedAutonomous == 0)
-  //   Logger::log(LOG_WARNING, "No autonomous was selected but was called");
-  // else
-  //   Logger::log(LOG_ERROR, "Selected autonomous (" + std::to_string(selectedAutonomous) + ") is not valid! No autonomous will run");
+  if (selectedAutonomous == 1) { // Red flags
+    autonomousRedFlags();
+  } else if (selectedAutonomous == 2) { // Red far
+    autonomousRedFar();
+  } else if (selectedAutonomous == 3) { // Blue flags
+    autonomousBlueFlags();
+  } else if (selectedAutonomous == 4) { // Blue far
+    autonomousBlueFar();
+  } else if (selectedAutonomous == 5) { // Skills
+    autonomousSkills();
+  } else if (selectedAutonomous == 0)
+    Logger::log(LOG_WARNING, "No autonomous was selected but was called");
+  else
+    Logger::log(LOG_ERROR, "Selected autonomous (" + std::to_string(selectedAutonomous) + ") is not valid! No autonomous will run");
 
   end:
   autonomousComplete = true;
 }
+
+
 
 /**
  * Runs the operator control code. This function will be started in its own task
