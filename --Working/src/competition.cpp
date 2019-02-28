@@ -18,10 +18,10 @@ void ports::init() {
   ::adjustingSensitivity = 0.45;
 
   // Individual PID values
-  PID * frontLeftPID = new PID(20, 0.43000, 0.00000, 0.90000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * frontRightPID = new PID(20, 0.43000, 0.00000, 4.75000, true, 100, 8.75, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backLeftPID = new PID(20, 0.43000, 0.00000, 0.90000, true, 100, 12, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
-  PID * backRightPID = new PID(20, 0.43000, 0.00000, 4.75000, true, 100, 8.75, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 12, 12);
+  PID * frontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * frontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * backLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * backRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
   // Set the PID values
   driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
   // Sets the gear ratio of drive
@@ -126,7 +126,7 @@ void autonomousRedFlags() {
   // Reset the arm
   arm->move(-127);
   // Drive forward and intake the ball
-  intake->move(127);
+  intake->move(90);
   pros::delay(50);
   drive->move(46);
   arm->tare_position();
@@ -136,24 +136,24 @@ void autonomousRedFlags() {
   // Reset and prime the puncher
   drive->move(-51);
   puncher->prime();
-  drive->move(11);
+  drive->move(12);
   // Turn to face the flags
-  drive->pivot(-88);
-  drive->move(-5);
+  drive->pivot(-90);
+  // drive->move(-3);
   // Shoot the balls
   arm->move_absolute(365, 100);
   highRoutine();
   intake->move(127);
-  pros::delay(750);
+  pros::delay(690);
   midRoutine();
   puncher->unprime();
   arm->tare_position();
   // Drive forward and toggle the low flag
-  // drive->pivot(-7);
-  intake->move(90);
+  drive->pivot(-7);
+  intake->move(127);
   drive->move(52);
   // Get in position for next routine
-  drive->move(-27);
+  drive->move(-25);
   intake->move(0);
   drive->pivot(90);
   drive->move(-12);
@@ -161,281 +161,166 @@ void autonomousRedFlags() {
   intake->move(-120);
   drive->move(35);
   // Attempt the middle flag
-  drive->pivot(-45);
+  drive->pivot(-55);
+  drive->move(5);
   midRoutine();
   pros::delay(400);
-  drive->pivot(-10);
   // Ram into the low flag
   drive->move(37);
-  drive->pivot(-30);
+  // drive->pivot(-30);
 }
 
 void autonomousRedFar() {
-  // Reset the arm
-  arm->move(-127);
+  // WARNING: this routine assumes that the arm is already reset
   // Drive forward and intake the ball
   intake->move(90);
   pros::delay(50);
-  drive->move(45);
-  arm->move(0);
-  arm->tare_position();
+  arm->move_absolute(296, 100);
+  puncher->prime();
+  drive->move(44.5);
   intake->move(0);
   pros::delay(250);
+  arm->move_absolute(296, 100);
   drive->move(-3);
   // Turn and shoot the balls
-  arm->move_absolute(296, 100);
-  drive->pivot(-80);
+  drive->pivot(-84);
   highRoutine();
   intake->move(127);
-  pros::delay(750);
-  midRoutine();
   puncher->unprime();
-  intake->move(0);
   // Tip the cap
   arm->move_absolute(0, 100);
-  drive->pivot(-22);
-  drive->move(-11);
+  drive->pivot(-30);
+  drive->move(-10.5);
+  intake->move(0);
   arm->move_absolute(240, 100);
   pros::delay(600);
   arm->move_absolute(0, 100);
   // Park
-  drive->pivot(-70);
-  drive->move(7);
+  drive->pivot(-69);
+  drive->move(7.5);
   drive->pivot(90);
   intake->move(127);
-  drive->move(50);
+  drive->move(56.3);
+  // Attempt the mid flag
+  drive->pivot(15);
+  arm->move_absolute(296, 100);
+  midRoutine();
+  pros::delay(600);
 }
 
 void autonomousBlueFlags() {
   // Reset the arm
   arm->move(-127);
   // Drive forward and intake the ball
-  intake->move(90);
+  intake->move(127);
+  drive->move(43);
   pros::delay(50);
-  drive->move(46);
   arm->tare_position();
   intake->move(0);
   pros::delay(450);
   arm->move_absolute(365, 75);
   // Reset and prime the puncher
-  drive->move(-53);
+  drive->move(-49.5);
   puncher->prime();
-  drive->move(11);
+  drive->move(10.5);
   // Turn to face the flags
-  drive->pivot(88);
+  drive->pivot(92);
   drive->move(-3);
   // Shoot the balls
   arm->move_absolute(365, 100);
   highRoutine();
   intake->move(127);
-  pros::delay(750);
+  pros::delay(690);
   midRoutine();
   puncher->unprime();
   // Drive forward and toggle the low flag
   drive->pivot(5);
-  intake->move(90);
+  intake->move(127);
   drive->move(52);
   // Get in position for next routine
   drive->move(-27);
   intake->move(0);
   drive->pivot(-90);
-  drive->move(-12);
+  drive->move(-14);
   // Drive forward and toggle the cap
-  intake->move(-80);
+  intake->move(-120);
   drive->move(35);
   // Attempt the middle flag
-  drive->pivot(45);
+  drive->pivot(55);
+  drive->move(5);
   midRoutine();
   pros::delay(400);
-  drive->pivot(10);
   // Ram into the low flag
   drive->move(37);
 }
 
 void autonomousBlueFar() {
-  // Reset the arm
-  arm->move(-127);
+  // WARNING: this routine assumes that the arm is already reset
   // Drive forward and intake the ball
   intake->move(90);
   pros::delay(50);
-  drive->move(45);
-  arm->move(0);
-  arm->tare_position();
+  arm->move_absolute(296, 100);
+  puncher->prime();
+  drive->move(44.5);
   intake->move(0);
   pros::delay(250);
+  arm->move_absolute(296, 100);
   drive->move(-3);
   // Turn and shoot the balls
-  arm->move_absolute(296, 100);
-  drive->pivot(80);
+  drive->pivot(84);
   highRoutine();
   intake->move(127);
-  pros::delay(750);
-  midRoutine();
   puncher->unprime();
-  intake->move(0);
   // Tip the cap
   arm->move_absolute(0, 100);
-  drive->pivot(22);
-  drive->move(-12);
+  drive->pivot(30);
+  drive->move(-10.5);
+  intake->move(0);
   arm->move_absolute(240, 100);
   pros::delay(600);
   arm->move_absolute(0, 100);
   // Park
-  drive->pivot(70);
-  drive->move(6);
+  drive->pivot(69);
+  drive->move(7.5);
   drive->pivot(-90);
   intake->move(127);
-  drive->move(50);
+  drive->move(56.3);
+  // Attempt the mid flag
+  drive->pivot(-15);
+  arm->move_absolute(296, 100);
+  midRoutine();
+  pros::delay(600);
 }
 
 void autonomousSkills() {
-  // Reset the arm
-  arm->move(-127);
-  // Drive forward and intake the ball
-  intake->move(100);
-  pros::delay(50);
-  drive->move(46);
-  arm->tare_position();
-  intake->move(0);
-  pros::delay(450);
-  arm->move_absolute(365, 75);
-  // Reset and prime the puncher
-  drive->move(-51);
-  puncher->prime();
-  drive->move(11);
-  // Turn to face the flags
-  drive->pivot(-88);
-  drive->move(-5);
-  // Shoot the balls
-  arm->move_absolute(365, 100);
-  highRoutine();
-  intake->move(127);
-  pros::delay(750);
-  midRoutine();
-  puncher->unprime();
-  // Drive forward and toggle the low flag
-  // drive->pivot(-7);
-  intake->move(90);
-  drive->move(52);
-  // Get in position for next routine
-  drive->move(-27);
-  intake->move(0);
-  drive->pivot(90);
-  drive->move(-12);
-  // Drive forward and toggle the cap
-  intake->move(-120);
-  drive->move(35);
-  // Attempt the middle flag
-  drive->pivot(-45);
-  midRoutine();
-  pros::delay(600);
-  puncher->unprime();
-  puncherMotor->move(0);
-  // Drive back and park
-  drive->pivot(45);
-  drive->move(-41);
-  drive->move(11);
-  drive->pivot(90);
-  intake->move(60);
-  arm->move_absolute(600, 100);
-  drive->move(47);
-  drive->pivot(-90);
-  drive->move(-18);
-  arm->move_absolute(0, 50);
-  drive->move(115);
-  /*
-    Red Far Autonomous
-  */
-  /*// Reset the arm
-  arm->move(-127);
-  // Drive forward and intake the ball
-  intake->move(100);
-  pros::delay(50);
-  drive->move(45);
-  arm->move(0);
-  arm->tare_position();
-  intake->move(0);
-  pros::delay(250);
-  drive->move(-3);
-  // Turn and shoot the balls
+  // WARNING: this routine assumes that the arm is already reset
   arm->move_absolute(296, 100);
-  drive->pivot(-80);
-  pros::delay(750);
+  // Shoot the mid flag
   midRoutine();
-  puncher->unprime();
-  intake->move(0);
-  // Tip the cap
-  arm->move_absolute(0, 100);
-  drive->pivot(-22);
-  drive->move(-11);
-  arm->move_absolute(240, 100);
-  pros::delay(600);
-  arm->move_absolute(0, 100);
-  // Drive to reset
-  drive->pivot(-70);
-  intake->move(60);
-  drive->move(58);
-  drive->move(-10);
-  // Get in position for next routine
+  // Drive forward and grab the cap
   drive->pivot(90);
-  arm->move_absolute(365, 100);
-  drive->move(49);
-  intake->move(0);
-  drive->pivot(90);
-  drive->move(-12);*/
-  /*
-    Red Flag Autonomous
-  *//*
-  // Reset the arm
-  arm->move(-127);
-  // Drive forward and intake the ball
-  intake->move(90);
-  pros::delay(50);
-  drive->move(46);
-  intake->move(0);
-  pros::delay(450);
-  arm->move_absolute(365, 75);
-  // Reset and prime the puncher
-  drive->move(-53);
-  puncher->prime();
-  drive->move(11);
-  // Turn to face the flags
-  drive->pivot(-88);
-  drive->move(-3);
-  // Shoot the balls
-  arm->move_absolute(365, 100);
-  highRoutine();
   intake->move(127);
-  pros::delay(750);
-  midRoutine();
-  puncher->unprime();
-  // Drive forward and toggle the low flag
-  // drive->pivot(-7);
-  intake->move(90);
-  drive->move(52);
-  // Get in position for next routine
-  drive->move(-27);
+  drive->move(39);
+  drive->move(-3);
+  arm->move_absolute(0, 100);
+  // Pick up the ground cap
+  drive->pivot(-105);
+  drive->move(-24);
+  arm->move_absolute(296, 100);
+  pros::delay(200);
+  // High score the cap
+  drive->move(8);
   intake->move(0);
-  drive->pivot(90);
-  drive->move(-12);
-  // Drive forward and toggle the cap
-  intake->move(-80);
-  drive->move(35);
-  // Attempt the middle flag
-  drive->pivot(-45);
-  midRoutine();
-  pros::delay(400);
-  // Drive back and park
-  drive->pivot(45);
-  drive->move(-40);
-  drive->move(11);
-  drive->pivot(90);
-  intake->move(60);
-  drive->move(50);
-  drive->pivot(-90);
-  drive->move(-12);
-  drive->move(100);
-  */
+  drive->pivot(-70);
+  drive->runStrafe(127, 0, false, true, true, 1.0, 1.0);
+  pros::delay(1500);
+  arm->move(127);
+  pros::delay(900);
+  arm->move_absolute(296, 100);
+  pros::delay(500);
+  drive->stop(true);
+  // Get in position for next routine
+  drive->move(-10);
 }
 
 void autonomous() {
@@ -629,13 +514,14 @@ void opcontrol() {
     */
 
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
-    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
-    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(100);
-    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(50);
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(100);
+    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(50);
     // Resets the arm motor if the down button is pressed
     if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
     // Calls autonomous. TO BE REMOVED BEFORE TOURNAMENT
+    // if (controllerMain->get_digital_new_press(BUTTON_UP)) drive->move(10);
     if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
 
     // Run every 20ms
