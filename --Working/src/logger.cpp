@@ -1,6 +1,7 @@
 #include "main.h"
 #include "logger.hpp"
 #include <cstdio>
+#include <cstdlib>
 
 std::vector<Logger*> Logger::loggers;
 
@@ -64,13 +65,18 @@ void Logger::initializeDefaultLoggers() {
   // Initialize a log pointing to the USB output
   Logger::init("stdout", stdout);
 
-  // Initialize a logger to a numbered log file
-  int i = 0;
-	while (fileExists(LOGS_PATH + util::ensureDigits(3, i) + ".log")) i++;
-	Logger::init(LOGS_PATH + util::ensureDigits(3, i) + ".log");
-
   // Initialize a logger to "/usd/latest.log"
   Logger::init("/usd/latest.log");
+
+  // If more than 500 existing logs exists, give a warning
+  if (fileExists(LOGS_PATH + std::string("500.log")))
+    Logger::log(LOG_ERROR, "Unable to open a numbered log file. SD card is holding existing logs.");
+  else {  // Initialize a logger to a numbered log file
+    int i = 0;
+  	while (fileExists(LOGS_PATH + util::ensureDigits(3, i) + ".log")) i++;
+  	Logger::init(LOGS_PATH + util::ensureDigits(3, i) + ".log");
+  }
+
 }
 
 void Logger::init(std::string fileName) {
