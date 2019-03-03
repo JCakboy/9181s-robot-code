@@ -28,16 +28,6 @@ void ports::init() {
   drive->setGearRatio(1, 1, 4);
   // Sets the turn values of drive
   drive->setTurnValues(852, 54);
-  // Sets the vision alignment system
-  puncher->setAligner(true, driveControl, flagVision, false);
-  // Limit the current of the variable puncher motor to reduce clicking
-  // Torque is directly proportional to current, so with it limited, the motor can only output a limited torque, reducing the liklihood for forced gear slipping
-  puncherVariable->set_current_limit(800);
-  // Limit torque on drive motors to ensure straight driving
-  backLeftDrive->set_current_limit(2500);
-  frontLeftDrive->set_current_limit(2500);
-  backRightDrive->set_current_limit(2500);
-  frontRightDrive->set_current_limit(2500);
 }
 
 // This file uses many of the fields in the ports namespace. Dump it into the global namespace for ease of programming
@@ -78,38 +68,6 @@ void initialize() {
  */
 void competition_initialize() {}
 
-void highRoutine() {
-  Logger::log(LOG_INFO, "Puncher High Routine");
-  // Snap the puncher to the position (with limited torque)
-  puncherVariable->move(puncher->primed() ? -127 : -127);
-  pros::delay(200);
-  // Punch
-  puncher->move(360);
-  // Wait until the punch is complete
-  int millis = util::sign(pros::millis());
-  while (std::lround(puncher->motor->get_position()) % 360 < 350 && util::sign(pros::millis()) - millis < 900)
-    pros::delay(1);
-  // Wait before allowing drive movement
-  pros::delay(30);
-  puncherVariable->move(0);
-}
-
-void midRoutine() {
-  Logger::log(LOG_INFO, "Puncher Mid Routine");
-  // Snap the puncher to the position (with limited torque)
-  puncherVariable->move(puncher->primed() ? 127 : 127);
-  pros::delay(200);
-  // Punch
-  puncher->move(360);
-  // Wait until the punch is complete
-  int millis = util::sign(pros::millis());
-  while (std::lround(puncher->motor->get_position()) % 360 < 350 && util::sign(pros::millis()) - millis < 900)
-    pros::delay(1);
-  // Wait before allowing drive movement
-  pros::delay(30);
-  puncherVariable->move(0);
-}
-
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
@@ -122,221 +80,16 @@ void midRoutine() {
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomousRedFlags() {
-  // Reset the arm
-  arm->move(-127);
-  // Drive forward and intake the ball
-  intake->move(90);
-  pros::delay(50);
-  drive->move(46);
-  arm->tare_position();
-  intake->move(0);
-  pros::delay(450);
-  arm->move_absolute(365, 75);
-  // Reset and prime the puncher
-  drive->move(-51);
-  puncher->prime();
-  drive->move(12);
-  // Turn to face the flags
-  drive->pivot(-90);
-  // drive->move(-3);
-  // Shoot the balls
-  arm->move_absolute(365, 100);
-  highRoutine();
-  intake->move(127);
-  pros::delay(690);
-  midRoutine();
-  puncher->unprime();
-  arm->tare_position();
-  // Drive forward and toggle the low flag
-  drive->pivot(-7);
-  intake->move(127);
-  drive->move(52);
-  // Get in position for next routine
-  drive->move(-25);
-  intake->move(0);
-  drive->pivot(90);
-  drive->move(-12);
-  // Drive forward and toggle the cap
-  intake->move(-120);
-  drive->move(35);
-  // Attempt the middle flag
-  drive->pivot(-55);
-  drive->move(5);
-  midRoutine();
-  pros::delay(400);
-  // Ram into the low flag
-  drive->move(37);
-  // drive->pivot(-30);
-}
-
-void autonomousRedFar() {
-  // WARNING: this routine assumes that the arm is already reset
-  // Drive forward and intake the ball
-  intake->move(90);
-  pros::delay(50);
-  arm->move_absolute(296, 100);
-  puncher->prime();
-  drive->move(44.5);
-  intake->move(0);
-  pros::delay(250);
-  arm->move_absolute(296, 100);
-  drive->move(-3);
-  // Turn and shoot the balls
-  drive->pivot(-84);
-  highRoutine();
-  intake->move(127);
-  puncher->unprime();
-  // Tip the cap
-  arm->move_absolute(0, 100);
-  drive->pivot(-30);
-  drive->move(-10.5);
-  intake->move(0);
-  arm->move_absolute(240, 100);
-  pros::delay(600);
-  arm->move_absolute(0, 100);
-  // Park
-  drive->pivot(-69);
-  drive->move(7.5);
-  drive->pivot(90);
-  intake->move(127);
-  drive->move(56.3);
-  // Attempt the mid flag
-  drive->pivot(15);
-  arm->move_absolute(296, 100);
-  midRoutine();
-  pros::delay(600);
-}
-
-void autonomousBlueFlags() {
-  // Reset the arm
-  arm->move(-127);
-  // Drive forward and intake the ball
-  intake->move(127);
-  drive->move(43);
-  pros::delay(50);
-  arm->tare_position();
-  intake->move(0);
-  pros::delay(450);
-  arm->move_absolute(365, 75);
-  // Reset and prime the puncher
-  drive->move(-49.5);
-  puncher->prime();
-  drive->move(10.5);
-  // Turn to face the flags
-  drive->pivot(92);
-  drive->move(-3);
-  // Shoot the balls
-  arm->move_absolute(365, 100);
-  highRoutine();
-  intake->move(127);
-  pros::delay(690);
-  midRoutine();
-  puncher->unprime();
-  // Drive forward and toggle the low flag
-  drive->pivot(5);
-  intake->move(127);
-  drive->move(52);
-  // Get in position for next routine
-  drive->move(-27);
-  intake->move(0);
-  drive->pivot(-90);
-  drive->move(-14);
-  // Drive forward and toggle the cap
-  intake->move(-120);
-  drive->move(35);
-  // Attempt the middle flag
-  drive->pivot(55);
-  drive->move(5);
-  midRoutine();
-  pros::delay(400);
-  // Ram into the low flag
-  drive->move(37);
-}
-
-void autonomousBlueFar() {
-  // WARNING: this routine assumes that the arm is already reset
-  // Drive forward and intake the ball
-  intake->move(90);
-  pros::delay(50);
-  arm->move_absolute(296, 100);
-  puncher->prime();
-  drive->move(44.5);
-  intake->move(0);
-  pros::delay(250);
-  arm->move_absolute(296, 100);
-  drive->move(-3);
-  // Turn and shoot the balls
-  drive->pivot(84);
-  highRoutine();
-  intake->move(127);
-  puncher->unprime();
-  // Tip the cap
-  arm->move_absolute(0, 100);
-  drive->pivot(30);
-  drive->move(-10.5);
-  intake->move(0);
-  arm->move_absolute(240, 100);
-  pros::delay(600);
-  arm->move_absolute(0, 100);
-  // Park
-  drive->pivot(69);
-  drive->move(7.5);
-  drive->pivot(-90);
-  intake->move(127);
-  drive->move(56.3);
-  // Attempt the mid flag
-  drive->pivot(-15);
-  arm->move_absolute(296, 100);
-  midRoutine();
-  pros::delay(600);
-}
-
-void autonomousSkills() {
-  // WARNING: this routine assumes that the arm is already reset
-  arm->move_absolute(296, 100);
-  // Shoot the mid flag
-  midRoutine();
-  // Drive forward and grab the cap
-  drive->pivot(90);
-  intake->move(127);
-  drive->move(39);
-  drive->move(-3);
-  arm->move_absolute(0, 100);
-  // Pick up the ground cap
-  drive->pivot(-105);
-  drive->move(-24);
-  arm->move_absolute(296, 100);
-  pros::delay(200);
-  // High score the cap
-  drive->move(8);
-  intake->move(0);
-  drive->pivot(-70);
-  drive->runStrafe(127, 0, false, true, true, 1.0, 1.0);
-  pros::delay(1500);
-  arm->move(127);
-  pros::delay(900);
-  arm->move_absolute(296, 100);
-  pros::delay(500);
-  drive->stop(true);
-  // Get in position for next routine
-  drive->move(-10);
-}
-
 void autonomous() {
   autonomousComplete = false;
-
+  /*
   if (selectedAutonomous == 1) { // Red flags
-    autonomousRedFlags();
   } else if (selectedAutonomous == 2) { // Red far
-    autonomousRedFar();
   } else if (selectedAutonomous == 3) { // Blue flags
-    autonomousBlueFlags();
   } else if (selectedAutonomous == 4) { // Blue far
-    autonomousBlueFar();
   } else if (selectedAutonomous == 5) { // Skills
-    autonomousSkills();
-  } else if (selectedAutonomous == 0)
+  } else */
+  if (selectedAutonomous == 0)
     Logger::log(LOG_WARNING, "No autonomous was selected but was called");
   else
     Logger::log(LOG_ERROR, "Selected autonomous (" + std::to_string(selectedAutonomous) + ") is not valid! No autonomous will run");
@@ -373,22 +126,6 @@ void opcontrol() {
   // Flag to set when the main controller has disconnected
   bool controllerDC = false;
 
-  // Flag to set when arm lock was requested
-  bool armLock = false;
-
-  // Flags to set when the L1 and L2 buttons are pressed
-  bool l1Pressed = false;
-  bool l2Pressed = false;
-
-  // Cache to store the puncher priming
-  bool primeCacheSet = false;
-  bool primeCache = false;
-
-  // Puncher should hold its angle
-  puncherVariable->set_brake_mode(BRAKE_BRAKE);
-  // Brake the arm
-  arm->set_brake_mode(BRAKE_HOLD);
-
   start:
 
   // The operator control loop, code here is executed every 20ms when runOperatorControlLoop is set
@@ -400,98 +137,7 @@ void opcontrol() {
     LCD::updateScreen();
 
     // Run driving code, this function handles all of the math to do with it. Should never be changed. For motor changes, go to ports::init()
-    /* Standard driver code*/ // drive->run(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), false, false, true, 1.0, 1.0);
-    // Check for puncher adjustment or outtake and if so, lower the sensitivity
-    // If B is pressed, align with the flags
-    if (controllerMain->get_digital(BUTTON_B))
-      puncher->align(false);
-    else if (l1Pressed || l2Pressed)
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * adjustingSensitivity, sensitivity * adjustingSensitivity);
-    else if (controllerMain->get_digital(BUTTON_R2))
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity * (adjustingSensitivity + 0), sensitivity * (adjustingSensitivity + 0));
-    else
-      drive->runStrafe(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), controllerMain->get_digital(BUTTON_A), true, true, sensitivity, sensitivity);
-
-    // Run puncher code. Should never be changed, unless a puncher is no longer desired
-    puncher->run();
-
-    // If the robot is punching, reset the arm to a horizontal position, otherwise, map the right analog stick to the scoring arm
-    if ((controllerMain->get_analog(ANALOG_RIGHT_Y) == 0 && armLock) || l1Pressed || l2Pressed || puncher->primed())
-      arm->move_absolute(296, 100);
-    else {
-      if (armLock) armLock = false;
-      arm->move(controllerMain->get_analog(ANALOG_RIGHT_Y));
-    }
-
-    // Intake code, R1 intakes balls, R2 outtakes balls and flips ground caps
-    if (controllerMain->get_digital(BUTTON_R1))
-      intake->move(127);
-    else if (controllerMain->get_digital(BUTTON_R2))
-      intake->move(-95);
-    else
-      intake->move(0);
-
-    // Code for mid flag puncher routine, two parts
-    if (!l1Pressed && controllerMain->get_digital(BUTTON_L1)) {
-      // When the button is held, prime the puncher and lower the drive sensitivity for easier adjustment
-      l1Pressed = true;
-      if (!primeCacheSet) {
-        primeCache = puncher->primed();
-        primeCacheSet = true;
-      }
-      puncher->prime();
-    } else if (l1Pressed && !controllerMain->get_digital(BUTTON_L1)) {
-      // When the button is released, punch the puncher and return the drive sensitivity to normal
-      drive->stop();
-      midRoutine();
-      l1Pressed = false;
-      // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
-      if (controllerMain->get_digital(BUTTON_L2))
-        puncher->prime();
-      else if (primeCacheSet) {
-        primeCacheSet = false;
-        if (primeCache)
-          puncher->prime();
-        else
-          puncher->unprime();
-      } else
-        puncher->unprime();
-    }
-
-    // Code for mid flag puncher routine, two parts
-    if (!l2Pressed && controllerMain->get_digital(BUTTON_L2)) {
-      // When the button is held, prime the puncher and lower the drive sensitivity for easier adjustment
-      l2Pressed = true;
-      if (!primeCacheSet) {
-        primeCache = puncher->primed();
-        primeCacheSet = true;
-      }
-      puncher->prime();
-    } else if (l2Pressed && !controllerMain->get_digital(BUTTON_L2)) {
-      // When the button is released, punch the puncher and return the drive sensitivity to normal
-      drive->stop();
-      highRoutine();
-      l2Pressed = false;
-      // If the puncher was previously primed, keep it as is. Otherwise, return it to its neutral position
-      if (controllerMain->get_digital(BUTTON_L1))
-        puncher->prime();
-      else if (primeCacheSet) {
-        primeCacheSet = false;
-        if (primeCache)
-          puncher->prime();
-        else
-          puncher->unprime();
-      } else
-        puncher->unprime();
-    }
-
-    // If X is pressed, toggle the prime status of the puncher
-    if (controllerMain->get_digital_new_press(BUTTON_X))
-      puncher->togglePrime();
-
-    // Lock the arm if Y is pressed
-    if (controllerMain->get_digital_new_press(BUTTON_Y))
-      armLock = true;
+    drive->runH(controllerMain->get_analog(STICK_LEFT_Y), controllerMain->get_analog(STICK_LEFT_X), true, true, 1.0, 1.0);
 
     // Runs simple checks on whether the main controller is disconnected, utilizing controllerDC
     if (!controllerMain->is_connected() && !controllerDC) {
@@ -504,24 +150,10 @@ void opcontrol() {
       controllerDC = false;
     }
 
-    /* Debugging code: displays drive and puncher motor values to the LCD screen
-     * DEPRECATED: use USB debugging to query the motor positions
-    LCD::setText(3, "Left front: " + std::to_string((frontLeftDrive->get_position())));
-    LCD::setText(4, "Left back: " + std::to_string((backLeftDrive->get_position())));
-    LCD::setText(5, "Right front: " + std::to_string((frontRightDrive->get_position())));
-    LCD::setText(6, "Right back: " + std::to_string((backRightDrive->get_position())));
-    LCD::setText(2, "Puncher: P" + std::to_string((puncher->primed)) + " B" + std::to_string(puncherMotor->get_brake_mode() == BRAKE_BRAKE));
-    */
-
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(100);
-    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(50);
-    // Resets the arm motor if the down button is pressed
-    if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
-    // Calls autonomous. TO BE REMOVED BEFORE TOURNAMENT
-    // if (controllerMain->get_digital_new_press(BUTTON_UP)) drive->move(10);
+    // Calls autonomous
     if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
 
     // Run every 20ms
@@ -548,10 +180,6 @@ void opcontrol() {
     // Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
-    // if (controllerMain->get_digital_new_press(BUTTON_LEFT)) drive->move(40);
-    // if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) drive->move(10);
-    // Resets the arm motor if the down button is pressed
-    if (controllerMain->get_digital_new_press(BUTTON_DOWN)) arm->tare_position();
 
     // Run every 20ms
     pros::delay(20);

@@ -24,10 +24,6 @@ namespace ports {
   extern pros::Controller * controllerMain;
   extern pros::Controller * controllerPartner;
 
-  extern BrainBattery * brainBattery;
-  extern ControllerBattery * controllerMainBattery;
-  extern ControllerBattery * controllerPartnerBattery;
-
   // Ports
   extern Unused * port1;
   extern Unused * port2;
@@ -37,18 +33,18 @@ namespace ports {
   extern Unused * port6;
   extern Unused * port7;
   extern Unused * port8;
-  extern pros::Vision * port9;
+  extern Unused * port9;
   extern Unused * port10;
-  extern pros::Motor * port11;
-  extern pros::Motor * port12;
-  extern pros::Motor * port13;
-  extern pros::Motor * port14;
+  extern Unused * port11;
+  extern Unused * port12;
+  extern Unused * port13;
+  extern Unused * port14;
   extern Unused * port15;
-  extern pros::Motor * port16;
-  extern pros::Motor * port17;
-  extern pros::Motor * port18;
+  extern Unused * port16;
+  extern Unused * port17;
+  extern Unused * port18;
   extern Unused * port19;
-  extern pros::Motor * port20;
+  extern Unused * port20;
   extern Unused * port21;
 
   // Mapping
@@ -66,16 +62,9 @@ namespace ports {
 
   // Mutexes
   extern pros::Mutex * driveLock;
-  extern pros::Mutex * launcherLock;
-  extern pros::Mutex * intakeLock;
-  extern pros::Mutex * liftLock;
-
   // Driving
   extern DriveControl * driveControl;
   extern DriveFunction * drive;
-
-  // Puncher
-  extern Puncher * puncher;
 
   // Fully initializes the port configuration. Should be called on intitalize()
   extern void init();

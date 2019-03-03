@@ -85,7 +85,6 @@ void opcontrol(void);
 #include "lcd.hpp"
 #include "logger.hpp"
 #include "pid.hpp"
-#include "puncher.hpp"
 #include "util.hpp"
 #endif
 

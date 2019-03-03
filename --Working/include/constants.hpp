@@ -32,35 +32,11 @@
 #define MOTOR_MOVE_RELATIVE_KP .43
 
 
-// Amount to move the puncher back for priming
-#define PUNCHER_PRIME_AMOUNT 260 // in degrees
-// Whether to use the vision sensor for puncher alignment
-#define PUNCHER_USE_VISION_ALIGNMENT true
-// Whether to strafe for vision sensor alignment
-#define PUNCHER_STRAFE_ALIGN true
-// THe threshold for vision sensor alignemmt
-#define PUNCHER_VISION_ALIGNMENT_THRESHOLD 3 // in pixels
-// Whether to rumble the controller when complete
-#define PUNCHER_VISION_ALIGNMENT_RUMBLE true
-// The pattern to rumble the controller when failed
-#define PUNCHER_VISION_ALIGNMENT_FAILURE_RUMBLE_PATTERN "-"
-// The pattern to rumble the controller when complete
-#define PUNCHER_VISION_ALIGNMENT_RUMBLE_PATTERN ". "
-
 // Default logs path
 #define LOGS_PATH "/usd/logs/"
 
 // Default minimum logging level
 #define LOGGING_DEFAULT_LEVEL E_LOGGING_INFO
 
-
-// Minimum alert level
-#define ALERT_LEVEL E_LOGGING_INFO
-
-// Minimum level to vibrate controller on alert
-#define VIBRATE_LEVEL E_LOGGING_WARNING
-
-// Whether to mirror alerts to the partner controller
-#define ALERT_MIRROR_PARTNER true
 
 #endif

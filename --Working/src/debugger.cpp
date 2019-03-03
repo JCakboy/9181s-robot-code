@@ -147,9 +147,6 @@ std::vector<std::string> Debugger::command(std::string command) {
   // Store the original command
   std::string originalCommand = command;
 
-  // When running a command, set the priority higher than operator control so it does not interrupt
-  task->set_priority(TASK_PRIORITY_DEFAULT + 1);
-
   // The list of messages to return to the serial input
   std::vector<std::string> ret;
 
@@ -2082,8 +2079,5 @@ std::vector<std::string> Debugger::command(std::string command) {
     ret.push_back("Unknown command. Type \"help\" for help");
 
   end:
-
-  // Set the priority lower than operator control when waiting for a new command
-  task->set_priority(TASK_PRIORITY_DEFAULT - 1);
   return ret;
 }
