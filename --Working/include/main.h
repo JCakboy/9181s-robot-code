@@ -77,7 +77,6 @@ void opcontrol(void);
  */
 //#include <iostream>
 #include "forward.hpp"
-#include "battery.hpp"
 #include "constants.hpp"
 #include "debugger.hpp"
 #include "definitions.hpp"
