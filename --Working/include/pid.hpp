@@ -68,6 +68,8 @@ class PIDCalc {
     double lastPower;
     // The sum of errors throughout the PID calculations
     int Se;
+    // The error the motor has held an error delta of 0
+    int hangError;
     // The amount of cycles where the motor has held an error delta of 0
     int hangCycles;
     // The amount of cycles where the motor has held an error delta under dThreshold

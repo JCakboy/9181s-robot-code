@@ -16,6 +16,7 @@
  */
 
 class DriveControl {
+  friend class DriveFunction;
   private:
     // The mutex to take before attempting to move the motors
     pros::Mutex * lock;
@@ -29,15 +30,6 @@ class DriveControl {
     std::vector<pros::Motor*> otherRightMotors;
     std::vector<pros::Motor*> frontRightMotors;
     std::vector<pros::Motor*> backRightMotors;
-
-    // Whether to use PID for the motor movement
-    bool usePID;
-
-    // PID constants
-    PID * frontLeftPID;
-    PID * backLeftPID;
-    PID * frontRightPID;
-    PID * backRightPID;
 
     // Iterates and runs left motors at a given power
     void runLeftMotors(int power);
@@ -63,8 +55,20 @@ class DriveControl {
     // Iterates and sets the brake mode of all right motors to a given mode
     void setRightBrake(pros::motor_brake_mode_e_t mode);
 
+    // Iterates and sets the brake mode of front left motors to a given mode
+    void setFrontLeftBrake(pros::motor_brake_mode_e_t mode);
+
+    // Iterates and sets the brake mode of back left motors to a given mode
+    void setBackLeftBrake(pros::motor_brake_mode_e_t mode);
+
+    // Iterates and sets the brake mode of front right motors to a given mode
+    void setFrontRightBrake(pros::motor_brake_mode_e_t mode);
+
+    // Iterates and sets the brake mode of back right motors to a given mode
+    void setBackRightBrake(pros::motor_brake_mode_e_t mode);
+
     // The middleman to facilitate choosing between a PID calculation or a simple move_relative() motor command
-    PIDCommand runMotorsRelative(PID * pid, PIDCalc * calc, std::vector<pros::Motor*> motors, int target);
+    // PIDCommand runMotorsRelative(PID * pid, PIDCalc * calc, std::vector<pros::Motor*> motors, int target);
 
   public:
     // Creates the Drive Control object with one left and one right motor, see below
@@ -127,34 +131,34 @@ class DriveControl {
     void clearBackRightMotors();
 
     // Sets left and right PID constants to the same values, see PID documentation
-    void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
+    // void setPID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, int dThreshold, int tThreshold, int de0);
 
     // Sets all PID constants to the same values, see PID documentation
-    void setPID(PID pid);
+    // void setPID(PID pid);
 
     // Sets left and right PID constants, see PID documentation
-    void setPID(PID leftPID, PID rightPID);
+    // void setPID(PID leftPID, PID rightPID);
 
     // Sets all PID constants, see PID documentation
-    void setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
+    // void setPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
 
     // Returns whether or not it is using PID control
-    bool usingPID();
+    // bool usingPID();
 
     // Gets front left PID constants, see PID documentation
-    PID * getFrontLeftPID();
+    // PID * getFrontLeftPID();
 
     // Gets back left PID constants, see PID documentation
-    PID * getBackLeftPID();
+    // PID * getBackLeftPID();
 
     // Gets front right PID constants, see PID documentation
-    PID * getFrontRightPID();
+    // PID * getFrontRightPID();
 
     // Gets back right PID constants, see PID documentation
-    PID * getBackRightPID();
+    // PID * getBackRightPID();
 
     // Clears PID constants
-    void clearPID();
+    // void clearPID();
 
     /*
      * Runs the Drive Control relative to the current position
@@ -232,12 +236,51 @@ class DriveFunction {
     double out;
     double wheelDiameter;
 
+    // Whether to use PID for the motor movement
+    bool useForwardPID;
+    bool useBackwardPID;
+    bool usePivotPID;
+    bool useStrafePID;
+
+    // Forward PID values
+    PID * forwardFrontLeftPID;
+    PID * forwardBackLeftPID;
+    PID * forwardFrontRightPID;
+    PID * forwardBackRightPID;
+
+    // Backward PID values
+    PID * backwardFrontLeftPID;
+    PID * backwardBackLeftPID;
+    PID * backwardFrontRightPID;
+    PID * backwardBackRightPID;
+
+    // Pivot PID values
+    PID * pivotFrontLeftPID;
+    PID * pivotBackLeftPID;
+    PID * pivotFrontRightPID;
+    PID * pivotBackRightPID;
+
+    // Strafe PID values
+    PID * strafeFrontLeftPID;
+    PID * strafeBackLeftPID;
+    PID * strafeFrontRightPID;
+    PID * strafeBackRightPID;
+
     // The values to use to calculate turning targets
     int pt;
     int kt;
 
     // The amount to move the motors to strafe one inch
     int ks;
+
+    // Resets motor encoders in preparation for a movement, returning whether it was successful
+    bool movementReset();
+
+    // Returns the average poasitions of motors
+    double averagePosition(std::vector<pros::Motor *> motors);
+
+    // Issues movement commands to drive motors
+    void moveRelative(bool usePID, PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID, int frontLeftDegrees, int backLeftDegrees, int frontRightDegrees, int backRightDegrees);
 
   public:
     // Creates a Drive Function object, wrapping the given Drive Control
@@ -273,11 +316,29 @@ class DriveFunction {
     // Returns the wheel diameter set with setGearRatio();
     double getWheelDiameter();
 
-    // Turns the robot forward, specifying how far to turn
-    void turn(int degrees);
+    // Sets the forward PID values
+    void setForwardPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
 
-    // Turns the robot, specifying whether the robot turns forward or backward and how far to turn
-    void turn(bool backward, int degrees);
+    // Sets the backward PID values
+    void setBackwardPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
+
+    // Sets the turn PID values
+    void setPivotPID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
+
+    // Sets the strafe PID values
+    void setStrafePID(PID * frontLeftPID, PID * backLeftPID, PID * frontRightPID, PID * backRightPID);
+
+    // Clears the forward PID
+    void clearForwardPID();
+
+    // Clears the backward PID
+    void clearBackwardPID();
+
+    // Clears the pivot PID
+    void clearPivotPID();
+
+    // Clears the strafe PID
+    void clearStrafePID();
 
     // Pivots the robot, specifying how for to turn
     void pivot(int degrees);
@@ -288,11 +349,11 @@ class DriveFunction {
     // Moves the robot forward the given amount of inches, calculated using the given gear ratio
     void move(double inches);
 
-    // Moves the robot forward the given amount of degrees
-    void moveDegrees(int degrees);
-
     // Moves the robot forward the given amount of revolutions and degrees
     void moveRevolutions(double revolutions, int degrees);
+
+    // Moves the robot forward the given amount of degrees
+    void moveDegrees(int degrees);
 
     // Pass through functions to DriveControl. See above for documentation
     void run(double moveVoltage, double turnVoltage, bool brake, bool flipReverse);

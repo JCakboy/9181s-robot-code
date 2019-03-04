@@ -17,13 +17,38 @@ void ports::init() {
   ::sensitivity = 1.0;
   ::adjustingSensitivity = 0.45;
 
-  // Individual PID values
-  PID * frontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
-  PID * frontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
-  PID * backLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
-  PID * backRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  // Forward PID values
+  PID * forwardFrontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * forwardFrontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * forwardBackLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * forwardBackRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
   // Set the PID values
-  driveControl->setPID(frontLeftPID, backLeftPID, frontRightPID, backRightPID);
+  drive->setForwardPID(forwardFrontLeftPID, forwardBackLeftPID, forwardFrontRightPID, forwardBackRightPID);
+
+  // Backward PID values
+  PID * backwardFrontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * backwardFrontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * backwardBackLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * backwardBackRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  // Set the PID values
+  drive->setBackwardPID(backwardFrontLeftPID, backwardBackLeftPID, backwardFrontRightPID, backwardBackRightPID);
+
+  // Pivot PID values
+  PID * pivotFrontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * pivotFrontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * pivotBackLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * pivotBackRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  // Set the PID values
+  drive->setPivotPID(pivotFrontLeftPID, pivotBackLeftPID, pivotFrontRightPID, pivotBackRightPID);
+
+  // Strafe PID values
+  PID * strafeFrontLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * strafeFrontRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 110, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * strafeBackLeftPID = new PID(20, 0.44000, 0.00000, -0.25000, true, 110, 11, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  PID * strafeBackRightPID = new PID(20, 0.40000, 0.00000, 7.50000, true, 111, 8.7, 10000, 200, true, MOTOR_MOVE_RELATIVE_THRESHOLD, 7, 7);
+  // Set the PID values
+  drive->setStrafePID(strafeFrontLeftPID, strafeBackLeftPID, strafeFrontRightPID, strafeBackRightPID);
+
   // Sets the gear ratio of drive
   drive->setGearRatio(1, 1, 4);
   // Sets the turn values of drive
@@ -47,7 +72,7 @@ void initialize() {
   // Initialize all the loggers that log to the microSD card
   Logger::initializeDefaultLoggers();
   // Initialize the USB debugger
-  Debugger::start(driveControl, drive);
+  // Debugger::start(driveControl, drive);
 
   // Simple header to signal the start of a new program in a log file
   Logger::log(LOG_INFO, "#####################################");
@@ -132,7 +157,7 @@ void opcontrol() {
   while (runOperatorControlLoop) {
 
     // Runs the debugger and executes any required methods
-    Debugger::run();
+    // Debugger::run();
     // Updates the LCD on every cycle
     LCD::updateScreen();
 
@@ -164,7 +189,7 @@ void opcontrol() {
   while (!runOperatorControlLoop) {
 
     // Runs the debugger and executes any required methods
-    Debugger::run();
+    // Debugger::run();
     // Updates the LCD on every cycle
     LCD::updateScreen();
 

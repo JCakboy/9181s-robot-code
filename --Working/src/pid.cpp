@@ -37,8 +37,14 @@ PIDCommand PID::calculate(PIDCalc * calc, int position, int target) {
 
   // Check for the motor being stuck on something
   if (util::abs(de) <= 1 && util::abs(error) >= PID::dThreshold) {
+
+    if (calc->hangCycles == 0)
+      calc->hangError = error;
     calc->hangCycles++;
-    if (PID::de0 > 0 && calc->hangCycles >= PID::de0)
+
+    if (util::abs(error - calc->hangError) >= 5)
+      calc->hangCycles = 0;
+    else if (PID::de0 > 0 && calc->hangCycles >= PID::de0)
       // Time has exceeded the hangThreshold
       return PIDCommand(E_COMMAND_EXIT_FAILURE, 0);
   } else

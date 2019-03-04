@@ -6,7 +6,7 @@
  * This is a general-purpose file and code from this file can
  * refer to any part of robot control
  */
-
+/*
 void Debugger::run() {
   // If the debugger is not running, ignore
   if (Debugger::stopped) return;
@@ -37,3 +37,4 @@ void Debugger::run() {
   Debugger::parameter3 = "";
   Logger::log(LOG_INFO, completion);
 }
+*/

@@ -78,7 +78,6 @@ void opcontrol(void);
 //#include <iostream>
 #include "forward.hpp"
 #include "constants.hpp"
-#include "debugger.hpp"
 #include "definitions.hpp"
 #include "drive.hpp"
 #include "global.hpp"
