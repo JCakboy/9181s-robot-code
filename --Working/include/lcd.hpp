@@ -33,6 +33,9 @@ class LCD {
     // Updates the selected autonomous on the lCD, specifying whether to force an update onto the controllers' LCD
     static void updateScreen(bool forceController);
 
+    // Prints debug information to the LCD
+    static void printDebugInformation();
+
     // Sets the status on the lCD
     static void setStatus(std::string status);
 

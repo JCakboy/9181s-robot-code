@@ -1,18 +1,18 @@
-
 # In Progress Robot Code
 
-**Started on:** September 7, 2018
+**Started on:** March 23, 2019
+
+This repository contains working 9181S robot code for VEX Robotics Competition
 
 This folder contains a PROS 3 project.
-Changes to this folder on the `master` branch should include output binaries
 
 ## Main Files
 
-Initialization: `src\competition.cpp - ::initialize()`
+Initialization: `src\initialize.cpp`
 
-Autonomous: `src\competition.cpp - ::autonomous()`
+Autonomous: `src\autonomous.cpp`
 
-Operator control: `src\competition.cpp - ::operatorControl()`
+Operator control: `src\opcontrol.cpp`
 
 
 Cold image: `bin\cold.package.bin`
@@ -25,5 +25,6 @@ This projects utilizes PROS hot/cold image linking to support wireless uploading
 
 Most source files are included in the **cold** library, thus not needing reoccurring uploads to the v5 Brain. The following files are the **hot** files and will need to be uploaded each time:
 
- - src/competition.cpp
- - src/hot.cpp
+ - `src/initialize.cpp`
+ - `src/autonomous.cpp`
+ - `src/opcontrol.cpp`

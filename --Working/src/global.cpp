@@ -1,68 +1,65 @@
 #include "main.h"
 
-/*
- * This file includes all definitions that do NOT require linking to the hot image
- *
- * This is a general-purpose file and code from this file can
- * refer to any part of robot control
- */
-
-Unused::Unused() {}
-Unused::Unused(int i) {}
-
+// Ports initialization
 namespace ports {
+
   // Controllers
-  pros::Controller * controllerMain = new pros::Controller(CONTROLLER_MAIN);
+  pros::Controller * controllerMain = new pros::Controller(CONTROLLER_MASTER);
   pros::Controller * controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
-  // Ports
-  Unused * port1 = new Unused(1);
-  Unused * port2 = new Unused(2);
-  Unused * port3 = new Unused(3);
-  Unused * port4 = new Unused(4);
-  Unused * port5 = new Unused(5);
-  Unused * port6 = new Unused(6);
-  Unused * port7 = new Unused(7);
-  Unused * port8 = new Unused(8);
-  Unused * port9 = new Unused(9);
-  Unused * port10 = new Unused(10);
-  Unused * port11 = new Unused(11);
-  Unused * port12 = new Unused(12);
-  Unused * port13 = new Unused(13);
-  Unused * port14 = new Unused(14);
-  Unused * port15 = new Unused(15);
-  Unused * port16 = new Unused(16);
-  Unused * port17 = new Unused(17);
-  Unused * port18 = new Unused(18);
-  Unused * port19 = new Unused(19);
-  Unused * port20 = new Unused(20);
-  Unused * port21 = new Unused(21);
+  // Motors
+  pros::Motor * port1 = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port2 = new pros::Motor(2, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port3 = new pros::Motor(3, GEARSET_600, REV, ENCODER_DEGREES);
+  pros::Motor * port4 = new pros::Motor(4, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port5 = NULL;
+  pros::Motor * port6 = NULL;
+  pros::Motor * port7 = new pros::Motor(7, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port8 = new pros::Motor(8, GEARSET_600, REV, ENCODER_DEGREES);
+  pros::Motor * port9 = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port11 = NULL;
+  pros::Motor * port12 = NULL;
+  pros::Motor * port13 = NULL;
+  pros::Motor * port14 = NULL;
+  pros::Motor * port15 = NULL;
+  pros::Motor * port16 = NULL;
+  pros::Motor * port17 = NULL;
+  pros::Motor * port18 = NULL;
+  pros::Motor * port19 = NULL;
+  pros::Motor * port20 = NULL;
+  pros::Motor * port21 = NULL;
 
-  // Mapping
-  pros::Motor * backLeftDrive = new pros::Motor(1);
-  pros::Motor * frontLeftDrive = new pros::Motor(1);
-  pros::Motor * backRightDrive = new pros::Motor(1);
-  pros::Motor * frontRightDrive = new pros::Motor(1);
+  // Port mapping
+  pros::Motor * frontLeftDrive = port2;
+  pros::Motor * backLeftDrive = port1;
+  pros::Motor * frontRightDrive = port9;
+  pros::Motor * backRightDrive = port10;
+  pros::Motor * liftMotor = port4;
+  pros::Motor * intakeMotor = port7;
+  pros::Motor * indexMotor = port3;
+  pros::Motor * flywheelMotor = port8;
 
   // Vision
-  pros::Vision * flagVision = new pros::Vision(1);
+  pros::Vision * flagVision = new pros::Vision(5);
+  pros::Vision * capVision = new pros::Vision(6);
 
-  // Mutexes
-  pros::Mutex * driveLock = new pros::Mutex();
+  // ADI (3-wire) ports
+  pros::ADIGyro * gyro1 = NULL; // To be initialized in the initialization routine. Port A
+  pros::ADIUltrasonic * frontUltrasonic = new pros::ADIUltrasonic('C', 'D');
+  pros::ADIUltrasonic * backLeftUltrasonic = new pros::ADIUltrasonic('E', 'F');
+  pros::ADIUltrasonic * backRightUltrasonic = new pros::ADIUltrasonic('G', 'H');
 
-  // Driving
-  DriveControl * driveControl = new DriveControl(ports::driveLock, ports::frontLeftDrive, ports::backLeftDrive, ports::frontRightDrive, ports::backRightDrive);
-  DriveFunction * drive = new DriveFunction(ports::driveControl);
+  // PID manager
+  PID * pid = NULL; // To be initialized during hte initialization routine
 
 }
 
-// The currently selected autonomous, has external linkage
+// Selected autonomous routine
 int selectedAutonomous = 0;
-// Whether the autonomous was completed successfully. Used to determine whether the autonomous routine takes too long to complete
-bool autonomousComplete = true;
- // Whether the operator control loop should run, has external linkage
-bool runOperatorControlLoop = true;
-// Driving sensitivity, has external linkage
-// These are fallback values, explicit statements should be made in ports::init()
-double sensitivity = 1.0;
-double adjustingSensitivity = 0.45;
+
+// Flag to set when the flywheel is running
+bool flywheelRunning = false;
+
+// Flag to set when the lift is locked
+bool liftLock = false;

@@ -1,6 +1,6 @@
-# Robot Code
+# 9181S Robot Code
 
-This repository contains 9181S robot code for the 2018-2019 Robotics competition season.
+This repository contains 9181S robot code for VEX Robotics Competition.
 
 Current robot code: `--Working`
 

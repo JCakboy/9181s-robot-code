@@ -1,7 +1,7 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "9181S Robot Code",
+        "project_name": "9181Y Worlds",
         "target": "v5",
         "templates": {
             "kernel": {

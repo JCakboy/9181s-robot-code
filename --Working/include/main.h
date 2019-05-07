@@ -76,15 +76,11 @@ void opcontrol(void);
  * You can add C++-only headers here
  */
 //#include <iostream>
-#include "forward.hpp"
-#include "constants.hpp"
 #include "definitions.hpp"
-#include "drive.hpp"
-#include "global.hpp"
 #include "lcd.hpp"
-#include "logger.hpp"
-#include "pid.hpp"
 #include "util.hpp"
+#include "pid.hpp"
+#include "global.hpp"
 #endif
 
 #endif  // _PROS_MAIN_H_

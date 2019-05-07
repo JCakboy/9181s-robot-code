@@ -2,114 +2,64 @@
 #define _PID_HPP_
 
 #include "main.h"
-#include <vector>
-
-/*
- * A class meant to hold and manipulate robot-specific PID constants
- */
-
+extern void doubleShot();
 class PID {
-  public:
-    // Stored PID constants. See the constructor for documentation
-    int dt;
-    double kp;
-    double ki;
-    double kd;
-    bool brake;
-    int tLimit;
-    double aLimit;
-    int iLimit;
-    int iZone;
-    bool iReset;
-    int dThreshold;
-    int tThreshold;
-    int de0;
 
-    /*
-     * Creates the PID object
-     *
-     * dt (time delta): the minimum amount of time in ms between PID calculations, should be 20
-     * kp (proportional gain): the constant for prorportional gain
-     * ki (integral gain): the constant for integral gain
-     * kd (derivitive gain): the constant for derivitive gain
-     * brake: whether to brake when error is 0, allows for a more aggressive acceleration profile but more abrupt movement
-     * tLimit (total limit): the maximum value for the sum of all PID terms; the maximum motor power, should be 127
-     * aLimit (acceleration limit): the maximum increase in power for each calculation
-     * iLimit (integral limit): the maximum value the integral term can be, before being multiplied to ki
-     * iZone (integral zone): the error at which the integral term will contribute to the output
-     * iReset (integral reset): whether to reset after the error is insignificant, should be true for movement and false for velocity
-     * dThreshold (delta threshold): the maximum delta between the motors actual position and the desired position
-     * tThreshold (time threshold): the minimum number of cycles the motor must hold within the delta threshold to consider the operation complete
-     * de0 (hang threshold): the maximum number of cycles the motor holds an error delta of 0 before the operation is considered hung, use 0 to disable
-     */
-    explicit PID(int dt, double kp, double ki, double kd, bool brake, int tLimit, double aLimit, int iLimit, int iZone, bool iReset, int dThreshold, int tThreshold, int de0);
+  // Power restraints
+  const int MAX_POWER = 120;
+  const int MIN_POWER = 20;
 
-    /*
-     * Calculates the output of the PID controller using the constants given at initialization
-     *
-     * calc: the calculation values for the PID controller that should persist between calculation scopes of the same motors
-     * position: the current position of the motor, or the average of multiple positions of the motors
-     * target: the desired sensor value for the motor(s)
-     */
-    PIDCommand calculate(PIDCalc * calc, int position, int target);
+  // PID values
+  double movekp = 0;
+  double movekd = 0;
+  double straightkp = 0;
+  double straightkd = 0;
+  double pivotkp = 0;
+  double pivotkd = 0;
 
-};
+  double straightle = 0;
 
-/*
- * A class meant to hold calculation values for a PID controller
- * Used to preserve values between each calculation in different scopes
- */
+  // Calculates and returns the gear ratio for the drive
+  static double getGearRatio();
 
-class PIDCalc {
-  public:
-    // The error in the last calculation loop
-    int lastError;
-    // The last power sent to the motors
-    double lastPower;
-    // The sum of errors throughout the PID calculations
-    int Se;
-    // The error the motor has held an error delta of 0
-    int hangError;
-    // The amount of cycles where the motor has held an error delta of 0
-    int hangCycles;
-    // The amount of cycles where the motor has held an error delta under dThreshold
-    int completeCycles;
-};
+  // Sets the brake mode
+  void setBrakeMode();
+  // Returns the power given the minimum and maximum power restraints
+  double checkPower(double power);
+public:
+  // Constructs the PID object
+  PID();
 
-/*
- * An enumeration specifying PID calculation statuses meant to used to communicate between the PID loop and the PID controller
- */
+  // Resets the motor encoders
+  void resetEncoders();
 
- typedef enum pid_command_type : int {
-   E_COMMAND_NO_CALCULATION,
-   E_COMMAND_CONTINUE,
-   E_COMMAND_STOP,
-   E_COMMAND_STOP_BRAKE,
-   E_COMMAND_WAIT_SUCCESS,
-   E_COMMAND_WAIT_HANG,
-   E_COMMAND_EXIT_SUCCESS,
-   E_COMMAND_EXIT_FAILURE
- } pid_command_type;
+  // Sets the move PID values
+  void setMovePID(double movekp, double movekd, double straightkp, double straightkd);
+  // Sets the pivot PID values
+  void setPivotPID(double pivotkp, double pivotkd);
 
-/*
- * A class meant to hold the result of a pid calculation
- */
+  // Ensures the robot drives straight
+  void driveStraight(int power);
+  // Sends the power commands to the motor
+  void powerDrive(int powerLeft, int powerRight);
 
-class PIDCommand {
-  public:
-    // The command type
-    pid_command_type type;
-    // The calculation result meant to be sent to the motor
-    int result;
+  // Moves the robot the given amount of inches to the desired location
+  void move(double inches);
+  // Moves the robot the given amount of inches, while only using velocity PID
+  void velocityMove(double inches, double power);
+  // Moves the robot with custom left and right targets
+  void customMove(double leftInches, double rightInches);
+  // Pivots the robot the given amount of degrees
+  void pivot(double degrees);
 
-    /*
-     * Creates the PID Command object
-     *
-     * type: the command type
-     * result: the calculation result
-     */
-    PIDCommand(pid_command_type type, int result);
-
+  // Front resets the robot using the ultrasonics
+  void frontReset(double inches);
+  // Back resets the robot using the ultrasonics
+  void backReset(double inches);
+  // Front resets the robot against the wall using ultrasonics, aligning it
+  void frontAlignReset();
+  // Back resets the robot against the wall using ultrasonics, aligning it
+  void backAlignReset();
 };
 
 #endif

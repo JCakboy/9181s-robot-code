@@ -1,0 +1,17 @@
+Left stick - Drive
+Right stick - Lift
+
+A - Lift lock
+B - Indexer out
+X - Start/stop flywheel
+Y -
+
+Up -
+Down - Arm reset
+Left - Brain LCD Button Left
+Right - Brain LCD Button Right
+
+R1 - Intake
+R2 - Outtake
+L1 - Indexer in
+L2 - Vision Yaw Lock

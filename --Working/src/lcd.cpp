@@ -10,36 +10,26 @@ std::string LCD::getAutonomousName() {
   // Return the selected autonomous name
   switch (selectedAutonomous) {
     case 0:
-      return "None";
-    case 1:
-      return "Red Flags";
-    case 2:
-      return "Red Far";
-    case 3:
-      return "Blue Flags";
-    case 4:
-      return "Blue Far";
-    case 5:
       return "Skills";
+    case 1:
+      return "Blue Flags";
+    case 2:
+      return "Red Flags";
+    case 3:
+      return "Blue Far";
+    case 4:
+      return "Red Far";
     default:
-      return (std::to_string(selectedAutonomous) + ((selectedAutonomous % 2 == 0) ? " (Blue)" : " (Red)"));
+      return (std::to_string(selectedAutonomous) + (isAutonomousRed() ? " (Red)" : " (Blue)"));
   }
 }
 
 bool LCD::isAutonomousBlue() {
-  if (selectedAutonomous == 0 || selectedAutonomous == 1 || selectedAutonomous == 2 || selectedAutonomous == 5)
-    return false;
-  if (selectedAutonomous == 3 || selectedAutonomous == 4)
-    return true;
-  return (selectedAutonomous % 2 == 0);
+  return (selectedAutonomous % 2 != 0);
 }
 
 bool LCD::isAutonomousRed() {
-  if (selectedAutonomous == 0 || selectedAutonomous == 3 || selectedAutonomous == 4)
-    return false;
-  if (selectedAutonomous == 1 || selectedAutonomous == 2 || selectedAutonomous == 5)
-    return true;
-  return !(selectedAutonomous % 2 == 0);
+  return (selectedAutonomous % 2 == 0);
 }
 
 void LCD::initialize(pros::Controller * controllerMain, pros::Controller * controllerPartner) {
@@ -61,7 +51,6 @@ void LCD::initialize(pros::Controller * controllerMain, pros::Controller * contr
 
   // Signal the commpletion of initialization and update the screen
   LCD::setStatus("LCD initialized");
-  updateScreen();
 }
 
 void LCD::onLeftButton() {
@@ -94,6 +83,13 @@ void LCD::updateScreen(bool forceController) {
     LCD::setControllerText("Auto: " + LCD::getAutonomousName());
   LCD::cycles++;
   if (LCD::cycles > 200 || forceController) LCD::cycles = 0;
+}
+
+void LCD::printDebugInformation() {
+  LCD::setText(2, std::to_string(ports::gyro1->get_value()));
+  LCD::setText(3, std::to_string(ports::frontUltrasonic->get_value()));
+  LCD::setText(4, std::to_string(ports::backLeftUltrasonic->get_value()));
+  LCD::setText(5, std::to_string(ports::backRightUltrasonic->get_value()));
 }
 
 void LCD::setControllerText(std::string text) {

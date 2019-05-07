@@ -1,5 +1,5 @@
 #ifndef _DEFINITIONS_HPP_
-#define _DEFINITIONS_HPP
+#define _DEFINITIONS_HPP_
 
 #include "main.h"
 
