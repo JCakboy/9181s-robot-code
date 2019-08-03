@@ -9,6 +9,9 @@
 void initialize() {
 	// Initialize the LLEMU
 	LCD::initializeLLEMU(ports::controllerMain, ports::controllerPartner);
+
+	// Brake the tilt motor
+	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
 }
 
 /**
