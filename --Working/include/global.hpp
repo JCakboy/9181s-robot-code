@@ -37,36 +37,16 @@ namespace ports {
   extern pros::Motor * backLeftDrive;
   extern pros::Motor * frontRightDrive;
   extern pros::Motor * backRightDrive;
-  extern pros::Motor * liftMotor;
-  extern pros::Motor * intakeMotor;
-  extern pros::Motor * indexMotor;
-  extern pros::Motor * flywheelMotor;
 
   // Vision
-  extern pros::Vision * flagVision;
-  extern pros::Vision * capVision;
 
   // ADI (3-wire) ports
-  extern pros::ADIGyro * gyro1;
-  extern pros::ADIUltrasonic * frontUltrasonic;
-  extern pros::ADIUltrasonic * backLeftUltrasonic;
-  extern pros::ADIUltrasonic * backRightUltrasonic;
 
   // PID manager
-  extern PID * pid;
 
 }
 
 // Selected autonomous routine
 extern int selectedAutonomous;
-
-// Flag to set when the flywheel is running
-extern bool flywheelRunning;
-
-// Flag to set when the lift is locked
-extern bool liftLock;
-
-// Holds the last vision error value
-extern double visionLastError;
 
 #endif

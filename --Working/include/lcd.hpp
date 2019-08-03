@@ -6,6 +6,11 @@
 
 class LCD {
   private:
+    // Whether the LLEMU is initialized
+    static bool initLLEMU;
+    // Whether the custom LCD is initialied
+    static bool initCLCD;
+
     // The current status
     static std::string status;
     // The current text on the LCD, set through this class
@@ -15,17 +20,18 @@ class LCD {
     // The amount of cycles since the last controller text update, used to schedule multiple lines
     static int cycles;
   public:
-    // Initializes the LCD of the brain and the controllers
-    static void initialize(pros::Controller * controllerMain, pros::Controller * controllerPartner);
+    // Initializes the LLEMU
+    static void initializeLLEMU(pros::Controller * controllerMain, pros::Controller * controllerPartner);
 
-    // The method called on a left LCD button press
+    // The method called on a left LCD button press, only effective if the LLEMU is initialized
     static void onLeftButton();
 
-    // The method called on a center LCD button press
+    // The method called on a center LCD button press, only effective if the LLEMU is initialized
     static void onCenterButton();
 
-    // The method called on a right LCD button press
+    // The method called on a right LCD button press, only effective if the LLEMU is initialized
     static void onRightButton();
+
 
     // Updates the selected autonomous on the lCD
     static void updateScreen();

@@ -1,38 +1,15 @@
 #include "main.h"
 #include <vector>
 
-std::vector<pros::Controller*> LCD::controllers;
-int LCD::cycles = 0;
+bool LCD::initLLEMU;
+bool LCD::initCLCD;
+
 std::string LCD::status = "";
 std::vector<std::string> LCD::lines;
+std::vector<pros::Controller*> LCD::controllers;
+int LCD::cycles = 0;
 
-std::string LCD::getAutonomousName() {
-  // Return the selected autonomous name
-  switch (selectedAutonomous) {
-    case 0:
-      return "Skills";
-    case 1:
-      return "Blue Flags";
-    case 2:
-      return "Red Flags";
-    case 3:
-      return "Blue Far";
-    case 4:
-      return "Red Far";
-    default:
-      return (std::to_string(selectedAutonomous) + (isAutonomousRed() ? " (Red)" : " (Blue)"));
-  }
-}
-
-bool LCD::isAutonomousBlue() {
-  return (selectedAutonomous % 2 != 0);
-}
-
-bool LCD::isAutonomousRed() {
-  return (selectedAutonomous % 2 == 0);
-}
-
-void LCD::initialize(pros::Controller * controllerMain, pros::Controller * controllerPartner) {
+void LCD::initializeLLEMU(pros::Controller * controllerMain, pros::Controller * controllerPartner) {
   // Initialize the brain LCD
   pros::lcd::initialize();
 
@@ -49,8 +26,9 @@ void LCD::initialize(pros::Controller * controllerMain, pros::Controller * contr
   LCD::controllers.push_back(controllerMain);
   LCD::controllers.push_back(controllerPartner);
 
-  // Signal the commpletion of initialization and update the screen
+  // Signal the completion of initialization and update the screen
   LCD::setStatus("LCD initialized");
+  LCD::initLLEMU = true;
 }
 
 void LCD::onLeftButton() {
@@ -86,10 +64,14 @@ void LCD::updateScreen(bool forceController) {
 }
 
 void LCD::printDebugInformation() {
-  LCD::setText(2, std::to_string(ports::gyro1->get_value()));
-  LCD::setText(3, std::to_string(ports::frontUltrasonic->get_value()));
-  LCD::setText(4, std::to_string(ports::backLeftUltrasonic->get_value()));
-  LCD::setText(5, std::to_string(ports::backRightUltrasonic->get_value()));
+  // Print sensor information
+}
+
+void LCD::setStatus(std::string status) {
+  // Sets the status on the LCD
+  pros::lcd::set_text(0, "Status: " + status);
+  LCD::status = status;
+  lines.at(0) = "Status: " + status;
 }
 
 void LCD::setControllerText(std::string text) {
@@ -99,13 +81,6 @@ void LCD::setControllerText(std::string text) {
   for (const auto & controller : LCD::controllers)
     if (controller != NULL && controller->is_connected())
       controller->set_text(0, 0, text.c_str());
-}
-
-void LCD::setStatus(std::string status) {
-  // Sets the status on the LCD
-  pros::lcd::set_text(0, "Status: " + status);
-  LCD::status = status;
-  lines.at(0) = "Status: " + status;
 }
 
 void LCD::setText(int line, std::string text) {
@@ -126,4 +101,30 @@ std::string LCD::getText(int line) {
   if (line > 9 || line < 0)
     return "";
   return lines.at(line + 1);
+}
+
+std::string LCD::getAutonomousName() {
+  // Return the selected autonomous name
+  switch (selectedAutonomous) {
+    case 0:
+      return "Skills";
+    case 1:
+      return "Blue Flags";
+    case 2:
+      return "Red Flags";
+    case 3:
+      return "Blue Far";
+    case 4:
+      return "Red Far";
+    default:
+      return (std::to_string(selectedAutonomous) + (isAutonomousRed() ? " (Red)" : " (Blue)"));
+  }
+}
+
+bool LCD::isAutonomousBlue() {
+  return (selectedAutonomous % 2 != 0);
+}
+
+bool LCD::isAutonomousRed() {
+  return (selectedAutonomous % 2 == 0);
 }
