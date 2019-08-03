@@ -34,14 +34,39 @@ void opcontrol() {
 	LCD::setStatus("Operator Control");
 
 	while (true) {
+		// Drives the robot with the main controller
+		drive(controllerMain);
 
+		// Map the left trigger buttons to intake and outtake the cubes
+		if (controllerMain->get_digital(BUTTON_R1))
+			intakeMotor->move(127);
+		else if (controllerMain->get_digital(BUTTON_R2))
+			intakeMotor->move(-127);
+		else
+			intakeMotor->move(0);
 
-
-
-
+		// If A is pressed, tilt the stack to be upright
+		if (controllerMain->get_digital(BUTTON_A))
+			tiltMotor->move_absolute(145, 80);
+		else if (tiltMotor->get_position() > 4)
+			tiltMotor->move_absolute(0, 60);
+		else tiltMotor->move(0);
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
+
+		LCD::setText(2, std::to_string(frontLeftDrive == NULL));
+		LCD::setText(3, std::to_string(backLeftDrive == NULL));
+		LCD::setText(4, std::to_string(frontRightDrive == NULL));
+		LCD::setText(5, std::to_string(backRightDrive == NULL));
+
+		// Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+
+		// If down is pressed, reset the tilt motor
+		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
+			tiltMotor->tare_position();
 
 		LCD::updateScreen();
 		pros::delay(20);
