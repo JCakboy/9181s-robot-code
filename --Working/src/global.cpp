@@ -41,6 +41,12 @@ namespace ports {
   // Vision
 
   // ADI (3-wire) ports
+  pros::ADIGyro * gyro1 = new pros::ADIGyro('A');
+  pros::ADIGyro * gyro2 = new pros::ADIGyro('B');
+
+  // Gyro manager
+  Gyro * gyro = new Gyro(gyro1, gyro2);
+  pros::Task * gyroTask = NULL; // To be initialized during the initialization routine
 
   // PID manager
 

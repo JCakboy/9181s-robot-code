@@ -1,7 +1,22 @@
 #include "main.h"
-
+#include <cmath>
+#include <climits>
+#include <ctime>
+#include <utility>
+#include "definitions.hpp"
 // Dump ports namespace for ease of use
 using namespace ports;
+
+int sign(unsigned int n) {
+	if (n > INT_MAX) {
+		if (n <= UINT_MAX + INT_MIN) {
+			return 0;
+		}
+		return static_cast<int>(n + INT_MIN) - (UINT_MAX + INT_MIN + 1);
+	} else {
+		return static_cast<int>(n);
+	}
+}
 
 // Drives the robot based on the given controller
 void drive(pros::Controller * controller) {
@@ -33,17 +48,23 @@ void opcontrol() {
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 
+	int counts = 0;
+	int last = 0;
 	while (true) {
-
-
-
-
-
+		if (sign(pros::millis()) - 1000 > last) {
+			//LCD::setText(3, std::to_string(counts));
+			// std::cout << std::to_string(counts) << std::endl;
+			counts = 0;
+			last = sign(pros::millis());
+		}
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 
+		LCD::setText(4, std::to_string(gyro->getValue()));
+
 		LCD::updateScreen();
+		counts++;
 		pros::delay(20);
 	}
 }

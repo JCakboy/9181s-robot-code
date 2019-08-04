@@ -1,5 +1,5 @@
-#ifndef _PORTS_HPP_
-#define _PORTS_HPP_
+#ifndef _GLOBAL_HPP_
+#define _GLOBAL_HPP_
 
 #include "main.h"
 
@@ -43,6 +43,12 @@ namespace ports {
   // Vision
 
   // ADI (3-wire) ports
+  extern pros::ADIGyro * gyro1;
+  extern pros::ADIGyro * gyro2;
+
+  // Gyro manager
+  extern Gyro * gyro;
+  extern pros::Task * gyroTask;
 
   // PID manager
 

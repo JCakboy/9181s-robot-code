@@ -76,9 +76,11 @@ void opcontrol(void);
  * You can add C++-only headers here
  */
 //#include <iostream>
+#include "forward.hpp"
 #include "definitions.hpp"
 #include "lcd.hpp"
 #include "global.hpp"
+#include "gyro.hpp"
 #endif
 
 #endif  // _PROS_MAIN_H_
