@@ -12,29 +12,41 @@ void Gyro::task() {
   Gyro::lastReadFirst = 0;
   Gyro::lastReadSecond = 0;
   while (true) {
-    double v1 = gyro1->get_value();
-    double v2 = gyro2->get_value();
-    if (v1 < 900 && Gyro::lastReadFirst > 2700)
-      firstRotations++;
-    if (v1 > 2700 && Gyro::lastReadFirst < 900)
-      firstRotations--;
-    if (v1 > -900 && Gyro::lastReadFirst < -2700)
-      firstRotations--;
-    if (v1 < -2700 && Gyro::lastReadFirst > -900)
-      firstRotations++;
+    if (useFirst) {
+      // Get the gyroscope current value
+      double v1 = gyro1->get_value();
 
-    if (v2 < 900 && Gyro::lastReadSecond > 2700)
-      secondRotations++;
-    if (v2 > 2700 && Gyro::lastReadSecond < 900)
-      secondRotations--;
-    if (v2 > -900 && Gyro::lastReadSecond < -2700)
-      secondRotations--;
-    if (v2 < -2700 && Gyro::lastReadSecond > -900)
-      secondRotations++;
+      // Handle overflowing
+      if (v1 < 900 && Gyro::lastReadFirst > 2700)
+        firstRotations++;
+      if (v1 > 2700 && Gyro::lastReadFirst < 900)
+        firstRotations--;
+      if (v1 > -900 && Gyro::lastReadFirst < -2700)
+        firstRotations--;
+      if (v1 < -2700 && Gyro::lastReadFirst > -900)
+        firstRotations++;
 
-    // Store the last gyroscope value
-    Gyro::lastReadFirst = v1;
-    Gyro::lastReadSecond = v2;
+      // Store the last gyroscope value
+      Gyro::lastReadFirst = v1;
+    }
+
+    if (useSecond) {
+      // Get the gyroscope current value
+      double v2 = gyro2->get_value();
+
+      // Handle overflowing
+      if (v2 < 900 && Gyro::lastReadSecond > 2700)
+        secondRotations++;
+      if (v2 > 2700 && Gyro::lastReadSecond < 900)
+        secondRotations--;
+      if (v2 > -900 && Gyro::lastReadSecond < -2700)
+        secondRotations--;
+      if (v2 < -2700 && Gyro::lastReadSecond > -900)
+        secondRotations++;
+
+      // Store the last gyroscope value
+      Gyro::lastReadSecond = v2;
+    }
 
     // Run every 15 ms
     pros::delay(15);
@@ -45,8 +57,14 @@ Gyro::Gyro(pros::ADIGyro * gyro1, pros::ADIGyro * gyro2) {
   // Sets the gyros to the given ones
   Gyro::gyro1 = gyro1;
   Gyro::gyro2 = gyro2;
-  Gyro::useFirst = true;
-  Gyro::useSecond = true;
+
+  // Use all gyroscopes provided if they are set
+  Gyro::useFirst = false;
+  Gyro::useSecond = false;
+  if (gyro1 != NULL)
+    Gyro::useFirst = true;
+  if (gyro2 != NULL)
+    Gyro::useSecond = true;
 }
 
 void Gyro::useFirstGyro(bool flag) {
