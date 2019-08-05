@@ -81,6 +81,7 @@ void opcontrol(void);
 #include "lcd.hpp"
 #include "global.hpp"
 #include "gyro.hpp"
+#include "util.hpp"
 #endif
 
 #endif  // _PROS_MAIN_H_
