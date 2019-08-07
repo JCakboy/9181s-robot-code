@@ -1,0 +1,17 @@
+Left stick - Drive
+Right stick - 4-bar expansion
+
+A - (Hold) Push ladder forward
+B -
+X -
+Y -
+
+Up - (Debug) Run autonomous
+Down - Ladder reset
+Left - Brain LCD Button Left
+Right - Brain LCD Button Right
+
+R1 - Intake
+R2 - Outtake
+L1 - 4-bar claw grab
+L2 - 4-bar claw release
