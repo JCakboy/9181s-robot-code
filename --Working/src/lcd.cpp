@@ -108,24 +108,32 @@ std::string LCD::getAutonomousName() {
   // Return the selected autonomous name
   switch (selectedAutonomous) {
     case 0:
-      return "Skills";
+      return "None";
     case 1:
-      return "Blue Flags";
+      return "Blue Tall";
     case 2:
-      return "Red Flags";
+      return "Red Tall";
     case 3:
-      return "Blue Far";
+      return "Blue Flat";
     case 4:
-      return "Red Far";
+      return "Red Flat";
+    case 5:
+      return "Skills";
+    case 6:
+      return "Drv. Skills";
     default:
       return (std::to_string(selectedAutonomous) + (isAutonomousRed() ? " (Red)" : " (Blue)"));
   }
 }
 
 bool LCD::isAutonomousBlue() {
-  return (selectedAutonomous % 2 != 0);
+  return (selectedAutonomous % 2 != 0) && selectedAutonomous != 5;
 }
 
 bool LCD::isAutonomousRed() {
-  return (selectedAutonomous % 2 == 0);
+  return (selectedAutonomous % 2 == 0 || selectedAutonomous == 5) && selectedAutonomous;
+}
+
+bool LCD::isAutonomousSkills() {
+  return selectedAutonomous == 5 || selectedAutonomous == 6;
 }

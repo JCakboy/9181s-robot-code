@@ -4,6 +4,7 @@
 #include <ctime>
 #include <utility>
 #include "definitions.hpp"
+
 // Dump ports namespace for ease of use
 using namespace ports;
 
@@ -48,6 +49,9 @@ void opcontrol() {
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 
+	// Start the operator control timer
+	competitionTimer->opcontrolStartTimer();
+
 	int counts = 0;
 	int last = 0;
 	while (true) {
@@ -60,15 +64,6 @@ void opcontrol() {
 			backRightDrive->move(0);
 		}
 
-		if (controllerMain->get_digital_new_press(BUTTON_UP))
-			messageHolder->appendLine("Up");
-		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
-			messageHolder->appendLine("Down");
-		if (controllerMain->get_digital_new_press(BUTTON_LEFT))
-			messageHolder->appendLine("Left");
-		if (controllerMain->get_digital_new_press(BUTTON_RIGHT))
-			messageHolder->appendLine("Right");
-
 		if (controllerMain->get_digital(BUTTON_B))
 			pid->pivot(-20);
 
@@ -78,15 +73,21 @@ void opcontrol() {
 		if (controllerMain->get_digital(BUTTON_Y))
 			pid->pivot(-40);
 
+		if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
+
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 
 		LCD::setText(6, std::to_string(competitionTimer->opcontrolTime()));
 
+		// Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+
 		// LCD::setText(4, std::to_string(gyro->getValue()));
 
 		LCD::updateScreen();
 		counts++;
-		pros::delay(1);
+		pros::delay(20);
 	}
 }
