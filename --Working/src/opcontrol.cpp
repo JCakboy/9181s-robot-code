@@ -60,6 +60,15 @@ void opcontrol() {
 			backRightDrive->move(0);
 		}
 
+		if (controllerMain->get_digital_new_press(BUTTON_UP))
+			messageHolder->appendLine("Up");
+		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
+			messageHolder->appendLine("Down");
+		if (controllerMain->get_digital_new_press(BUTTON_LEFT))
+			messageHolder->appendLine("Left");
+		if (controllerMain->get_digital_new_press(BUTTON_RIGHT))
+			messageHolder->appendLine("Right");
+
 		if (controllerMain->get_digital(BUTTON_B))
 			pid->pivot(-20);
 
@@ -72,9 +81,12 @@ void opcontrol() {
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 
+		LCD::setText(6, std::to_string(competitionTimer->opcontrolTime()));
+
 		// LCD::setText(4, std::to_string(gyro->getValue()));
 
 		LCD::updateScreen();
-		pros::delay(20);
+		counts++;
+		pros::delay(1);
 	}
 }

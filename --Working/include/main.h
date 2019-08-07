@@ -77,6 +77,7 @@ void opcontrol(void);
  */
 //#include <iostream>
 #include "forward.hpp"
+#include "debug.hpp"
 #include "definitions.hpp"
 #include "global.hpp"
 #include "gyro.hpp"

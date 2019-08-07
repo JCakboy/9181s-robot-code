@@ -46,10 +46,17 @@ namespace ports {
 
   // Gyro manager
   Gyro * gyro = new Gyro(gyro1, gyro2);
-  pros::Task * gyroTask = NULL; // To be initialized during the initialization routine
 
   // PID manager
   PID * pid = new PID();
+
+  // Debugging objects
+  CompetitionTimer * competitionTimer = new CompetitionTimer();
+  MessageHolder * messageHolder = new MessageHolder();
+
+  // Tasks
+  pros::Task * gyroTask = NULL; // To be initialized during the initialization routine
+  pros::Task * mhTask = NULL; // To be initialized during the initialization routine
 
 }
 

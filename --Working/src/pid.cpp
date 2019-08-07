@@ -126,6 +126,10 @@ void PID::driveStraight(int power) {
   // Set the last error to the current error
   velocityle = error;
 
+  // Log it to the message holder if the flag is set
+  if (logPIDErrors)
+    messageHolder->appendLine("Vel Err: " + std::to_string(error));
+
   // Issue the power to the motors
   powerDrive(powerLeft, powerRight);
 }
@@ -212,6 +216,10 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
     // Update the error and current distance
     currentDistance = (frontRightDrive->get_position() + frontLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
+
+    // Log it to the message holder if the flag is set
+    if (logPIDErrors)
+      messageHolder->appendLine("Move Err: " + std::to_string(error));
   }
 
   // Stop the motors and exit
@@ -257,6 +265,10 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
     // Update the error and current distance
     currentDistance = (frontRightDrive->get_position() + frontLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
+
+    // Log it to the message holder if the flag is set
+    if (logPIDErrors)
+      messageHolder->appendLine("VMove Err: " + std::to_string(error));
   }
 
   // Stop the motors and exit
@@ -319,6 +331,10 @@ void PID::customMove(double leftInches, double rightInches, double threshold) {
     rightCurrentDistance = (frontRightDrive->get_position() + backRightDrive->get_position()) / 2;
     leftError = leftTargetDistance - leftCurrentDistance;
     rightError = rightTargetDistance - rightCurrentDistance;
+
+    // Log it to the message holder if the flag is set
+    if (logPIDErrors)
+      messageHolder->appendLine("CMove Err: " + std::to_string(leftError) + " | " + std::to_string(rightError));
   }
 
   // Stop the motors and exit
@@ -377,6 +393,10 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     // Update the error and current bearing
     currentBearing = ports::gyro->getValue();
     error = targetBearing - currentBearing;
+
+    // Log it to the message holder if the flag is set
+    if (logPIDErrors)
+      messageHolder->appendLine("Pivot Err: " + std::to_string(error));
   }
 
   // If requested, modify the current desired heading
@@ -404,7 +424,11 @@ void PID::setRelativeDesiredHeading(double heading) {
 void PID::setNoStopDebug(bool flag) {
   PID::noStop = flag;
 }
+void PID::setLoggingDebug(bool flag) {
+  PID::logPIDErrors = flag;
+}
 #else
-// Ignore all calls to this method if debugging is not enabled
+// Ignore all calls to these methods if debugging is not enabled
 void PID::setNoStopDebug(bool flag) {}
+void PID::setLoggingDebug(bool flag) {}
 #endif

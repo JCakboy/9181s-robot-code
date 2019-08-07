@@ -7,6 +7,8 @@ class PID {
 
   // Debugging no-stop flag
   bool noStop = false;
+  // Debugging log errors flag
+  bool logPIDErrors = false;
 
   // Power restraints
   int maxPower = 120;
@@ -56,6 +58,8 @@ public:
 
   // Set the debugging flag to force PID loops to run non-stop; useful for tuning
   void setNoStopDebug(bool flag);
+  // Set the debugging flag to force PID loops to log errors; useful for tuning
+  void setLoggingDebug(bool flag);
 
   // Sets the power limits of PID
   void setPowerLimits(int maxPower, int minPower);
