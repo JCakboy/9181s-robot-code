@@ -13,6 +13,9 @@ private:
   pros::ADIGyro * gyro1;
   pros::ADIGyro * gyro2;
 
+  // This gyro's "zero" position
+  double zeroPosition = 0;
+
   // Whether or not to use the given gyros
   bool useFirst;
   bool useSecond;
@@ -44,6 +47,11 @@ public:
 
   // Returns the calculated gyroscope value
   double getValue();
+
+  // Sets the current "zero" position to the current one
+  void tarePosition();
+  // Sets the current "zero" position to the one at program start
+  void fullTarePosition();
 };
 
 // Task to be given to the global Gyro object

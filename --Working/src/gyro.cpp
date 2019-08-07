@@ -103,5 +103,15 @@ double Gyro::getValue() {
 
   if (amount == 0) amount = 1;
 
-  return sum / amount;
+  return sum / amount - zeroPosition;
+}
+
+// Sets the current "zero" position to the current one
+void Gyro::tarePosition() {
+  Gyro::zeroPosition = Gyro::getValue();
+}
+
+// Sets the current "zero" position to the one at program start
+void Gyro::fullTarePosition() {
+  Gyro::zeroPosition = 0;
 }
