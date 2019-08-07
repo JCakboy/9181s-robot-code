@@ -65,6 +65,7 @@ void LCD::updateScreen(bool forceController) {
 
 void LCD::printDebugInformation() {
   // Print sensor information
+  LCD::setText(2, std::to_string(ports::gyro->getValue()));
 }
 
 void LCD::setStatus(std::string status) {

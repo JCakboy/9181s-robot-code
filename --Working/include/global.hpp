@@ -51,6 +51,7 @@ namespace ports {
   extern pros::Task * gyroTask;
 
   // PID manager
+  extern PID * pid;
 
 }
 

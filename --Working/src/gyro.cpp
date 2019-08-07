@@ -67,23 +67,23 @@ Gyro::Gyro(pros::ADIGyro * gyro1, pros::ADIGyro * gyro2) {
     Gyro::useSecond = true;
 }
 
+// Set swhether or not the first gyro given is being used
 void Gyro::useFirstGyro(bool flag) {
-  // Set swhether or not the first gyro given is being used
   Gyro::useFirst = flag;
 }
 
+// Sets whether or not the second gyro given is being used
 void Gyro::useSecondGyro(bool flag) {
-  // Sets whether or not the second gyro given is being used
   Gyro::useSecond = flag;
 }
 
+// Returns whether or not the first gyro given is being used
 bool Gyro::usingFirstGyro() {
-  // Returns whether or not the first gyro given is being used
   return Gyro::useFirst;
 }
 
+// Returns whether or not the second gyro given is being used
 bool Gyro::usingSecondGyro() {
-  // Returns whether or not the second gyro given is being used
   return Gyro::useSecond;
 }
 
@@ -92,16 +92,19 @@ double Gyro::getValue() {
   double sum = 0;
   double amount = 0;
 
+  // Use the first gyroscope given if the flag is set
   if (Gyro::useFirst) {
     sum += gyro1->get_value() + 3600 * firstRotations;
     amount++;
   }
+
+  // Use the second gyroscope given if the flag is set
   if (Gyro::useSecond) {
     sum += gyro2->get_value() + 3600 * secondRotations;
     amount++;
   }
 
+  // Return the avrerage of the used gyroscopes
   if (amount == 0) amount = 1;
-
   return sum / amount;
 }

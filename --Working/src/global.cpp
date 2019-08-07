@@ -49,6 +49,7 @@ namespace ports {
   pros::Task * gyroTask = NULL; // To be initialized during the initialization routine
 
   // PID manager
+  PID * pid = new PID();
 
 }
 

@@ -78,9 +78,10 @@ void opcontrol(void);
 //#include <iostream>
 #include "forward.hpp"
 #include "definitions.hpp"
-#include "lcd.hpp"
 #include "global.hpp"
 #include "gyro.hpp"
+#include "lcd.hpp"
+#include "pid.hpp"
 #include "util.hpp"
 #endif
 

@@ -23,6 +23,14 @@ void initialize() {
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
 
+	// Set the PID configuration
+	ports::pid->setVelocityGyro(ports::gyro);
+	ports::pid->setPowerLimits(120, 20);
+	ports::pid->setMovePID(0.1, 0.1, 0.2, 0.2);
+	ports::pid->setPivotPID(975, 0.1, 0.1);
+	ports::pid->setForwardAcceleration(1, 1, 50);
+	ports::pid->setBackwardAcceleration(1, 1, 50);
+
 	// Start gyroscope tracking
 	ports::gyroTask = new pros::Task(gyroTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Gyro");
 }
