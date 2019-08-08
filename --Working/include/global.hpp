@@ -39,6 +39,8 @@ namespace ports {
   extern pros::Motor * backRightDrive;
   extern pros::Motor * intakeMotor;
   extern pros::Motor * tiltMotor;
+  extern pros::Motor * liftMotor;
+  extern pros::Motor * clawMotor;
 
   // Vision
 

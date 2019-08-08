@@ -23,6 +23,9 @@ void initialize() {
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
 
+	// Brake the claw motor
+	ports::clawMotor->set_brake_mode(BRAKE_BRAKE);
+
 	// Start gyroscope tracking
 	ports::gyroTask = new pros::Task(gyroTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Gyro");
 }

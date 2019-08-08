@@ -48,23 +48,46 @@ void opcontrol() {
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 
-	int counts = 0;
-	int last = 0;
 	while (true) {
-		if (sign(pros::millis()) - 1000 > last) {
-			//LCD::setText(3, std::to_string(counts));
-			// std::cout << std::to_string(counts) << std::endl;
-			counts = 0;
-			last = sign(pros::millis());
-		}
+		// Drives the robot with the main controller
+		drive(controllerMain);
+
+		// Maps the right analog stick to the lift motor
+		liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
+
+		// Maps the right trigger buttons to intake and outtake the cubes
+		if (controllerMain->get_digital(BUTTON_R1))
+			intakeMotor->move(127);
+		else if (controllerMain->get_digital(BUTTON_R2))
+			intakeMotor->move(-127);
+		else
+			intakeMotor->move(0);
+
+		// Maps the claw motor to the left triggers
+		intakeMotor->move((double) controllerMain->get_digital(BUTTON_L1) * 2 * 127 - controllerMain->get_digital(BUTTON_L2) * 90);
+
+		// If A is pressed, tilt the stack to be upright
+		if (controllerMain->get_digital(BUTTON_A))
+			tiltMotor->move_absolute(145, 80);
+		else if (tiltMotor->get_position() > 4)
+			tiltMotor->move_absolute(0, 60);
+		else tiltMotor->move(0);
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 
-		LCD::setText(4, std::to_string(gyro->getValue()));
+		// Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
+    if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+    if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
+		// If down is pressed, reset the tilt motor
+		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
+			tiltMotor->tare_position();
+
+		// Update the LCD screen
 		LCD::updateScreen();
-		counts++;
+
+		// Run every 20 ms
 		pros::delay(20);
 	}
 }
