@@ -12,6 +12,10 @@ void initialize() {
 
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
+
+	// Brake the claw motor
+	ports::clawMotor->set_brake_mode(BRAKE_BRAKE);
+
 }
 
 /**
