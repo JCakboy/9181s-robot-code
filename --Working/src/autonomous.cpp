@@ -48,7 +48,7 @@ void autonomousDrvSkills() {
     pros::delay(1);
 
   pros::Task dsopcontrol (Temp::call, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Driver Skills");
-  competitionTimer->opcontrolWaitUntil(10000);
+  competitionTimer->opcontrolWaitUntil(60000);
   dsopcontrol.suspend();
 
   ports::frontLeftDrive->move(0);
