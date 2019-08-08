@@ -50,10 +50,17 @@ namespace ports {
 
   // Gyro manager
   extern Gyro * gyro;
-  extern pros::Task * gyroTask;
 
   // PID manager
+  extern PID * pid;
 
+  // Debugging objects
+  extern CompetitionTimer * competitionTimer;
+  extern MessageHolder * messageHolder;
+
+  // Tasks
+  extern pros::Task * gyroTask;
+  extern pros::Task * mhTask;
 }
 
 // Selected autonomous routine

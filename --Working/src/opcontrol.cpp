@@ -4,6 +4,7 @@
 #include <ctime>
 #include <utility>
 #include "definitions.hpp"
+
 // Dump ports namespace for ease of use
 using namespace ports;
 
@@ -48,6 +49,8 @@ void opcontrol() {
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 
+	// Start the operator control timer
+	competitionTimer->opcontrolStartTimer();
 	while (true) {
 		// Drives the robot with the main controller
 		drive(controllerMain);
@@ -80,6 +83,8 @@ void opcontrol() {
     if (controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
     if (controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
 
+		// If the up button is pressed, run autonomous
+		if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
 		// If down is pressed, reset the tilt motor
 		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
 			tiltMotor->tare_position();

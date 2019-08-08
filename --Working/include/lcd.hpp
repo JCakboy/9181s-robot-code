@@ -66,6 +66,9 @@ class LCD {
     // Whether the selected autonomous is set for red side
     static bool isAutonomousRed();
 
+    // Whether the selected autonomous is a skills run
+    static bool isAutonomousSkills();
+
 };
 
 #endif
