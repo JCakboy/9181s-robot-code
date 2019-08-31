@@ -26,6 +26,9 @@ void initialize() {
 	// Brake the claw motor
 	ports::clawMotor->set_brake_mode(BRAKE_BRAKE);
 
+	// Brake the lift motor
+	ports::liftMotor->set_brake_mode(BRAKE_BRAKE);
+
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 20);
@@ -41,6 +44,9 @@ void initialize() {
 	ports::gyroTask = new pros::Task(gyroTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Gyro");
 	// Start message debugging if the debugger is attached
 	ports::mhTask = new pros::Task(mhTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Message Handler");
+
+	// Set a current limit for the claw to prevent overheating
+	ports::clawMotor->set_current_limit(1750);
 
 	LCD::setStatus("Initialization complete");
 }

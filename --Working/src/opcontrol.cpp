@@ -51,6 +51,10 @@ void opcontrol() {
 
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
+
+	// Time to set when the claw is unclamping
+	int clawUnclamping = 0;
+
 	while (true) {
 		// Drives the robot with the main controller
 		drive(controllerMain);
@@ -67,7 +71,15 @@ void opcontrol() {
 			intakeMotor->move(0);
 
 		// Maps the claw motor to the left triggers
-		intakeMotor->move((double) controllerMain->get_digital(BUTTON_L1) * 2 * 127 - controllerMain->get_digital(BUTTON_L2) * 90);
+		if (controllerMain->get_digital_new_press(BUTTON_L1))
+			clawMotor->move(127);
+		else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
+			clawMotor->move(-127);
+			clawUnclamping = util::sign(pros::millis()) + 750;
+		} else if (clawUnclamping != 0 && util::sign(pros::millis()) > clawUnclamping) {
+			clawUnclamping = 0;
+			clawMotor->move(0);
+		}
 
 		// If A is pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_A))
