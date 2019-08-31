@@ -43,10 +43,12 @@ namespace ports {
   extern pros::Motor * clawMotor;
 
   // Vision
+  extern pros::Vision * frontVision;
 
   // ADI (3-wire) ports
   extern pros::ADIGyro * gyro1;
   extern pros::ADIGyro * gyro2;
+  extern pros::ADIUltrasonic * frontUltrasonic;
 
   // Gyro manager
   extern Gyro * gyro;
