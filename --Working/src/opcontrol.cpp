@@ -63,23 +63,13 @@ void opcontrol() {
 		liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
 
 		// Maps the right trigger buttons to intake and outtake the cubes
+		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
-			intakeMotor->move(127);
+			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeMotor->move(-127);
-		else
-			intakeMotor->move(0);
-
-		// Maps the claw motor to the left triggers
-		if (controllerMain->get_digital_new_press(BUTTON_L1))
-			clawMotor->move(127);
-		else if (controllerMain->get_digital_new_press(BUTTON_L2)) {
-			clawMotor->move(-127);
-			clawUnclamping = util::sign(pros::millis()) + 750;
-		} else if (clawUnclamping != 0 && util::sign(pros::millis()) > clawUnclamping) {
-			clawUnclamping = 0;
-			clawMotor->move(0);
-		}
+			intakeSpeed = -127;
+		intakeMotorLeft->move(intakeSpeed);
+		intakeMotorRight->move(intakeSpeed);
 
 		// If A is pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_A))

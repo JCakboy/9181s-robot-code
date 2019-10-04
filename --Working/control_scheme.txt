@@ -1,5 +1,5 @@
 Left stick - Drive
-Right stick - 4-bar expansion
+Right stick - Lift height
 
 A - (Hold) Push ladder forward
 B -
@@ -13,5 +13,5 @@ Right - Brain LCD Button Right
 
 R1 - Intake
 R2 - Outtake
-L1 - 4-bar claw grab
-L2 - 4-bar claw release
+L1 -
+L2 -

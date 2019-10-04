@@ -7,6 +7,8 @@ class PID {
 
   // Debugging no-stop flag
   bool noStop = false;
+  // Debugging controller X stop flag
+  bool controllerXStop = false;
   // Debugging log errors flag
   bool logPIDErrors = false;
 
@@ -52,12 +54,17 @@ class PID {
   // Returns the power given the minimum and maximum power restraints
   double checkPower(double power);
 
+  // The logic to continue PID loops
+  bool continuePIDLoop(bool expr);
+
 public:
   // Constructs the PID object
   PID();
 
   // Set the debugging flag to force PID loops to run non-stop; useful for tuning
   void setNoStopDebug(bool flag);
+  // Set the debugging flag to force exit of PID loops when X is pressed; overrides noStop
+  void setControllerXStop(bool flag);
   // Set the debugging flag to force PID loops to log errors; useful for tuning
   void setLoggingDebug(bool flag);
 

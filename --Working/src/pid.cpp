@@ -15,6 +15,15 @@ double PID::getGearRatio() {
   return (360 * out) / (wheelDiameter * PI * in);
 }
 
+// The logic to continue PID loops
+bool PID::continuePIDLoop(bool expr) {
+  if (controllerXStop && controllerMain->get_digital(BUTTON_X))
+    return false;
+  if (noStop)
+    return true;
+  return expr;
+}
+
 // Sets the brake mode
 void PID::setBrakeMode() {
   frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
@@ -195,7 +204,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
   }
 
   // Enter the main PID loop
-  while (util::abs(error) >= threshold || noStop) {
+  while (continuePIDLoop(util::abs(error) >= threshold)) {
     // Calculate the derivative term and store the current error
     derivative = error - lastError;
     lastError = error;
@@ -253,7 +262,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
   error = targetDistance - currentDistance;
 
   // While the target has not been reached, power the drive
-  while (util::abs(error) >= threshold || noStop) {
+  while (continuePIDLoop(util::abs(error) >= threshold)) {
     driveStraight(power * util::abs(targetDistance) / targetDistance);
 
     // Print the sensor debug information
@@ -302,7 +311,7 @@ void PID::customMove(double leftInches, double rightInches, double threshold) {
   double lastRightError = rightTargetDistance;
 
   // While the target has not been reached, power the drive
-  while (util::abs(leftError) >= threshold || util::abs(rightError) >= threshold || noStop) {
+  while (continuePIDLoop(util::abs(leftError) >= threshold || util::abs(rightError) >= threshold)) {
     // Calculate the derivative term
     leftDerivative = leftError - lastLeftError;
     rightDerivative = rightError - lastRightError;
@@ -372,7 +381,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   // Converts targetBearing to a 10th of a degree
   double targetBearing = (heading * rightAngle / 90);
 
-  while (util::abs(error) >= threshold || noStop) {
+  while (continuePIDLoop(util::abs(error) >= threshold)) {
     // Calculate the derivative term and store the current error
     derivative = error - lastError;
     lastError = error;
@@ -424,11 +433,15 @@ void PID::setRelativeDesiredHeading(double heading) {
 void PID::setNoStopDebug(bool flag) {
   PID::noStop = flag;
 }
+void PID::setControllerXStop(bool flag) {
+  PID::controllerXStop = flag;
+}
 void PID::setLoggingDebug(bool flag) {
   PID::logPIDErrors = flag;
 }
 #else
 // Ignore all calls to these methods if debugging is not enabled
 void PID::setNoStopDebug(bool flag) {}
+void PID::setControllerXStop(bool flag) {}
 void PID::setLoggingDebug(bool flag) {}
 #endif
