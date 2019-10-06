@@ -52,9 +52,6 @@ void opcontrol() {
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
 
-	// Time to set when the claw is unclamping
-	int clawUnclamping = 0;
-
 	while (true) {
 		// Drives the robot with the main controller
 		drive(controllerMain);
@@ -67,13 +64,15 @@ void opcontrol() {
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeSpeed = -127;
+			intakeSpeed = -90;
 		intakeMotorLeft->move(intakeSpeed);
 		intakeMotorRight->move(intakeSpeed);
 
-		// If A is pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_A))
-			tiltMotor->move_absolute(145, 80);
+		// If the left triggers are pressed, tilt the stack to be upright
+		if (controllerMain->get_digital(BUTTON_L1))
+			tiltMotor->move_absolute(293, 80);
+		else if (controllerMain->get_digital(BUTTON_L2))
+			tiltMotor->move_absolute(146, 80);
 		else if (tiltMotor->get_position() > 4)
 			tiltMotor->move_absolute(0, 60);
 		else tiltMotor->move(0);

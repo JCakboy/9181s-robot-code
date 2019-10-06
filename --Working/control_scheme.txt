@@ -1,7 +1,7 @@
 Left stick - Drive
 Right stick - Lift height
 
-A - (Hold) Push ladder forward
+A -
 B -
 X -
 Y -
@@ -12,6 +12,6 @@ Left - Brain LCD Button Left
 Right - Brain LCD Button Right
 
 R1 - Intake
-R2 - Outtake
-L1 -
-L2 -
+R2 - Outtake (25% slower)
+L1 - (Hold) Push ladder forward
+L2 - (Hold) Push ladder 50% forward
