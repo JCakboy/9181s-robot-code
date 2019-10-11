@@ -56,25 +56,22 @@ void opcontrol() {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
-		// Maps the right analog stick to the lift motor
-		liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
-
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeSpeed = -90;
+			intakeSpeed = -60;
 		intakeMotorLeft->move(intakeSpeed);
 		intakeMotorRight->move(intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(293, 80);
+			tiltMotor->move_absolute(403, 40);
 		else if (controllerMain->get_digital(BUTTON_L2))
-			tiltMotor->move_absolute(146, 80);
+			tiltMotor->move_absolute(200, 40);
 		else if (tiltMotor->get_position() > 4)
-			tiltMotor->move_absolute(0, 60);
+			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
 
 		// Prints debug information to the LCD

@@ -23,9 +23,6 @@ void initialize() {
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
 
-	// Brake the lift motor
-	ports::liftMotor->set_brake_mode(BRAKE_BRAKE);
-
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 20);

@@ -10,8 +10,8 @@ namespace ports {
   // Motors
   pros::Motor * port1 = new pros::Motor(1, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port2 = new pros::Motor(2, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port3 = new pros::Motor(3, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port4 = new pros::Motor(4, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port3 = NULL;
+  pros::Motor * port4 = new pros::Motor(4, GEARSET_100, FWD, ENCODER_DEGREES);
   pros::Motor * port5 = NULL;
   pros::Motor * port6 = NULL;
   pros::Motor * port7 = new pros::Motor(7, GEARSET_200, FWD, ENCODER_DEGREES);
@@ -35,9 +35,8 @@ namespace ports {
   pros::Motor * backLeftDrive = port7;
   pros::Motor * frontRightDrive = port10;
   pros::Motor * backRightDrive = port9;
-  pros::Motor * liftMotor = port1;
   pros::Motor * intakeMotorLeft = port2;
-  pros::Motor * intakeMotorRight = port3;
+  pros::Motor * intakeMotorRight = port1;
   pros::Motor * tiltMotor = port4;
 
   // Vision
@@ -46,7 +45,8 @@ namespace ports {
   // ADI (3-wire) ports
   pros::ADIGyro * gyro1 = new pros::ADIGyro('A');
   pros::ADIGyro * gyro2 = new pros::ADIGyro('B');
-  pros::ADIUltrasonic * frontUltrasonic = new pros::ADIUltrasonic('C', 'D');
+  pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('E', 'F');
+  pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('G', 'H');
 
   // Gyro manager
   Gyro * gyro = new Gyro(gyro1, gyro2);
