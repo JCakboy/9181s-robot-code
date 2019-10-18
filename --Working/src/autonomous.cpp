@@ -55,6 +55,9 @@ void autonomousDrvSkills() {
   ports::backLeftDrive->move(0);
   ports::frontRightDrive->move(0);
   ports::backRightDrive->move(0);
+  ports::intakeMotorRight->move(0);
+  ports::intakeMotorLeft->move(0);
+  ports::tiltMotor->move(0);
 
   pros::delay(5000);
 }
