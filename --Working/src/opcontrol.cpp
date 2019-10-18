@@ -74,6 +74,24 @@ void opcontrol() {
 			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
 
+		if (controllerMain->get_digital(BUTTON_Y)) {
+			  pid->setNoStopDebug(true);
+  pid->setControllerXStop(true);
+	pid->setLoggingDebug(true);
+  pid->move(40);
+		}
+		if (controllerMain->get_digital(BUTTON_B)) {
+				pid->setNoStopDebug(true);
+		pid->setControllerXStop(true);
+		pid->setLoggingDebug(true);
+		pid->pivot(-90);
+		}
+		if (controllerMain->get_digital(BUTTON_A)) {
+				pid->setNoStopDebug(true);
+		pid->setControllerXStop(true);
+		pid->setLoggingDebug(true);
+		pid->pivot(-180);
+		}
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 

@@ -8,8 +8,8 @@ PID::PID() = default;
 
 // Returns the calculated full gear ratio
 double PID::getGearRatio() {
-  double in = 1;
-  double out = 2;
+  double in = 2;
+  double out = 1;
   double wheelDiameter = 4; // in inches
   // Calculates and returns the full gear ratio
   return (360 * out) / (wheelDiameter * PI * in);
