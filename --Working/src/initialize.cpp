@@ -23,10 +23,14 @@ void initialize() {
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
 
+	// Brake the intake motors
+	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
+	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);
+
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 20);
-	ports::pid->setMovePID(0.271, 0.225, 0.335, 0.135);
+	ports::pid->setMovePID(0.271, 0.2325, 0.337, 0.135);
 	ports::pid->setPivotPID(977, 0.13, 0.43);
 	ports::pid->setForwardAcceleration(1.2, 5, 50);
 	ports::pid->setBackwardAcceleration(1.14, 3, 50);

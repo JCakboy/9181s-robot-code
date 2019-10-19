@@ -24,11 +24,85 @@ void autonomousRedTall() {
 }
 
 void autonomousBlueFlat() {
+  tiltMotor->move(100);
+  pros::delay(500);
+  tiltMotor->move(-100);
+  pros::delay(500);
+  tiltMotor->move(0);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(43, 39);
+  pros::delay(100);
+  pid->move(-21);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  pid->pivotAbsolute(-132);
+  pid->velocityMove(14.4, 50);
 
+  frontRightDrive->set_brake_mode(BRAKE_HOLD);
+  frontLeftDrive->set_brake_mode(BRAKE_HOLD);
+  backRightDrive->set_brake_mode(BRAKE_HOLD);
+  backLeftDrive->set_brake_mode(BRAKE_HOLD);
+
+  tiltMotor->move_absolute(403, 30);
+  intakeMotorRight->move(-25);
+  intakeMotorLeft->move(-25);
+  pros::delay(2000);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  tiltMotor->move_absolute(0, 30);
+  pros::delay(2500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  pid->move(-10);
+
+  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+  frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  backRightDrive->set_brake_mode(BRAKE_BRAKE);
+  backLeftDrive->set_brake_mode(BRAKE_BRAKE);
 }
 
 void autonomousRedFlat() {
+  tiltMotor->move(100);
+  pros::delay(500);
+  tiltMotor->move(-100);
+  pros::delay(500);
+  tiltMotor->move(0);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(43, 39);
+  pros::delay(100);
+  pid->move(-21);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  pid->pivotAbsolute(132);
+  pid->velocityMove(12.5, 50);
 
+  frontRightDrive->set_brake_mode(BRAKE_HOLD);
+  frontLeftDrive->set_brake_mode(BRAKE_HOLD);
+  backRightDrive->set_brake_mode(BRAKE_HOLD);
+  backLeftDrive->set_brake_mode(BRAKE_HOLD);
+
+  tiltMotor->move_absolute(403, 30);
+  intakeMotorRight->move(-25);
+  intakeMotorLeft->move(-25);
+  pros::delay(2000);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  tiltMotor->move_absolute(0, 30);
+  pros::delay(2500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  pid->move(-10);
+
+  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+  frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  backRightDrive->set_brake_mode(BRAKE_BRAKE);
+  backLeftDrive->set_brake_mode(BRAKE_BRAKE);
 }
 
 void autonnomousSkills() {
