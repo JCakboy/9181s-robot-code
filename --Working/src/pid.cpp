@@ -350,22 +350,16 @@ void PID::customMove(double leftInches, double rightInches, double threshold) {
   powerDrive(0, 0);
 }
 
-// Pivots the robot relative the given amount of degrees
+// Pivots the robot relative the given amount of degrees, based on the current desired heading
 void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
-  // If requested, modify the current desired heading
-  if (modifyDesiredHeading)
-    PID::desiredHeading += degrees;
-
   // Pivot to the requeseted heading
-  PID::pivotAbsolute(ports::gyro->getValue() + degrees, threshold, false);
+  PID::pivotAbsolute(desiredHeading + degrees, threshold, modifyDesiredHeading);
 }
 
-// Pivots the robot relative the given amount of degrees factoring in the current and desired heading
-void PID::pivotDesired(double degrees, double threshold) {
-  // Modify the current desired heading
-  PID::desiredHeading += degrees;
-
-  PID::pivotAbsolute(desiredHeading, threshold);
+// Pivots the robot relative the given amount of degrees, based on the current heading of the robot
+void PID::pivotRelative(double degrees, double threshold, bool modifyDesiredHeading) {
+  // Pivot to the requeseted heading
+  PID::pivotAbsolute(ports::gyro->getValue() + degrees, threshold, modifyDesiredHeading);
 }
 
 // Pivots the robot to the heading given
@@ -379,7 +373,10 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   int power = 0;
 
   // Converts targetBearing to a 10th of a degree
-  double targetBearing = (heading * rightAngle / 90) + desiredHeading;
+  double targetBearing = (heading * rightAngle / 90);
+
+  // Calculate the error before the loop
+  error = targetBearing - currentBearing;
 
   while (continuePIDLoop(util::abs(error) >= threshold)) {
     // Calculate the derivative term and store the current error
@@ -403,6 +400,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     currentBearing = ports::gyro->getValue();
     error = targetBearing - currentBearing;
 
+    // For debug, set the error on the screen
     LCD::setText(5, std::to_string(error));
 
     // Log it to the message holder if the flag is set
@@ -412,7 +410,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
 
   // If requested, modify the current desired heading
   if (modifyDesiredHeading)
-    PID::desiredHeading += targetBearing;
+    PID::desiredHeading = targetBearing;
 }
 
 // Sets the desired heading to the current heading

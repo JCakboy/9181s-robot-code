@@ -98,10 +98,10 @@ public:
   // Moves the robot with custom left and right targets while only using positional PID
   void customMove(double leftInches, double rightInches, double threshold = 12);
 
-  // Pivots the robot relative the given amount of degrees
+  // Pivots the robot relative the given amount of degrees, based on the current desired heading
   void pivot(double degrees, double threshold = 10, bool modifyDesiredHeading = true);
-  // Pivots the robot relative factoring in the desired location
-  void pivotDesired(double degrees, double threshold = 10);
+  // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
+  void pivotRelative(double degrees, double threshold = 10, bool modifyDesiredHeading = true);
   // Pivots the robot to the heading given
   void pivotAbsolute(double heading, double threshold = 10, bool modifyDesiredHeading = true);
 

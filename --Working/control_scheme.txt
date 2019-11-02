@@ -7,11 +7,11 @@ X -
 Y -
 
 Up - (Debug) Run autonomous
-Down - Ladder reset
+Down - Reset routine
 Left - Brain LCD Button Left
 Right - Brain LCD Button Right
 
 R1 - Intake
-R2 - Outtake (25% slower)
-L1 - (Hold) Push ladder forward
-L2 - (Hold) Push ladder 50% forward
+R2 - Outtake (slow)
+L1 - (Hold) Push ladder forward to 90 degrees
+L2 - (Hold) Treat turning as strafing
