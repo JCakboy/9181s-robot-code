@@ -4,7 +4,7 @@
 #include "main.h"
 
 class PID {
-
+friend class LCD;
   // Debugging no-stop flag
   bool noStop = false;
   // Debugging controller X stop flag

@@ -379,7 +379,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   int power = 0;
 
   // Converts targetBearing to a 10th of a degree
-  double targetBearing = (heading * rightAngle / 90);
+  double targetBearing = (heading * rightAngle / 90) + desiredHeading;
 
   while (continuePIDLoop(util::abs(error) >= threshold)) {
     // Calculate the derivative term and store the current error
@@ -412,7 +412,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
 
   // If requested, modify the current desired heading
   if (modifyDesiredHeading)
-    PID::desiredHeading += heading;
+    PID::desiredHeading += targetBearing;
 }
 
 // Sets the desired heading to the current heading

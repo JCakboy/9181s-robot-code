@@ -100,12 +100,14 @@ void opcontrol() {
 	pid->setLoggingDebug(true);
   pid->move(40);
 		}
+		*/
 		if (controllerMain->get_digital(BUTTON_B)) {
-				pid->setNoStopDebug(true);
-		pid->setControllerXStop(true);
-		pid->setLoggingDebug(true);
-		pid->pivot(-90);
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->pivot(-90);
 		}
+		/*
 		if (controllerMain->get_digital(BUTTON_A)) {
 				pid->setNoStopDebug(true);
 		pid->setControllerXStop(true);
