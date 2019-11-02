@@ -59,14 +59,16 @@ void opcontrol() {
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
-			intakeSpeed = 127;
+			intakeSpeed = 100;
 		else if (controllerMain->get_digital(BUTTON_R2))
 			intakeSpeed = -60;
 		intakeMotorLeft->move(intakeSpeed);
 		intakeMotorRight->move(intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1))
+		if (controllerMain->get_digital(BUTTON_A))
+			tiltMotor->move(127);
+		else if (controllerMain->get_digital(BUTTON_L1))
 			tiltMotor->move_absolute(403, 40);
 		else if (controllerMain->get_digital(BUTTON_L2))
 			tiltMotor->move_absolute(200, 40);
@@ -74,6 +76,7 @@ void opcontrol() {
 			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
 
+/*
 		if (controllerMain->get_digital(BUTTON_Y)) {
 			  pid->setNoStopDebug(true);
   pid->setControllerXStop(true);
@@ -92,6 +95,8 @@ void opcontrol() {
 		pid->setLoggingDebug(true);
 		pid->pivot(-180);
 		}
+
+*/
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 

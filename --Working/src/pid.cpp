@@ -403,6 +403,8 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     currentBearing = ports::gyro->getValue();
     error = targetBearing - currentBearing;
 
+    LCD::setText(5, std::to_string(error));
+
     // Log it to the message holder if the flag is set
     if (logPIDErrors)
       messageHolder->appendLine("Pivot Err: " + std::to_string(error));
