@@ -9,44 +9,44 @@ namespace ports {
 
   // Motors
   pros::Motor * port1 = new pros::Motor(1, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port2 = new pros::Motor(2, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port2 = NULL;
   pros::Motor * port3 = NULL;
-  pros::Motor * port4 = new pros::Motor(4, GEARSET_100, FWD, ENCODER_DEGREES);
+  pros::Motor * port4 = NULL;
   pros::Motor * port5 = NULL;
   pros::Motor * port6 = NULL;
-  pros::Motor * port7 = new pros::Motor(7, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port8 = new pros::Motor(8, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port9 = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
-  pros::Motor * port11 = NULL;
-  pros::Motor * port12 = NULL;
-  pros::Motor * port13 = NULL;
+  pros::Motor * port7 = NULL;
+  pros::Motor * port8 = NULL;
+  pros::Motor * port9 = NULL;
+  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(13, GEARSET_100, REV, ENCODER_DEGREES);
   pros::Motor * port14 = NULL;
   pros::Motor * port15 = NULL;
   pros::Motor * port16 = NULL;
-  pros::Motor * port17 = NULL;
-  pros::Motor * port18 = NULL;
-  pros::Motor * port19 = NULL;
+  pros::Motor * port17 = new pros::Motor(17, GEARSET_100, REV, ENCODER_DEGREES);
+  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port20 = NULL;
   pros::Motor * port21 = NULL;
 
   // Port mapping
-  pros::Motor * frontLeftDrive = port8;
-  pros::Motor * backLeftDrive = port7;
-  pros::Motor * frontRightDrive = port10;
-  pros::Motor * backRightDrive = port9;
-  pros::Motor * intakeMotorLeft = port2;
-  pros::Motor * intakeMotorRight = port1;
-  pros::Motor * tiltMotor = port4;
+  pros::Motor * frontLeftDrive = port12;
+  pros::Motor * backLeftDrive = port11;
+  pros::Motor * frontRightDrive = port18;
+  pros::Motor * backRightDrive = port19;
+  pros::Motor * intakeMotorLeft = port1;
+  pros::Motor * intakeMotorRight = port10;
+  pros::Motor * tiltMotor = port17;
+  pros::Motor * liftMotor = port13;
 
   // Vision
-  pros::Vision * frontVision = new pros::Vision(20);
 
   // ADI (3-wire) ports
   pros::ADIGyro * gyro1 = new pros::ADIGyro('A');
   pros::ADIGyro * gyro2 = new pros::ADIGyro('B');
-  pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('E', 'F');
-  pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('G', 'H');
+  // pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('E', 'F');
+  // pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('G', 'H');
 
   // Gyro manager
   Gyro * gyro = new Gyro(gyro1, gyro2);

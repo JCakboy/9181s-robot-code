@@ -21,15 +21,27 @@ int sign(unsigned int n) {
 
 // Drives the robot based on the given controller
 void drive(pros::Controller * controller) {
+	// Set the forward and backward movement
 	int movePower = controller->get_analog(STICK_LEFT_Y);
-	int turnPower = controller->get_analog(STICK_LEFT_X);
+	// If L2 is pressed, treat the left/write as strafing. Otherwise, turning
+	if (!controller->get_digital(BUTTON_L2)) {
+		int turnPower = controller->get_analog(STICK_LEFT_X);
 
-	int leftPower = movePower + turnPower;
-	int rightPower = movePower - turnPower;
-	frontLeftDrive->move(leftPower);
-	backLeftDrive->move(leftPower);
-	frontRightDrive->move(rightPower);
-	backRightDrive->move(rightPower);
+		int leftPower = movePower + turnPower;
+		int rightPower = movePower - turnPower;
+
+		frontLeftDrive->move(leftPower);
+		backLeftDrive->move(leftPower);
+		frontRightDrive->move(rightPower);
+		backRightDrive->move(rightPower);
+	} else {
+		int strafePower = controller->get_analog(STICK_LEFT_X);
+
+		frontLeftDrive->move(movePower + strafePower);
+		backLeftDrive->move(movePower - strafePower);
+		frontRightDrive->move(movePower - strafePower);
+		backRightDrive->move(movePower + strafePower);
+	}
 }
 
 /**
@@ -56,22 +68,27 @@ void opcontrol() {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
+		// Maps the left joystick to lift movement
+		liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
+
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
-			intakeSpeed = 100;
+			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
 			intakeSpeed = -60;
 		intakeMotorLeft->move(intakeSpeed);
 		intakeMotorRight->move(intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_A))
-			tiltMotor->move(127);
-		else if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(403, 40);
-		else if (controllerMain->get_digital(BUTTON_L2))
-			tiltMotor->move_absolute(200, 40);
+		if (controllerMain->get_digital(BUTTON_L1))
+			tiltMotor->move_absolute(675, 45);
+
+		// Tilt the tray forward if the arm is moving up
+		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10)
+			tiltMotor->move_absolute(190, 40);
+
+		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 4)
 			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
@@ -106,9 +123,14 @@ void opcontrol() {
 
 		// If the up button is pressed, run autonomous
 		if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
-		// If down is pressed, reset the tilt motor
-		if (controllerMain->get_digital_new_press(BUTTON_DOWN))
+		// If down is pressed, run the reset routine
+		if (controllerMain->get_digital_new_press(BUTTON_DOWN)) {
+			tiltMotor->move(-40);
+			liftMotor->move(-40);
+			pros::delay(2000);
 			tiltMotor->tare_position();
+			liftMotor->tare_position();
+		}
 
 		// Update the LCD screen
 		LCD::updateScreen();
