@@ -17,8 +17,8 @@ void initialize() {
 	LCD::setText(2, "");
 
 	// Use the second gyro only
-	ports::gyro->useFirstGyro(false);
-	ports::gyro->useSecondGyro(true);
+	ports::gyro->useFirstGyro(true);
+	ports::gyro->useSecondGyro(false);
 
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
@@ -29,11 +29,11 @@ void initialize() {
 
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
-	ports::pid->setPowerLimits(120, 20);
-	ports::pid->setMovePID(0.271, 0.2325, 0.337, 0.135);
-	ports::pid->setPivotPID(977, 0.13, 0.43);
-	ports::pid->setForwardAcceleration(1.2, 5, 50);
-	ports::pid->setBackwardAcceleration(1.14, 3, 50);
+	ports::pid->setPowerLimits(120, 30);
+	ports::pid->setMovePID(0.25775, 0.2395, 0.190, 0.0);
+	ports::pid->setPivotPID(977, 0.175, 0.02);
+	ports::pid->setForwardAcceleration(1.17, 4, 55);
+	ports::pid->setBackwardAcceleration(1.14, 3, 55);
 
 	ports::pid->setNoStopDebug(false);
 	ports::pid->setLoggingDebug(false);

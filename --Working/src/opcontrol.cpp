@@ -61,6 +61,9 @@ void opcontrol() {
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 
+	// Flag for locking the lift
+	bool liftLock = false;
+
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
 
@@ -68,8 +71,16 @@ void opcontrol() {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
-		// Maps the left joystick to lift movement
-		liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
+		// Maps the right joystick to the lift, implementing liftLock
+		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock)
+			liftMotor->move_absolute(335, 100);
+		else {
+			if (liftLock) liftLock = false;
+			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
+		}
+		// Lock the lift if X is pressed
+		if (controllerMain->get_digital(BUTTON_X))
+			liftLock = true;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -85,7 +96,7 @@ void opcontrol() {
 			tiltMotor->move_absolute(675, 45);
 
 		// Tilt the tray forward if the arm is moving up
-		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10)
+		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock)
 			tiltMotor->move_absolute(190, 40);
 
 		// Otherwise, lower the tray
@@ -93,14 +104,13 @@ void opcontrol() {
 			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
 
-/*
 		if (controllerMain->get_digital(BUTTON_Y)) {
-			  pid->setNoStopDebug(true);
-  pid->setControllerXStop(true);
-	pid->setLoggingDebug(true);
-  pid->move(40);
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->move(40);
 		}
-		*/
+
 		if (controllerMain->get_digital(BUTTON_B)) {
 			pid->setNoStopDebug(true);
 			pid->setControllerXStop(true);
@@ -132,6 +142,7 @@ void opcontrol() {
 			pros::delay(2000);
 			tiltMotor->tare_position();
 			liftMotor->tare_position();
+			liftLock = false;
 		}
 
 		// Update the LCD screen

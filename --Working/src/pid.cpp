@@ -143,6 +143,11 @@ void PID::driveStraight(int power) {
   powerDrive(powerLeft, powerRight);
 }
 
+// Ensures the robot strafes straight using velocity PID
+void strafeStraight(int power) {
+
+}
+
 // Moves the robot the given amount of inches to the desired location
 void PID::move(double inches, double threshold, bool useDesiredHeading) {
   double kp = movekp;
@@ -352,6 +357,7 @@ void PID::customMove(double leftInches, double rightInches, double threshold) {
 
 // Pivots the robot relative the given amount of degrees, based on the current desired heading
 void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
+
   // Pivot to the requeseted heading
   PID::pivotAbsolute(desiredHeading + degrees, threshold, modifyDesiredHeading);
 }
@@ -359,7 +365,7 @@ void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
 // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
 void PID::pivotRelative(double degrees, double threshold, bool modifyDesiredHeading) {
   // Pivot to the requeseted heading
-  PID::pivotAbsolute(ports::gyro->getValue() + degrees, threshold, modifyDesiredHeading);
+  PID::pivotAbsolute((ports::gyro->getValue() * rightAngle / 90.0) + degrees, threshold, modifyDesiredHeading);
 }
 
 // Pivots the robot to the heading given
@@ -410,8 +416,40 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
 
   // If requested, modify the current desired heading
   if (modifyDesiredHeading)
-    PID::desiredHeading = targetBearing;
+    PID::desiredHeading = heading;
 }
+
+// Strafes the robot the given amount of inches
+/*
+void strafe(double inches, double threshold) {
+  double kp = 0;
+  double kd = 0;
+  double currentDistance = 0;
+  double error = 0;
+  double derivative = 0;
+  double lastError = 0;
+  double power = minPower * util::abs(inches) / inches;
+
+  // Convert targetDistance from inches to degrees
+  double targetDistance = inches * getGearRatio();
+
+  // Prepares motors for movement
+  setBrakeMode();
+  resetEncoders();
+
+  // If gyro is used for velocity PID, prepare values
+  if (velocityGyro)
+    if (useDesiredHeading)
+      velocityGyroValue = desiredHeading;
+    else
+      velocityGyroValue = velocityGyro->getValue();
+  velocityle = 0;
+
+  // Set the current error
+  error = targetDistance - currentDistance;
+
+}
+*/
 
 // Sets the desired heading to the current heading
 void PID::tareDesiredHeading() {

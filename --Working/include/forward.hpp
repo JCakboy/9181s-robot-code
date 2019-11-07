@@ -13,6 +13,6 @@ class MessageHolder;
 class PID;
 
 // Whether to attach debugging modes to this compilation
-#define ATTACH_DEBUGGING false
+#define ATTACH_DEBUGGING true
 
 #endif
