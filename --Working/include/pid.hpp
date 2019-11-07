@@ -23,12 +23,20 @@ friend class LCD;
   double velocitykp = 0;
   double velocitykd = 0;
   double straightle = 0;
+  // Strafe PID values
+  double strafekp = 0;
+  double strafekd = 0;
+  // Strafe velocity PID values
+  double strafevkp = 0;
+  double strafevkd = 0;
+  double strafevle = 0;
   // Pivoting PID values
   double pivotkp = 0;
   double pivotkd = 0;
 
   // Gyro desired heading
   double rightAngle = 975;
+  double strafeInchAmount = 100;
   double desiredHeading = 0;
 
   // Acceleration values
@@ -74,6 +82,8 @@ public:
   void setMovePID(double movekp, double movekd, double velocitykp, double velocitykd);
   // Sets the pivot PID values
   void setPivotPID(double rightAngleAmount, double pivotkp, double pivotkd);
+  // Sets the strafe PID values
+  void setStrafePID(double inchAmount, double strafekp, double strafekd, double strafevkp, double strafevkd);
   // Sets the forward acceleration values
   void setForwardAcceleration(double accelerationCoeff, double accelerationConst, double accelerationDelay);
   // Sets the backward acceleration values
@@ -88,6 +98,8 @@ public:
   void powerDrive(int powerLeft, int powerRight);
   // Ensures the robot drives straight
   void driveStraight(int power);
+  // Ensures the robot strafes straight
+  void strafeStraight(int strafePower, int movePower = 0);
 
   // Moves the robot the given amount of inches to the desired location
   void move(double inches, double threshold = 12, bool useDesiredHeading = false);
@@ -97,6 +109,9 @@ public:
   void velocityMove(double inches, double power, bool useDesiredHeading);
   // Moves the robot with custom left and right targets while only using positional PID
   void customMove(double leftInches, double rightInches, double threshold = 12);
+
+  // Strafes the robot the given amount of inches to the desired position
+  void strafe(double inches, double threshold = 12, bool useDesiredHeading = true);
 
   // Pivots the robot relative the given amount of degrees, based on the current desired heading
   void pivot(double degrees, double threshold = 10, bool modifyDesiredHeading = true);

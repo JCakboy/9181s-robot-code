@@ -61,6 +61,15 @@ void PID::setPivotPID(double rightAngleAmount, double pivotkp, double pivotkd) {
   PID::pivotkd = pivotkd;
 }
 
+// Sets the strafe PID values
+void PID::setStrafePID(double inchAmount, double strafekp, double strafekd, double strafevkp, double strafevkd) {
+  PID::strafeInchAmount = inchAmount;
+  PID::strafekp = strafekp;
+  PID::strafekd = strafekd;
+  PID::strafevkp = strafevkp;
+  PID::strafevkd = strafevkd;
+}
+
 // Sets the forward acceleration values
 void PID::setForwardAcceleration(double accelerationCoeff, double accelerationConst, double accelerationDelay) {
   PID::accelerationForwardCoeff = accelerationCoeff;
@@ -144,8 +153,58 @@ void PID::driveStraight(int power) {
 }
 
 // Ensures the robot strafes straight using velocity PID
-void strafeStraight(int power) {
+void PID::strafeStraight(int strafePower, int movePower) {
+  double kp = strafevkp;
+  double kd = strafevkd;
+  int powerFrontLeft = movePower + strafePower;
+  int powerFrontRight = movePower - strafePower;
+  int powerBackLeft = movePower - strafePower;
+  int powerBackRight = movePower + strafePower;
 
+  double error = 0;
+  double derivative = 0;
+
+  // If the gyro is being used, the error will simply be the gyro deviation
+  if (PID::velocityGyro)
+    error = PID::velocityGyro->getValue() - PID::velocityGyroValue;
+  else
+    error = frontLeftDrive->get_position() - frontRightDrive->get_position();
+
+  // Determine how much to adjust based on the kp and kd values
+  derivative = error - velocityle;
+  double adjust = (error * kp - derivative * kd);
+
+  // Reduce the power to the faster moving side, accounting for forwards and backwards movement
+  if (strafePower > 0)
+    if (adjust > 0) {
+      powerFrontLeft -= adjust;
+      powerBackLeft -= adjust;
+    } else if (adjust < 0) {
+      powerFrontRight += adjust;
+      powerBackRight += adjust;
+    } else;
+  else if (strafePower < 0)
+    if (adjust > 0) {
+      powerFrontRight += adjust;
+      powerBackRight += adjust;
+    } else if (adjust < 0) {
+      powerFrontLeft -= adjust;
+      powerBackLeft -= adjust;
+    } else;
+  else;
+
+  // Set the last error to the current error
+  strafevle = error;
+
+  // Log it to the message holder if the flag is set
+  if (logPIDErrors)
+    messageHolder->appendLine("Vel Err: " + std::to_string(error));
+
+  // Issue the power to the motors
+  frontLeftDrive->move(powerFrontLeft);
+  frontRightDrive->move(powerFrontRight);
+  backLeftDrive->move(powerBackLeft);
+  backRightDrive->move(powerBackRight);
 }
 
 // Moves the robot the given amount of inches to the desired location
@@ -355,6 +414,66 @@ void PID::customMove(double leftInches, double rightInches, double threshold) {
   powerDrive(0, 0);
 }
 
+// Strafes the robot the given amount of inches to the desired position
+void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
+  double kp = strafekp;
+  double kd = strafekd;
+  double currentDistance = 0;
+  double error = 0;
+  double derivative = 0;
+  double lastError = 0;
+  double power = minPower * util::abs(inches) / inches;
+
+  // Convert targetDistance from inches to degrees
+  double targetDistance = inches * strafeInchAmount;
+
+  // Prepares motors for movement
+  setBrakeMode();
+  resetEncoders();
+
+  // If gyro is used for velocity PID, prepare values
+  if (velocityGyro)
+    if (useDesiredHeading)
+      velocityGyroValue = desiredHeading;
+    else
+      velocityGyroValue = velocityGyro->getValue();
+  velocityle = 0;
+
+  // Set the current error
+  error = targetDistance - currentDistance;
+
+  // Enter the main PID loop
+  while (continuePIDLoop(util::abs(error) >= threshold)) {
+    // Calculate the derivative term and store the current error
+    derivative = error - lastError;
+    lastError = error;
+
+    // Determine power and checks if power is within constraints
+    power = (error * kp) + (derivative * kd);
+    power = checkPower(power);
+
+    // Passes the requested power to the velocity PID
+    strafeStraight(power);
+
+    // Print the sensor debug information
+    LCD::printDebugInformation();
+
+    // Run every 20 ms
+    pros::delay(20);
+
+    // Update the error and current distance
+    currentDistance = (frontLeftDrive->get_position() - frontRightDrive->get_position()) / 2;
+    error = targetDistance - currentDistance;
+
+    // Log it to the message holder if the flag is set
+    if (logPIDErrors)
+      messageHolder->appendLine("Strafe Err: " + std::to_string(error));
+  }
+
+  // Stop the motors and exit
+  powerDrive(0, 0);
+}
+
 // Pivots the robot relative the given amount of degrees, based on the current desired heading
 void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
 
@@ -459,11 +578,13 @@ void PID::tareDesiredHeading() {
 // Sets the absolute desired heading
 void PID::setAbsoluteDesiredHeading(double heading) {
   PID::desiredHeading = heading;
+  PID::velocityGyroValue = desiredHeading;
 }
 
 // Sets the desired heading relative to the current heading
 void PID::setRelativeDesiredHeading(double heading) {
-  PID::desiredHeading = ports::gyro->getValue() + heading;
+  PID::desiredHeading = velocityGyro->getValue() + heading;
+  PID::velocityGyroValue = desiredHeading;
 }
 
 #if ATTACH_DEBUGGING

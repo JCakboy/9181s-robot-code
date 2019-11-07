@@ -12,6 +12,6 @@ Left - Brain LCD Button Left
 Right - Brain LCD Button Right
 
 R1 - Intake
-R2 - Outtake (slow)
+R2 - Outtake (slower)
 L1 - (Hold) Push ladder forward to 90 degrees
-L2 - (Hold) Treat turning as strafing
+L2 - (Hold) Lock the heading and treat turning as strafing
