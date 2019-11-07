@@ -19,6 +19,9 @@ int sign(unsigned int n) {
 	}
 }
 
+// Flag for strafing
+bool strafing = false;
+
 // Drives the robot based on the given controller
 void drive(pros::Controller * controller) {
 	// Set the forward and backward movement
@@ -34,13 +37,14 @@ void drive(pros::Controller * controller) {
 		backLeftDrive->move(leftPower);
 		frontRightDrive->move(rightPower);
 		backRightDrive->move(rightPower);
+		strafing = false;
 	} else {
 		int strafePower = controller->get_analog(STICK_LEFT_X);
-
-		frontLeftDrive->move(movePower + strafePower);
-		backLeftDrive->move(movePower - strafePower);
-		frontRightDrive->move(movePower - strafePower);
-		backRightDrive->move(movePower + strafePower);
+		if (!strafing) {
+			pid->tareDesiredHeading();
+			strafing = true;
+		}
+		pid->strafeStraight(strafePower, movePower);
 	}
 }
 
@@ -93,14 +97,14 @@ void opcontrol() {
 			tiltMotor->move_absolute(0, 40);
 		else tiltMotor->move(0);
 
-/*
+
 		if (controllerMain->get_digital(BUTTON_Y)) {
 			  pid->setNoStopDebug(true);
   pid->setControllerXStop(true);
 	pid->setLoggingDebug(true);
-  pid->move(40);
+  pid->pivot(90);
 		}
-		*/
+
 		if (controllerMain->get_digital(BUTTON_B)) {
 			pid->setNoStopDebug(true);
 			pid->setControllerXStop(true);
