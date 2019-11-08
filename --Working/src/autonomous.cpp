@@ -148,7 +148,7 @@ void autonomousBlueFlat() {
 
   pid->velocityMove(39, 70);
   pros::delay(300);
-  pid->pivot(-137.4);
+  pid->pivot(-134.1);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -158,7 +158,7 @@ void autonomousBlueFlat() {
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pid->move(48);
+  pid->move(49.2);
   pros::delay(250);
 
   // If the left triggers are pressed, tilt the stack to be upright
@@ -203,17 +203,19 @@ void autonomousRedFlat() {
 
   pid->velocityMove(38.5, 70);
   pros::delay(300);
-  pid->pivot(131.1);
+  pid->pivot(131);
 
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
+  intakeMotorRight->move(70);
+  intakeMotorLeft->move(70);
 
   frontLeftDrive->set_brake_mode(BRAKE_HOLD);
   frontRightDrive->set_brake_mode(BRAKE_HOLD);
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pid->move(51.9);
+  pid->move(51.45);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
   pros::delay(250);
 
   // If the left triggers are pressed, tilt the stack to be upright

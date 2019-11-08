@@ -106,10 +106,10 @@ public:
   void strafeStraight(int strafePower, int movePower = 0);
 
   // Moves the robot the given amount of inches to the desired location
-  void move(double inches, double threshold = 12, bool useDesiredHeading = false);
+  void move(double inches, double threshold = 12, bool useDesiredHeading = true);
   void move(double inches, bool useDesiredHeading);
   // Moves the robot the given amount of inches while only using velocity PID
-  void velocityMove(double inches, double power, double threshold = 12, bool useDesiredHeading = false);
+  void velocityMove(double inches, double power, double threshold = 12, bool useDesiredHeading = true);
   void velocityMove(double inches, double power, bool useDesiredHeading);
   // Moves the robot with custom left and right targets while only using positional PID
   void customMove(double leftInches, double rightInches, double threshold = 12);
