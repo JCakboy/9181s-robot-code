@@ -15,6 +15,14 @@ double PID::getGearRatio() {
   return (360 * out) / (wheelDiameter * PI * in);
 }
 
+// Converts to and from degrees and gyro units
+double PID::toGyroUnits(double degrees) {
+  return (degrees * rightAngle / 90.0);
+}
+double PID::toDegrees(double gyroUnits) {
+  return (gyroUnits / rightAngle * 90.0);
+}
+
 // The logic to continue PID loops
 bool PID::continuePIDLoop(bool expr) {
   if (controllerXStop && controllerMain->get_digital(BUTTON_X))
@@ -227,7 +235,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
   // If gyro is used for velocity PID, prepare values
   if (velocityGyro)
     if (useDesiredHeading)
-      velocityGyroValue = desiredHeading;
+      velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getValue();
   velocityle = 0;
@@ -317,7 +325,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
   // If gyro is used for velocity PID, prepare values
   if (velocityGyro)
     if (useDesiredHeading)
-      velocityGyroValue = desiredHeading;
+      velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getValue();
   velocityle = 0;
@@ -434,7 +442,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
   // If gyro is used for velocity PID, prepare values
   if (velocityGyro)
     if (useDesiredHeading)
-      velocityGyroValue = desiredHeading;
+      velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getValue();
   velocityle = 0;
@@ -485,7 +493,7 @@ void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
 // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
 void PID::pivotRelative(double degrees, double threshold, bool modifyDesiredHeading) {
   // Pivot to the requeseted heading
-  PID::pivotAbsolute((ports::gyro->getValue() * rightAngle / 90.0) + degrees, threshold, modifyDesiredHeading);
+  PID::pivotAbsolute(toDegrees(ports::gyro->getValue()) + degrees, threshold, modifyDesiredHeading);
 }
 
 // Pivots the robot to the heading given
@@ -499,7 +507,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   int power = 0;
 
   // Converts targetBearing to a 10th of a degree
-  double targetBearing = (heading * rightAngle / 90);
+  double targetBearing = toGyroUnits(heading);
 
   // Calculate the error before the loop
   error = targetBearing - currentBearing;
@@ -544,13 +552,13 @@ void PID::tareDesiredHeading() {
 // Sets the absolute desired heading
 void PID::setAbsoluteDesiredHeading(double heading) {
   PID::desiredHeading = heading;
-  PID::velocityGyroValue = desiredHeading;
+  PID::velocityGyroValue = toGyroUnits(desiredHeading);
 }
 
 // Sets the desired heading relative to the current heading
 void PID::setRelativeDesiredHeading(double heading) {
-  PID::desiredHeading = velocityGyro->getValue() + heading;
-  PID::velocityGyroValue = desiredHeading;
+  PID::desiredHeading = toDegrees(velocityGyro->getValue()) + heading;
+  PID::velocityGyroValue = toGyroUnits(desiredHeading);
 }
 
 #if ATTACH_DEBUGGING

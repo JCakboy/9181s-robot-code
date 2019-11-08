@@ -57,6 +57,10 @@ friend class LCD;
   // Calculates and returns the gear ratio for the drive
   static double getGearRatio();
 
+  // Converts to and from degrees to gyro units
+  double toGyroUnits(double degrees);
+  double toDegrees(double gyroUnits);
+
   // Sets the brake mode
   void setBrakeMode();
   // Returns the power given the minimum and maximum power restraints
