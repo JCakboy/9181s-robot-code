@@ -30,9 +30,9 @@ void initialize() {
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 20);
-	ports::pid->setMovePID(0.27, 0.20, 0.7, 0.0);
+	ports::pid->setMovePID(0.27, 0.20, 0.46, 0.1);
 	ports::pid->setPivotPID(977, 0.25, 0.25);
-	ports::pid->setStrafePID(120, 0.1, 0.1, 0.58, 0.1);
+	ports::pid->setStrafePID(39, 0.775, 0.05, 0.58, 0.1);
 	ports::pid->setForwardAcceleration(1.18, 3, 50);
 	ports::pid->setBackwardAcceleration(1.14, 3, 50);
 

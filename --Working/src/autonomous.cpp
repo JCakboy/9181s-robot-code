@@ -17,19 +17,18 @@ using namespace ports;
 
 
 void releaseTray() {
-  liftMotor->move(127);
-  tiltMotor->move_absolute(450, 40);
+  intakeMotorLeft->move(127);
+  intakeMotorRight->move(127);
+  tiltMotor->move(-40);
   pros::delay(300);
+  tiltMotor->tare_position();
+  tiltMotor->move(0);
   intakeMotorLeft->move(-127);
   intakeMotorRight->move(-127);
-  pros::delay(1000);
-  liftMotor->move(-127);
-  tiltMotor->move(-40);
+  pros::delay(100);
   intakeMotorLeft->move(0);
   intakeMotorRight->move(0);
-  pros::delay(1400);
-  tiltMotor->move(0);
-  tiltMotor->tare_position();
+  pros::delay(600);
 }
 
 void autonomousBlueTall() {
@@ -125,78 +124,112 @@ void autonomousRedTall() {
 
 void autonomousBlueFlat() {
   releaseTray();
-  pros::delay(700);
 
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
   pid->velocityMove(43, 70);
   pros::delay(100);
-  pid->move(-19.2);
+
+  intakeMotorRight->move(70);
+  intakeMotorLeft->move(70);
+
+  pid->resetEncoders();
+  while (frontRightDrive->get_position() > -1700) {
+    pid->strafeStraight(120, -127);
+  }
+
+  pid->resetEncoders();
+  while (frontRightDrive->get_position() > -408) {
+    pid->strafeStraight(120, 0);
+  }
+
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+
+  pid->velocityMove(39, 70);
+  pros::delay(300);
+  pid->pivot(-137.4);
+
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->pivot(-135);
-  pid->velocityMove(16.9, 50);
 
-  frontRightDrive->set_brake_mode(BRAKE_HOLD);
   frontLeftDrive->set_brake_mode(BRAKE_HOLD);
-  backRightDrive->set_brake_mode(BRAKE_HOLD);
+  frontRightDrive->set_brake_mode(BRAKE_HOLD);
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
+  backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pros::delay(200);
-  intakeMotorRight->move(-10);
-  intakeMotorLeft->move(-10);
-  tiltMotor->move_absolute(675, 45);
-  pros::delay(3500);
+  pid->move(48);
+  pros::delay(250);
 
-  pid->velocityMove(-3, 50);
-  tiltMotor->move_absolute(0, 30);
+  // If the left triggers are pressed, tilt the stack to be upright
+  while (tiltMotor->get_position() < 650)
+    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+  tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
+  pros::delay(1875);
 
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  pid->move(-10);
+  tiltMotor->move_absolute(0, 60);
+  pid->velocityMove(-15, 40);
 
-  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+
   frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  backRightDrive->set_brake_mode(BRAKE_BRAKE);
+  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
   backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  backRightDrive->set_brake_mode(BRAKE_BRAKE);
 }
 
 void autonomousRedFlat() {
   releaseTray();
-  pros::delay(700);
 
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
   pid->velocityMove(43, 70);
   pros::delay(100);
-  pid->move(-19.2);
+
+  intakeMotorRight->move(80);
+  intakeMotorLeft->move(80);
+
+  pid->resetEncoders();
+  while (frontLeftDrive->get_position() > -1500) {
+    pid->strafeStraight(-120, -127);
+  }
+
+  pid->resetEncoders();
+  while (frontLeftDrive->get_position() > -338) {
+    pid->strafeStraight(-127, 0);
+  }
+
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+
+  pid->velocityMove(38.5, 70);
+  pros::delay(300);
+  pid->pivot(131.1);
+
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->pivot(135);
-  pid->velocityMove(18, 50);
 
-  frontRightDrive->set_brake_mode(BRAKE_HOLD);
   frontLeftDrive->set_brake_mode(BRAKE_HOLD);
-  backRightDrive->set_brake_mode(BRAKE_HOLD);
+  frontRightDrive->set_brake_mode(BRAKE_HOLD);
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
+  backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pros::delay(200);
-  intakeMotorRight->move(-10);
-  intakeMotorLeft->move(-10);
-  tiltMotor->move_absolute(675, 45);
-  pros::delay(3500);
+  pid->move(51.9);
+  pros::delay(250);
 
-  pid->velocityMove(-3, 50);
-  tiltMotor->move_absolute(0, 30);
+  // If the left triggers are pressed, tilt the stack to be upright
+  while (tiltMotor->get_position() < 650)
+    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+  tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
+  pros::delay(1875);
 
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  pid->move(-10);
+  tiltMotor->move_absolute(0, 60);
+  pid->velocityMove(-15, 40);
 
-  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+
   frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  backRightDrive->set_brake_mode(BRAKE_BRAKE);
+  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
   backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  backRightDrive->set_brake_mode(BRAKE_BRAKE);
 }
 
 void autonnomousSkills() {
@@ -233,9 +266,6 @@ void autonomousDrvSkills() {
 void autonomousOther(int selectedAutonomous) {
   releaseTray();
   pros::delay(700);
-
-  pid->velocityMove(-12,100);
-  pid->velocityMove(12,100);
 }
 
 void autonomous() {

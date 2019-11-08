@@ -66,12 +66,9 @@ void LCD::updateScreen(bool forceController) {
 void LCD::printDebugInformation() {
   // Print sensor information
   LCD::setText(2, std::to_string(ports::gyro->getValue()));
-  LCD::setText(3, std::to_string(ports::pid->desiredHeading));
-
-  LCD::setText(4, std::to_string(ports::gyro1->get_value()));
-  LCD::setText(5, std::to_string(ports::gyro2->get_value()));
-  // LCD::setText(3, std::to_string(ports::leftUltrasonic->get_value()));
-  // LCD::setText(4, std::to_string(ports::rightUltrasonic->get_value()));
+  LCD::setText(3, std::to_string(ports::frontUltrasonic->get_value()));
+  LCD::setText(4, std::to_string(ports::leftUltrasonic->get_value()));
+  LCD::setText(5, std::to_string(ports::rightUltrasonic->get_value()));
 }
 
 void LCD::setStatus(std::string status) {

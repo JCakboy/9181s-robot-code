@@ -457,6 +457,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
 
     // Print the sensor debug information
     LCD::printDebugInformation();
+    LCD::setText(6, std::to_string(error));
 
     // Run every 20 ms
     pros::delay(20);
@@ -525,9 +526,6 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     currentBearing = ports::gyro->getValue();
     error = targetBearing - currentBearing;
 
-    // For debug, set the error on the screen
-    LCD::setText(5, std::to_string(error));
-
     // Log it to the message holder if the flag is set
     if (logPIDErrors)
       messageHolder->appendLine("Pivot Err: " + std::to_string(error));
@@ -537,38 +535,6 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   if (modifyDesiredHeading)
     PID::desiredHeading = heading;
 }
-
-// Strafes the robot the given amount of inches
-/*
-void strafe(double inches, double threshold) {
-  double kp = 0;
-  double kd = 0;
-  double currentDistance = 0;
-  double error = 0;
-  double derivative = 0;
-  double lastError = 0;
-  double power = minPower * util::abs(inches) / inches;
-
-  // Convert targetDistance from inches to degrees
-  double targetDistance = inches * getGearRatio();
-
-  // Prepares motors for movement
-  setBrakeMode();
-  resetEncoders();
-
-  // If gyro is used for velocity PID, prepare values
-  if (velocityGyro)
-    if (useDesiredHeading)
-      velocityGyroValue = desiredHeading;
-    else
-      velocityGyroValue = velocityGyro->getValue();
-  velocityle = 0;
-
-  // Set the current error
-  error = targetDistance - currentDistance;
-
-}
-*/
 
 // Sets the desired heading to the current heading
 void PID::tareDesiredHeading() {

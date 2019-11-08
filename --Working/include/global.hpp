@@ -50,6 +50,7 @@ namespace ports {
   extern pros::ADIGyro * gyro2;
   extern pros::ADIUltrasonic * leftUltrasonic;
   extern pros::ADIUltrasonic * rightUltrasonic;
+  extern pros::ADIUltrasonic * frontUltrasonic;
 
   // Gyro manager
   extern Gyro * gyro;

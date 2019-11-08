@@ -66,7 +66,7 @@ void opcontrol() {
 	LCD::setStatus("Operator Control");
 
 	// Flag for locking the lift
-	bool liftLock = false;
+	int liftLock = 0;
 
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
@@ -76,15 +76,17 @@ void opcontrol() {
 		drive(controllerMain);
 
 		// Maps the right joystick to the lift, implementing liftLock
-		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock)
-			liftMotor->move_absolute(335, 100);
+		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
+			liftMotor->move_absolute(520, 100);
+		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
+			liftMotor->move_absolute(340, 100);
 		else {
-			if (liftLock) liftLock = false;
+			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
 		}
 		// Lock the lift if X is pressed
-		if (controllerMain->get_digital(BUTTON_X))
-			liftLock = true;
+		if (controllerMain->get_digital_new_press(BUTTON_X))
+			liftLock++;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -96,46 +98,47 @@ void opcontrol() {
 		intakeMotorRight->move(intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(675, 45);
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 650)
+			tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+		else if (controllerMain->get_digital(BUTTON_L1))
+			tiltMotor->move_absolute(718, 23); // Gets rid of the jittering
 
 		// Tilt the tray forward if the arm is moving up
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock)
 			tiltMotor->move_absolute(190, 40);
 
 		// Otherwise, lower the tray
-		else if (tiltMotor->get_position() > 4)
-			tiltMotor->move_absolute(0, 40);
+		else if (tiltMotor->get_position() > 5)
+			tiltMotor->move_absolute(0, 60);
 		else tiltMotor->move(0);
-
-		if (controllerMain->get_digital(BUTTON_Y)) {
+/*
+		if (controllerMain->get_digital(BUTTON_X)) {
 			pid->setNoStopDebug(true);
 			pid->setControllerXStop(true);
 			pid->setLoggingDebug(true);
 			pid->move(40);
 		}
 
-		if (controllerMain->get_digital(BUTTON_Y)) {
-			  pid->setNoStopDebug(true);
-  pid->setControllerXStop(true);
-	pid->setLoggingDebug(true);
-  pid->pivot(90);
-		}
-
 		if (controllerMain->get_digital(BUTTON_B)) {
 			pid->setNoStopDebug(true);
 			pid->setControllerXStop(true);
 			pid->setLoggingDebug(true);
-			pid->pivot(-90);
-		}
-		/*
-		if (controllerMain->get_digital(BUTTON_A)) {
-				pid->setNoStopDebug(true);
-		pid->setControllerXStop(true);
-		pid->setLoggingDebug(true);
-		pid->pivot(-180);
+			pid->move(-40);
 		}
 
+		if (controllerMain->get_digital(BUTTON_Y)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->strafe(-20);
+		}
+
+		if (controllerMain->get_digital(BUTTON_A)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->strafe(20);
+		}
 */
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
