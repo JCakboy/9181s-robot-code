@@ -77,9 +77,9 @@ void opcontrol() {
 
 		// Maps the right joystick to the lift, implementing liftLock
 		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
-			liftMotor->move_absolute(520, 100);
+			liftMotor->move_absolute(535, 100);
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
-			liftMotor->move_absolute(340, 100);
+			liftMotor->move_absolute(390, 100);
 		else {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
@@ -104,8 +104,8 @@ void opcontrol() {
 			tiltMotor->move_absolute(718, 23); // Gets rid of the jittering
 
 		// Tilt the tray forward if the arm is moving up
-		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock)
-			tiltMotor->move_absolute(190, 40);
+		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock || liftMotor->get_position() > 300)
+			tiltMotor->move_absolute(258, 40);
 
 		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 5)
