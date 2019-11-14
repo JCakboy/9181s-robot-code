@@ -43,9 +43,9 @@ namespace ports {
   // Vision
 
   // ADI (3-wire) ports
-  pros::ADIGyro * gyro1 = new pros::ADIGyro('A');
-  pros::ADIGyro * gyro2 = new pros::ADIGyro('B');
-  pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('C', 'D');
+  pros::ADIGyro * gyro1 = new pros::ADIGyro('C');
+  pros::ADIGyro * gyro2 = new pros::ADIGyro('D');
+  pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('G', 'H');
   pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('E', 'F');
   pros::ADIUltrasonic * frontUltrasonic = new pros::ADIUltrasonic('G', 'H');
 

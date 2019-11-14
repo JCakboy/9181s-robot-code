@@ -115,7 +115,7 @@ public:
   void customMove(double leftInches, double rightInches, double threshold = 12);
 
   // Strafes the robot the given amount of inches to the desired position
-  void strafe(double inches, double threshold = 12, bool useDesiredHeading = true);
+  void strafe(double inches, double threshold = 25, bool useDesiredHeading = true);
 
   // Pivots the robot relative the given amount of degrees, based on the current desired heading
   void pivot(double degrees, double threshold = 10, bool modifyDesiredHeading = true);

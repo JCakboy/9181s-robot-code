@@ -85,8 +85,8 @@ void opcontrol() {
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
 		}
 		// Lock the lift if X is pressed
-		if (controllerMain->get_digital_new_press(BUTTON_X))
-			liftLock++;
+		// if (controllerMain->get_digital_new_press(BUTTON_X))
+		// 	liftLock++;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -111,19 +111,19 @@ void opcontrol() {
 		else if (tiltMotor->get_position() > 5)
 			tiltMotor->move_absolute(0, 60);
 		else tiltMotor->move(0);
-/*
-		if (controllerMain->get_digital(BUTTON_X)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(40);
-		}
+
+		// if (controllerMain->get_digital(BUTTON_X)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(40);
+		// }
 
 		if (controllerMain->get_digital(BUTTON_B)) {
 			pid->setNoStopDebug(true);
 			pid->setControllerXStop(true);
 			pid->setLoggingDebug(true);
-			pid->move(-40);
+			pid->move(40,false);
 		}
 
 		if (controllerMain->get_digital(BUTTON_Y)) {
@@ -139,7 +139,7 @@ void opcontrol() {
 			pid->setLoggingDebug(true);
 			pid->strafe(20);
 		}
-*/
+
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
 
