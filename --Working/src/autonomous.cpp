@@ -17,12 +17,17 @@ using namespace ports;
 
 
 void releaseTray() {
+  // Intake to throw the rollers forward
   intakeMotorLeft->move(127);
   intakeMotorRight->move(127);
+
+  // Push the tray back and reset, just in case it didn't start there
   tiltMotor->move(-40);
   pros::delay(300);
   tiltMotor->tare_position();
   tiltMotor->move(0);
+
+  // Quickly outtake, just in case the rollers get caught
   intakeMotorLeft->move(-127);
   intakeMotorRight->move(-127);
   pros::delay(100);
@@ -123,8 +128,14 @@ void autonomousRedTall() {
 }
 
 void autonomousBlueFlat() {
+  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
+  bool absoluteTurn = true;
+  bool absoluteMove = false;
+
+  // Release the tray
   releaseTray();
 
+  // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
   pid->velocityMove(43, 70);
@@ -133,6 +144,7 @@ void autonomousBlueFlat() {
   intakeMotorRight->move(70);
   intakeMotorLeft->move(70);
 
+  // Strafe to get into position for the next line of cubes
   pid->resetEncoders();
   while (frontRightDrive->get_position() > -1700) {
     pid->strafeStraight(120, -127);
@@ -143,12 +155,18 @@ void autonomousBlueFlat() {
     pid->strafeStraight(120, 0);
   }
 
+  // Intake the next line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-
   pid->velocityMove(39, 70);
   pros::delay(300);
-  pid->pivot(-134.1);
+
+  // Pivot to turn to the scoring zone
+  double pivotAmount = -134.1;
+  if (absoluteTurn)
+    pid->pivot(pivotAmount);
+  else
+    pid->pivotRelative(pivotAmount);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -158,19 +176,21 @@ void autonomousBlueFlat() {
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pid->move(49.6, false);
+  // Move to the scoring zone
+  pid->move(49.6, absoluteMove);
   pros::delay(250);
 
-  // If the left triggers are pressed, tilt the stack to be upright
+  // Tilt the stack upright using a P controller
   while (tiltMotor->get_position() < 650)
-    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325);
   tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
   pros::delay(1875);
 
+  // Move the tray back and let go go of the stack
   tiltMotor->move_absolute(0, 60);
   pid->velocityMove(-15, 40);
 
-
+  // Brake the motors
   frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
   frontRightDrive->set_brake_mode(BRAKE_BRAKE);
   backLeftDrive->set_brake_mode(BRAKE_BRAKE);
@@ -178,8 +198,14 @@ void autonomousBlueFlat() {
 }
 
 void autonomousRedFlat() {
+  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
+  bool absoluteTurn = true;
+  bool absoluteMove = false;
+
+  // Release the tray
   releaseTray();
 
+  // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
   pid->velocityMove(43, 70);
@@ -188,6 +214,7 @@ void autonomousRedFlat() {
   intakeMotorRight->move(80);
   intakeMotorLeft->move(80);
 
+  // Strafe to get into position for the next line of cubes
   pid->resetEncoders();
   while (frontLeftDrive->get_position() > -1500) {
     pid->strafeStraight(-120, -127);
@@ -198,36 +225,42 @@ void autonomousRedFlat() {
     pid->strafeStraight(-127, 0);
   }
 
+  // Intake the next line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-
   pid->velocityMove(38.5, 70);
   pros::delay(300);
-  pid->pivot(128.8);
 
-  intakeMotorRight->move(85);
-  intakeMotorLeft->move(85);
+  // Pivot to turn to the scoring zone
+  double pivotAmount = 128.8;
+  if (absoluteTurn)
+    pid->pivot(pivotAmount);
+  else
+    pid->pivotRelative(pivotAmount);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
 
   frontLeftDrive->set_brake_mode(BRAKE_HOLD);
   frontRightDrive->set_brake_mode(BRAKE_HOLD);
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
-  pid->move(50.1, false);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
+  // Move to the scoring zone
+  pid->move(50.1, absoluteMove);
   pros::delay(250);
 
-  // If the left triggers are pressed, tilt the stack to be upright
+  // Tilt the stack upright using a P controller
   while (tiltMotor->get_position() < 650)
-    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325);
   tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
   pros::delay(1875);
 
+  // Move the tray back and let go go of the stack
   tiltMotor->move_absolute(0, 60);
   pid->velocityMove(-15, 40);
 
-
+  // Brake the motors
   frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
   frontRightDrive->set_brake_mode(BRAKE_BRAKE);
   backLeftDrive->set_brake_mode(BRAKE_BRAKE);
