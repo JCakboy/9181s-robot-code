@@ -23,7 +23,7 @@ void releaseTray() {
 
   // Push the tray back and reset, just in case it didn't start there
   tiltMotor->move(-40);
-  pros::delay(300);
+  pros::delay(450);
   tiltMotor->tare_position();
   tiltMotor->move(0);
 
@@ -31,9 +31,12 @@ void releaseTray() {
   intakeMotorLeft->move(-127);
   intakeMotorRight->move(-127);
   pros::delay(100);
+  intakeMotorLeft->move(127);
+  intakeMotorRight->move(127);
+  pros::delay(750);
+
   intakeMotorLeft->move(0);
   intakeMotorRight->move(0);
-  pros::delay(600);
 }
 
 void autonomousBlueTall() {
@@ -141,8 +144,8 @@ void autonomousBlueFlat() {
   pid->velocityMove(43, 70);
   pros::delay(100);
 
-  intakeMotorRight->move(70);
-  intakeMotorLeft->move(70);
+  // intakeMotorRight->move(70);
+  // intakeMotorLeft->move(70);
 
   // Strafe to get into position for the next line of cubes
   pid->resetEncoders();
@@ -199,62 +202,99 @@ void autonomousBlueFlat() {
 
 void autonomousRedFlat() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = true;
+  bool absoluteTurn = false;
   bool absoluteMove = false;
 
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(43, 70);
+  intakeMotorRight->move(110);
+  intakeMotorLeft->move(110);
+  pid->velocityMove(43, 78);
   pros::delay(100);
 
   intakeMotorRight->move(80);
   intakeMotorLeft->move(80);
 
+ /*
   // Strafe to get into position for the next line of cubes
   pid->resetEncoders();
   while (frontLeftDrive->get_position() > -1500) {
     pid->strafeStraight(-120, -127);
   }
 
+  pid->powerDrive(0, 0);
+  pros::delay(300);
+
   pid->resetEncoders();
   while (frontLeftDrive->get_position() > -338) {
     pid->strafeStraight(-127, 0);
   }
 
-  // Intake the next line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(38.5, 70);
-  pros::delay(300);
+*/
+
+// Pivot to turn to the scoring zone
+double pivotAmount = -28;
+if (absoluteTurn)
+  pid->pivot(pivotAmount);
+else
+  pid->pivotRelative(pivotAmount);
+
+  pid->move(-47.5, absoluteMove);
 
   // Pivot to turn to the scoring zone
-  double pivotAmount = 128.8;
+  pivotAmount = 28;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
     pid->pivotRelative(pivotAmount);
 
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
+  // Intake the next line of cubes
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(35, 78);
+  pros::delay(300);
+
+  pid->move(-13, absoluteMove);
+
+  ports::pid->setPowerLimits(100, 32);
+
+
+
+  // Pivot to turn to the scoring zone
+  pivotAmount = 132.8;
+  if (absoluteTurn)
+    pid->pivot(pivotAmount);
+  else
+    pid->pivotRelative(pivotAmount);
+
+    ports::pid->setPowerLimits(120, 32);
+
+  pros::delay(150);
+
+  intakeMotorRight->move(40);
+  intakeMotorLeft->move(40);
 
   frontLeftDrive->set_brake_mode(BRAKE_HOLD);
   frontRightDrive->set_brake_mode(BRAKE_HOLD);
   backLeftDrive->set_brake_mode(BRAKE_HOLD);
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
+  intakeMotorRight->move(-25);
+  intakeMotorLeft->move(-25);
+
   // Move to the scoring zone
-  pid->move(50.1, absoluteMove);
+  pid->velocityMove(19.75, 65, absoluteMove);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
   pros::delay(250);
 
   // Tilt the stack upright using a P controller
   while (tiltMotor->get_position() < 650)
-    tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325);
+    tiltMotor->move(27 + (680 - tiltMotor->get_position()) * 0.35);
   tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
-  pros::delay(1875);
+  pros::delay(1600);
 
   // Move the tray back and let go go of the stack
   tiltMotor->move_absolute(0, 60);
@@ -301,13 +341,14 @@ void autonomousDrvSkills() {
 void autonomousOther(int selectedAutonomous) {
   releaseTray();
   pros::delay(700);
-
-  pid->powerDrive(-100, -100);
-  pros::delay(650);
-  pid->powerDrive(100, 100);
-  pros::delay(650);
-  pid->powerDrive(0,0);
-  pros::delay(750);
+  if (selectedAutonomous != 0) {
+    pid->powerDrive(-100, -100);
+    pros::delay(650);
+    pid->powerDrive(100, 100);
+    pros::delay(650);
+    pid->powerDrive(0, 0);
+    pros::delay(750);
+  }
 }
 
 void autonomous() {

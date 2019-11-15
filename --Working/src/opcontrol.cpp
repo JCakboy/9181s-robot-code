@@ -84,9 +84,10 @@ void opcontrol() {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
 		}
+
 		// Lock the lift if X is pressed
-		// if (controllerMain->get_digital_new_press(BUTTON_X))
-		// 	liftLock++;
+		if (controllerMain->get_digital_new_press(BUTTON_X))
+			liftLock++;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -99,9 +100,9 @@ void opcontrol() {
 
 		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 650)
-			tiltMotor->move(28 + (680 - tiltMotor->get_position()) * 0.2325); // Simple P controller
+			tiltMotor->move(27 + (680 - tiltMotor->get_position()) * 0.31); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(718, 23); // Gets rid of the jittering
+			tiltMotor->move_absolute(718, 20); // Gets rid of the jittering
 
 		// Tilt the tray forward if the arm is moving up
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock || liftMotor->get_position() > 300)
@@ -118,27 +119,27 @@ void opcontrol() {
 		// 	pid->setLoggingDebug(true);
 		// 	pid->move(40);
 		// }
-
-		if (controllerMain->get_digital(BUTTON_B)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(40,false);
-		}
-
-		if (controllerMain->get_digital(BUTTON_Y)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->strafe(-20);
-		}
-
-		if (controllerMain->get_digital(BUTTON_A)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->strafe(20);
-		}
+		//
+		// if (controllerMain->get_digital(BUTTON_B)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(40,false);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_Y)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->strafe(-20);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_A)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->strafe(20);
+		// }
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
