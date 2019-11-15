@@ -391,8 +391,9 @@ void autonomous() {
     autonomousOther(selectedAutonomous);
 
   // Stop the autonomous timer
-	competitionTimer->autonomousStartTimer();
+	competitionTimer->autonomousEndTimer();
 
-  // Log the message to the message holder
+  // Log the message to the message holder and set it to the screen
   messageHolder->appendLine("Autonomous took " + std::to_string(competitionTimer->autonomousTime()) + " ms");
+  LCD::setText(6, "Auto took " + std::to_string(competitionTimer->autonomousTime()) + " ms");
 }
