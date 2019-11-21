@@ -18,20 +18,27 @@ friend class LCD;
 
   // Positional PID values
   double movekp = 0;
+  double moveki = 0;
   double movekd = 0;
   // Velocity PID values
   double velocitykp = 0;
+  double velocityki = 0;
   double velocitykd = 0;
-  double straightle = 0;
+  double velocityle = 0;
+  double velocityse = 0;
   // Strafe PID values
   double strafekp = 0;
+  double strafeki = 0;
   double strafekd = 0;
   // Strafe velocity PID values
   double strafevkp = 0;
+  double strafevki = 0;
   double strafevkd = 0;
   double strafevle = 0;
+  double strafevse = 0;
   // Pivoting PID values
   double pivotkp = 0;
+  double pivotki = 0;
   double pivotkd = 0;
 
   // Gyro desired heading
@@ -46,12 +53,12 @@ friend class LCD;
   double accelerationBackwardCoeff = 1;
   double accelerationBackwardConst = 1;
   double accelerationBackwardDelay = 50;
-
+  double accelerationPivotCoeff = 1;
+  double accelerationPivotConst = 1;
+  double accelerationPivotDelay = 50;
   // Gyro to use during velocity PID
   Gyro * velocityGyro = NULL;
 
-  // The last error for velocity PID
-  double velocityle = 0;
   double velocityGyroValue = 0;
 
   // Calculates and returns the gear ratio for the drive
@@ -82,16 +89,22 @@ public:
 
   // Sets the power limits of PID
   void setPowerLimits(int maxPower, int minPower);
-  // Sets the move PID values
-  void setMovePID(double movekp, double movekd, double velocitykp, double velocitykd);
+  // Sets the move positional PID values
+  void setMovePosPID(double movekp, double moveki, double movekd);
+  // Sets the move velocity PID values
+  void setMoveVelPID(double velocitykp, double velocityki, double velocitykd);
   // Sets the pivot PID values
-  void setPivotPID(double rightAngleAmount, double pivotkp, double pivotkd);
-  // Sets the strafe PID values
-  void setStrafePID(double inchAmount, double strafekp, double strafekd, double strafevkp, double strafevkd);
+  void setPivotPID(double rightAngleAmount, double pivotkp, double pivotki, double pivotkd);
+  // Sets the strafe positional PID values
+  void setStrafePosPID(double inchAmount, double strafekp, double strafeki, double strafekd);
+  // Sets the strafe velocity PID values
+  void setStrafeVelPID(double strafevkp, double strafevki, double strafevkd);
   // Sets the forward acceleration values
   void setForwardAcceleration(double accelerationCoeff, double accelerationConst, double accelerationDelay);
   // Sets the backward acceleration values
   void setBackwardAcceleration(double accelerationCoeff, double accelerationConst, double accelerationDelay);
+  // Sets the pivoting acceleration values
+  void setPivotAcceleration(double accelerationCoeff, double accelerationConst, double accelerationDelay);
   // Sets the gyro to be used during velocity PID
   void setVelocityGyro(Gyro * g);
 
