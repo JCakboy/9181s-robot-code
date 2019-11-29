@@ -8,7 +8,7 @@ namespace ports {
   pros::Controller * controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
   // Motors
-  pros::Motor * port1 = new pros::Motor(1, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port1 = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port2 = NULL;
   pros::Motor * port3 = NULL;
   pros::Motor * port4 = NULL;
@@ -17,7 +17,7 @@ namespace ports {
   pros::Motor * port7 = NULL;
   pros::Motor * port8 = NULL;
   pros::Motor * port9 = NULL;
-  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port13 = new pros::Motor(13, GEARSET_100, REV, ENCODER_DEGREES);
