@@ -16,12 +16,12 @@ namespace ports {
   pros::Motor * port6 = NULL;
   pros::Motor * port7 = NULL;
   pros::Motor * port8 = NULL;
-  pros::Motor * port9 = NULL;
-  pros::Motor * port10 = new pros::Motor(10, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port9 = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
+  pros::Motor * port10 = NULL;
   pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port12 = new pros::Motor(12, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port12 = NULL;
   pros::Motor * port13 = new pros::Motor(13, GEARSET_100, REV, ENCODER_DEGREES);
-  pros::Motor * port14 = NULL;
+  pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port15 = NULL;
   pros::Motor * port16 = NULL;
   pros::Motor * port17 = new pros::Motor(17, GEARSET_100, REV, ENCODER_DEGREES);
@@ -31,12 +31,12 @@ namespace ports {
   pros::Motor * port21 = NULL;
 
   // Port mapping
-  pros::Motor * frontLeftDrive = port12;
+  pros::Motor * frontLeftDrive = port14;
   pros::Motor * backLeftDrive = port11;
   pros::Motor * frontRightDrive = port18;
   pros::Motor * backRightDrive = port19;
   pros::Motor * intakeMotorLeft = port1;
-  pros::Motor * intakeMotorRight = port10;
+  pros::Motor * intakeMotorRight = port9;
   pros::Motor * tiltMotor = port17;
   pros::Motor * liftMotor = port13;
 

@@ -99,10 +99,10 @@ void opcontrol() {
 		intakeMotorRight->move(intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 650)
-			tiltMotor->move(27 + (680 - tiltMotor->get_position()) * 0.31); // Simple P controller
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 705)
+			tiltMotor->move(41 + (713 - tiltMotor->get_position()) * 0.24); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(718, 20); // Gets rid of the jittering
+			tiltMotor->move_absolute(713, 41); // Gets rid of the jittering
 
 		// Tilt the tray forward if the arm is moving up
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock || liftMotor->get_position() > 300)
