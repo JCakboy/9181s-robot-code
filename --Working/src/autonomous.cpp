@@ -16,30 +16,52 @@ using namespace ports;
  */
 
 void releaseTray() {
-  // Intake to throw the rollers forward
-  intakeMotorLeft->move(127);
-  intakeMotorRight->move(127);
+  // Outtake to throw the rollers forward
+  intakeMotorLeft->move(-127);
+  intakeMotorRight->move(-127);
 
   // Push the tray back and reset, just in case it didn't start there
   tiltMotor->move(-40);
-  pros::delay(150);
+  pros::delay(100);
 
+  // Stop the rollers and reset the tray
   intakeMotorLeft->move(0);
   intakeMotorRight->move(0);
-  // intakeMotorLeft->move(-127);
-  // intakeMotorRight->move(-127);
-
   tiltMotor->tare_position();
   tiltMotor->move(0);
-  pros::delay(500);
+
+  // Wait for the tray to complete flip out
+  pros::delay(750);
   intakeMotorLeft->move(127);
   intakeMotorRight->move(127);
+}
 
-  // Quickly outtake, just in case the rollers get caught
-  pros::delay(250);
+void driveReleaseTray(int drivePower) {
+  // Outtake to throw the rollers forward
+  pid->resetEncoders();
+  intakeMotorLeft->move(-127);
+  intakeMotorRight->move(-127);
 
+  // Push the tray back and reset, just in case it didn't start there
+  tiltMotor->move(-40);
+  for (int i = 0; i < 5; i++) {
+    pid->driveStraight(drivePower);
+    pros::delay(20);
+  }
+
+  // Stop the rollers and reset the tray
   intakeMotorLeft->move(0);
   intakeMotorRight->move(0);
+  tiltMotor->tare_position();
+  tiltMotor->move(0);
+
+  // Wait for the tray to complete flip out
+  for (int i = 0; i < 40; i++) {
+    pid->driveStraight(drivePower);
+    pros::delay(20);
+  }
+  intakeMotorLeft->move(127);
+  intakeMotorRight->move(127);
 }
 
 void autonomousBlueTall() {
@@ -243,53 +265,39 @@ void autonomousRedFlat() {
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(110);
-  intakeMotorLeft->move(110);
-  pid->velocityMove(43, 78);
+  intakeMotorRight->move(100);
+  intakeMotorLeft->move(100);
+  pid->velocityMove(50, 85);
   pros::delay(100);
 
-  intakeMotorRight->move(80);
-  intakeMotorLeft->move(80);
-
- /* A major source of consistency, route was changed
-  // Strafe to get into position for the next line of cubes
-  pid->resetEncoders();
-  while (frontLeftDrive->get_position() > -1500) {
-    pid->strafeStraight(-120, -127);
-  }
-
-  pid->powerDrive(0, 0);
-  pros::delay(300);
-
-  pid->resetEncoders();
-  while (frontLeftDrive->get_position() > -338) {
-    pid->strafeStraight(-127, 0);
-  }
-*/
+  // Slow the intake and drive back
+  intakeMotorRight->move(70);
+  intakeMotorLeft->move(70);
+  pid->move(-37.5);
 
   // Get in position to turn to the next line of cubes
-  double pivotAmount = -28;
+  double pivotAmount = -65;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
     pid->pivotRelative(pivotAmount);
 
-  pid->move(-46.8, absoluteMove);
+  pid->move(-25, absoluteMove);
 
-  pivotAmount = 28;
+  pivotAmount = 65;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
     pid->pivotRelative(pivotAmount);
 
   // Intake the next line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(31, 78);
+  intakeMotorRight->move(110);
+  intakeMotorLeft->move(110);
+  pid->velocityMove(34, 85);
   pros::delay(300);
 
   // Move into scoring position
-  pid->move(-8.45, absoluteMove);
+  pid->move(-18.7, absoluteMove);
 
   intakeMotorRight->move(80);
   intakeMotorLeft->move(80);
@@ -300,31 +308,32 @@ void autonomousRedFlat() {
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
   // Pivot to face to the scoring zone
-  ports::pid->setPowerLimits(100, 32);
-  pivotAmount = 134;
+  // ports::pid->setPowerLimits(100, 32);
+  pivotAmount = 135;
   if (absoluteTurn)
-    pid->pivot(pivotAmount, 7);
+    pid->pivot(pivotAmount, 9);
   else
-    pid->pivotRelative(pivotAmount, 7);
-  ports::pid->setPowerLimits(120, 32);
+    pid->pivotRelative(pivotAmount, 9);
+  // ports::pid->setPowerLimits(120, 32);
 
   // Let the robot settle
   pros::delay(100);
-  intakeMotorRight->move(-15);
-  intakeMotorLeft->move(-15);
+  // intakeMotorRight->move(-15);
+  // intakeMotorLeft->move(-15);
 
-  // Move into the scoring position
-  pid->velocityMove(18.7, 75, absoluteMove);
-  pid->velocityMove(-1.191, 45, absoluteMove);
+  // Move forward into the scoring position
+  intakeMotorRight->move(-20);
+  intakeMotorLeft->move(-20);
+  pid->velocityMove(16, 75, absoluteMove);
+  pid->velocityMove(1.27, 35, absoluteMove);
   pid->powerDrive(0,0);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
   pros::delay(250);
+  intakeMotorRight->move(-28);
+  intakeMotorLeft->move(-28);
 
-  // Tilt the stack upright using a P controller
-  while (tiltMotor->get_position() < 650)
-    tiltMotor->move(27 + (680 - tiltMotor->get_position()) * 0.3515);
-  tiltMotor->move_absolute(723, 23); // Gets rid of the jittering
+  while (tiltMotor->get_position() < 705)
+    tiltMotor->move(35 + (708 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  tiltMotor->move_absolute(708, 45); // Gets rid of the jittering
   pros::delay(1300);
 
   // Brake the motors
@@ -370,7 +379,7 @@ void autonomousDrvSkills() {
 }
 
 void autonomousOther(int selectedAutonomous) {
-  releaseTray();
+  driveReleaseTray(50);
   pros::delay(700);
   if (selectedAutonomous != 0) {
     pid->powerDrive(-100, -100);

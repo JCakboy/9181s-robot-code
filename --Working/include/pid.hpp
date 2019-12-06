@@ -13,7 +13,7 @@ friend class LCD;
   bool logPIDErrors = false;
 
   // Power restraints
-  int maxPower = 120;
+  int maxPower = 80;
   int minPower = 20;
 
   // Positional PID values
@@ -43,7 +43,7 @@ friend class LCD;
 
   // Gyro desired heading
   double rightAngle = 975;
-  double strafeInchAmount = 100;
+  double strafeInchAmount = 70;
   double desiredHeading = 0;
 
   // Acceleration values
@@ -119,23 +119,23 @@ public:
   void strafeStraight(int strafePower, int movePower = 0);
 
   // Moves the robot the given amount of inches to the desired location
-  void move(double inches, double threshold = 12, bool useDesiredHeading = true);
+  void move(double inches, double threshold = 8, bool useDesiredHeading = true);
   void move(double inches, bool useDesiredHeading);
   // Moves the robot the given amount of inches while only using velocity PID
-  void velocityMove(double inches, double power, double threshold = 12, bool useDesiredHeading = true);
+  void velocityMove(double inches, double power, double threshold = 8, bool useDesiredHeading = true);
   void velocityMove(double inches, double power, bool useDesiredHeading);
   // Moves the robot with custom left and right targets while only using positional PID
-  void customMove(double leftInches, double rightInches, double threshold = 12);
+  void customMove(double leftInches, double rightInches, double threshold = 8);
 
   // Strafes the robot the given amount of inches to the desired position
   void strafe(double inches, double threshold = 25, bool useDesiredHeading = true);
 
   // Pivots the robot relative the given amount of degrees, based on the current desired heading
-  void pivot(double degrees, double threshold = 10, bool modifyDesiredHeading = true);
+  void pivot(double degrees, double threshold = 7, bool modifyDesiredHeading = true);
   // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
-  void pivotRelative(double degrees, double threshold = 10, bool modifyDesiredHeading = true);
+  void pivotRelative(double degrees, double threshold = 7, bool modifyDesiredHeading = true);
   // Pivots the robot to the heading given
-  void pivotAbsolute(double heading, double threshold = 10, bool modifyDesiredHeading = true);
+  void pivotAbsolute(double heading, double threshold = 7, bool modifyDesiredHeading = true);
 
   // Sets the desired heading to the current heading
   void tareDesiredHeading();

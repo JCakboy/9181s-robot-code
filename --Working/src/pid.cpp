@@ -141,7 +141,7 @@ void PID::driveStraight(int power) {
   if (PID::velocityGyro)
     error = PID::velocityGyro->getValue() - PID::velocityGyroValue;
   else
-    error = frontLeftDrive->get_position() - frontRightDrive->get_position();
+    error = backLeftDrive->get_position() - backRightDrive->get_position();
 
   // Determine how much to adjust based on the kp ki and kd values
   derivative = error - velocityle;
@@ -191,7 +191,7 @@ void PID::strafeStraight(int strafePower, int movePower) {
   if (PID::velocityGyro)
     error = PID::velocityGyro->getValue() - PID::velocityGyroValue;
   else
-    error = frontLeftDrive->get_position() - frontRightDrive->get_position();
+    error = backLeftDrive->get_position() - backRightDrive->get_position();
 
   // Determine how much to adjust based on the kp and kd values
   derivative = error - strafevle;
@@ -289,7 +289,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
     pros::delay(accelDelay);
 
     // Update the error and current distance
-    currentDistance = (frontRightDrive->get_position() + frontLeftDrive->get_position()) / 2;
+    currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
     lastError = error;
   }
@@ -315,7 +315,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
     pros::delay(20);
 
     // Update the error and current distance
-    currentDistance = (frontRightDrive->get_position() + frontLeftDrive->get_position()) / 2;
+    currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
 
     // Log it to the message holder if the flag is set
@@ -365,7 +365,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
     pros::delay(20);
 
     // Update the error and current distance
-    currentDistance = (frontRightDrive->get_position() + frontLeftDrive->get_position()) / 2;
+    currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
 
     // Log it to the message holder if the flag is set
@@ -503,7 +503,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
     pros::delay(20);
 
     // Update the error and current distance
-    currentDistance = (frontLeftDrive->get_position() - frontRightDrive->get_position()) / 2;
+    currentDistance = (backLeftDrive->get_position() - backRightDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
 
     // Log it to the message holder if the flag is set
