@@ -65,94 +65,11 @@ void driveReleaseTray(int drivePower) {
 }
 
 void autonomousBlueTall() {
-  tiltMotor->move(100);
-  pros::delay(500);
-  tiltMotor->move(-100);
-  pros::delay(500);
-  tiltMotor->move(0);
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(43, 39);
-  pros::delay(100);
-  pid->move(-21);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  pid->pivotAbsolute(132);
-
+  // No route
 }
 
 void autonomousRedTall() {
-  tiltMotor->move(100);
-  pros::delay(500);
-  tiltMotor->move(-100);
-  pros::delay(500);
-  tiltMotor->move(0);
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(43, 38);
-  pros::delay(500);
-  pid->move(-21);
-  pid->pivotAbsolute(-90);
-  pid->move(21.5);
-
-  pros::delay(500);
-
-  frontRightDrive->move(73);
-  frontLeftDrive->move(-73);
-  backRightDrive->move(73);
-  backLeftDrive->move(-73);
-
-  pros::delay(430);
-
-  frontRightDrive->move(0);
-  frontLeftDrive->move(0);
-  backRightDrive->move(0);
-  backLeftDrive->move(0);
-
-  pros::delay(250);
-
-  pid->velocityMove(15, 127);
-
-  pros::delay(250);
-
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  frontRightDrive->move(-73);
-  frontLeftDrive->move(73);
-  backRightDrive->move(-73);
-  backLeftDrive->move(73);
-
-  pros::delay(125);
-
-  pid->velocityMove(3.5, 60);
-
-  pros::delay(500);
-
-  // stack
-
-  frontRightDrive->set_brake_mode(BRAKE_HOLD);
-  frontLeftDrive->set_brake_mode(BRAKE_HOLD);
-  backRightDrive->set_brake_mode(BRAKE_HOLD);
-  backLeftDrive->set_brake_mode(BRAKE_HOLD);
-
-  tiltMotor->move_absolute(403, 30);
-  intakeMotorRight->move(-25);
-  intakeMotorLeft->move(-25);
-  pros::delay(2500);
-
-  intakeMotorRight->move(-60);
-  intakeMotorLeft->move(-60);
-  tiltMotor->move_absolute(0, 30);
-  pros::delay(2500);
-
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  pid->velocityMove(-22, 127);
-
-  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-  frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  backRightDrive->set_brake_mode(BRAKE_BRAKE);
-  backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  // No route
 }
 
 void autonomousBlueFlat() {
@@ -207,7 +124,6 @@ void autonomousBlueFlat() {
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
   // Pivot to face to the scoring zone
-  // ports::pid->setPowerLimits(100, 32);
   pivotAmount = -134;
   if (absoluteTurn)
     pid->pivot(pivotAmount, 9);
@@ -217,8 +133,6 @@ void autonomousBlueFlat() {
 
   // Let the robot settle
   pros::delay(100);
-  // intakeMotorRight->move(-15);
-  // intakeMotorLeft->move(-15);
 
   // Move forward into the scoring position
   intakeMotorRight->move(-20);
@@ -297,18 +211,14 @@ void autonomousRedFlat() {
   backRightDrive->set_brake_mode(BRAKE_HOLD);
 
   // Pivot to face to the scoring zone
-  // ports::pid->setPowerLimits(100, 32);
   pivotAmount = 135;
   if (absoluteTurn)
     pid->pivot(pivotAmount, 9);
   else
     pid->pivotRelative(pivotAmount, 9);
-  // ports::pid->setPowerLimits(120, 32);
 
   // Let the robot settle
   pros::delay(100);
-  // intakeMotorRight->move(-15);
-  // intakeMotorLeft->move(-15);
 
   // Move forward into the scoring position
   intakeMotorRight->move(-20);
@@ -321,7 +231,7 @@ void autonomousRedFlat() {
   intakeMotorLeft->move(-28);
 
   while (tiltMotor->get_position() < 705)
-    tiltMotor->move(35 + (708 - tiltMotor->get_position()) * 0.22); // Simple P controller
+    tiltMotor->move(35 + (708 - tiltMotor->get_position()) * 0.18); // Simple P controller
   tiltMotor->move_absolute(708, 45); // Gets rid of the jittering
   pros::delay(1300);
 
