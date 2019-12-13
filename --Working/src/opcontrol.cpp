@@ -86,8 +86,8 @@ void opcontrol() {
 		}
 
 		// Lock the lift if X is pressed
-		// if (controllerMain->get_digital_new_press(BUTTON_X))
-		// 	liftLock++;
+		if (controllerMain->get_digital_new_press(BUTTON_X))
+			liftLock++;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -124,26 +124,26 @@ void opcontrol() {
 		// 	pid->move(40);
 		// }
 		//
-		if (controllerMain->get_digital(BUTTON_B)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(50,true);
-		}
-
-		if (controllerMain->get_digital(BUTTON_Y)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(-90);
-		}
-
-		if (controllerMain->get_digital(BUTTON_A)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(90);
-		}
+		// if (controllerMain->get_digital(BUTTON_B)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(50,true);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_Y)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(-90);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_A)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(90);
+		// }
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
