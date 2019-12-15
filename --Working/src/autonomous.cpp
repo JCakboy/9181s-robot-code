@@ -22,7 +22,7 @@ void releaseTray() {
 
   // Push the tray back and reset, just in case it didn't start there
   tiltMotor->move(-40);
-  pros::delay(130);
+  pros::delay(250);
 
   // Stop the rollers and reset the tray
   intakeMotorLeft->move(0);
@@ -76,17 +76,17 @@ void autonomousBlueTall() {
   // Drive slowly to knock the first stack
   intakeMotorRight->move(108);
   intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 50);
+  pid->velocityMove(30.5, 65);
 
   // Woit and try and intake any fallen cubes
   pros::delay(1000);
-  pid->velocityMove(20.5, 50);
+  pid->velocityMove(20.5, 65);
   pros::delay(300);
 
   // Move back to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(-27);
+  pid->move(-30);
 
   // Turn to intake the solo cube
   double pivotAmount = 90;
@@ -96,12 +96,12 @@ void autonomousBlueTall() {
     pid->pivotRelative(pivotAmount);
 
   // Intake the solo cube
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(13, 50);
+  intakeMotorRight->move(90);
+  intakeMotorLeft->move(90);
+  pid->velocityMove(14, 50);
 
   // Turn to score
-  pivotAmount = 30;
+  pivotAmount = 48;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
@@ -110,7 +110,7 @@ void autonomousBlueTall() {
   // Move to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(17);
+  pid->move(19);
 
   // Score the stack
   intakeMotorRight->move(-10);
@@ -140,17 +140,17 @@ void autonomousRedTall() {
   // Drive slowly to knock the first stack
   intakeMotorRight->move(108);
   intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 50);
+  pid->velocityMove(30.5, 65);
 
   // Woit and try and intake any fallen cubes
   pros::delay(1000);
-  pid->velocityMove(20.5, 50);
+  pid->velocityMove(20.5, 65);
   pros::delay(300);
 
   // Move back to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(-27);
+  pid->move(-28);
 
   // Turn to intake the solo cube
   double pivotAmount = -90;
@@ -160,12 +160,12 @@ void autonomousRedTall() {
     pid->pivotRelative(pivotAmount);
 
   // Intake the solo cube
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
+  intakeMotorRight->move(90);
+  intakeMotorLeft->move(90);
   pid->velocityMove(13, 50);
 
   // Turn to score
-  pivotAmount = -30;
+  pivotAmount = -45;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
@@ -174,7 +174,7 @@ void autonomousRedTall() {
   // Move to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(17);
+  pid->move(19.8);
 
   // Score the stack
   intakeMotorRight->move(-10);

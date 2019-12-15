@@ -79,7 +79,7 @@ void opcontrol() {
 		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
 			liftMotor->move_absolute(535, 100);
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
-			liftMotor->move_absolute(390, 100);
+			liftMotor->move_absolute(400, 100);
 		else {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
@@ -95,17 +95,17 @@ void opcontrol() {
 			intakeSpeed = 105;
 		else if (controllerMain->get_digital(BUTTON_R2))
 			intakeSpeed = -60;
-		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
-		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
+		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 1 ? 127 : intakeSpeed);
+		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 1 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
 		// if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 100)
 		// 	tiltMotor->move(90); // Simple P controller
 		// else
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 230)
-			tiltMotor->move(45 + (666 - tiltMotor->get_position()) * 0.18); // Simple P controller
+			tiltMotor->move(45 + (666 - tiltMotor->get_position()) * 0.16); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 630)
-			tiltMotor->move(65 + (666 - tiltMotor->get_position()) * 0.115); // Simple P controller
+			tiltMotor->move(67 + (666 - tiltMotor->get_position()) * 0.115); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
 			tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
 
@@ -162,7 +162,7 @@ void opcontrol() {
 			pros::delay(2000);
 			tiltMotor->tare_position();
 			liftMotor->tare_position();
-			liftLock = false;
+			liftLock = 0;
 		}
 
 		// Update the LCD screen

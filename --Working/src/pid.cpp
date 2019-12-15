@@ -356,7 +356,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
 
   // While the target has not been reached, power the drive
   while (continuePIDLoop(util::abs(error) >= threshold)) {
-    driveStraight(power * util::abs(targetDistance) / targetDistance);
+    driveStraight(power * util::abs(error) / error);
 
     // Print the sensor debug information
     LCD::printDebugInformation();
