@@ -42,8 +42,10 @@ namespace ports {
   extern pros::Motor * intakeMotorRight;
   extern pros::Motor * tiltMotor;
 
-  // Vision
-  extern pros::Vision * frontVision;
+  // Vision sensor
+
+  // Inertial sensor
+  extern pros::Imu * imu;
 
   // ADI (3-wire) ports
   extern pros::ADIGyro * gyro1;

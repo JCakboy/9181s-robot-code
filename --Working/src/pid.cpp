@@ -139,7 +139,7 @@ void PID::driveStraight(int power) {
 
   // If the gyro is being used, the error will simply be the gyro deviation
   if (PID::velocityGyro)
-    error = PID::velocityGyro->getValue() - PID::velocityGyroValue;
+    error = PID::velocityGyro->getHeading() - PID::velocityGyroValue;
   else
     error = backLeftDrive->get_position() - backRightDrive->get_position();
 
@@ -189,7 +189,7 @@ void PID::strafeStraight(int strafePower, int movePower) {
 
   // If the gyro is being used, the error will simply be the gyro deviation
   if (PID::velocityGyro)
-    error = PID::velocityGyro->getValue() - PID::velocityGyroValue;
+    error = PID::velocityGyro->getHeading() - PID::velocityGyroValue;
   else
     error = backLeftDrive->get_position() - backRightDrive->get_position();
 
@@ -255,7 +255,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
     if (useDesiredHeading)
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
-      velocityGyroValue = velocityGyro->getValue();
+      velocityGyroValue = velocityGyro->getHeading();
   velocityle = 0;
   velocityse = 0;
 
@@ -347,7 +347,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
     if (useDesiredHeading)
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
-      velocityGyroValue = velocityGyro->getValue();
+      velocityGyroValue = velocityGyro->getHeading();
   velocityle = 0;
   velocityse = 0;
 
@@ -474,7 +474,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
     if (useDesiredHeading)
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
-      velocityGyroValue = velocityGyro->getValue();
+      velocityGyroValue = velocityGyro->getHeading();
   strafevle = 0;
   strafevse = 0;
 
@@ -524,7 +524,7 @@ void PID::pivot(double degrees, double threshold, bool modifyDesiredHeading) {
 // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
 void PID::pivotRelative(double degrees, double threshold, bool modifyDesiredHeading) {
   // Pivot to the requeseted heading
-  PID::pivotAbsolute(toDegrees(ports::gyro->getValue()) + degrees, threshold, modifyDesiredHeading);
+  PID::pivotAbsolute(toDegrees(ports::gyro->getHeading()) + degrees, threshold, modifyDesiredHeading);
 }
 
 // Pivots the robot to the heading given
@@ -532,7 +532,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   double kp = pivotkp;
   double ki = pivotki;
   double kd = pivotkd;
-  double currentBearing = ports::gyro->getValue();
+  double currentBearing = ports::gyro->getHeading();
   double error = 10;
   double errorsum = 0;
   double derivative = 0;
@@ -565,7 +565,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     pros::delay(20);
 
     // Update the error and current bearing
-    currentBearing = ports::gyro->getValue();
+    currentBearing = ports::gyro->getHeading();
     error = targetBearing - currentBearing;
 
     // Log it to the message holder if the flag is set
@@ -591,7 +591,7 @@ void PID::setAbsoluteDesiredHeading(double heading) {
 
 // Sets the desired heading relative to the current heading
 void PID::setRelativeDesiredHeading(double heading) {
-  PID::desiredHeading = toDegrees(velocityGyro->getValue()) + heading;
+  PID::desiredHeading = toDegrees(velocityGyro->getHeading()) + heading;
   PID::velocityGyroValue = toGyroUnits(desiredHeading);
 }
 

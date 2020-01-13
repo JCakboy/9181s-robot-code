@@ -40,17 +40,18 @@ namespace ports {
   pros::Motor * tiltMotor = port17;
   pros::Motor * liftMotor = port13;
 
-  // Vision
+  // Vision sensor
+
+  // Inertial sensor
+  pros::Imu * imu = new pros::Imu(8);
 
   // ADI (3-wire) ports
-  pros::ADIGyro * gyro1 = new pros::ADIGyro('G');
-  pros::ADIGyro * gyro2 = new pros::ADIGyro('H');
   pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('A', 'B');
   pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('C', 'D');
   pros::ADIUltrasonic * frontUltrasonic = new pros::ADIUltrasonic('E', 'F');
 
   // Gyro manager
-  Gyro * gyro = new Gyro(gyro1, gyro2);
+  Gyro * gyro = new Gyro(imu);
 
   // PID manager
   PID * pid = new PID();

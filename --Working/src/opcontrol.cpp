@@ -99,9 +99,6 @@ void opcontrol() {
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		// if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 100)
-		// 	tiltMotor->move(90); // Simple P controller
-		// else
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 230)
 			tiltMotor->move(45 + (666 - tiltMotor->get_position()) * 0.18); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 630)
@@ -118,33 +115,33 @@ void opcontrol() {
 			tiltMotor->move_absolute(0, 50);
 		else tiltMotor->move(0);
 
-		// if (controllerMain->get_digital(BUTTON_X)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->move(40);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_B)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->move(50,true);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_Y)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->pivot(-90);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_A)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->pivot(90);
-		// }
+		/*if (controllerMain->get_digital(BUTTON_X)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->move(40);
+		}
+
+		if (controllerMain->get_digital(BUTTON_B)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->move(50,true);
+		}
+
+		if (controllerMain->get_digital(BUTTON_Y)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->pivot(-90);
+		}
+
+		if (controllerMain->get_digital(BUTTON_A)) {
+			pid->setNoStopDebug(true);
+			pid->setControllerXStop(true);
+			pid->setLoggingDebug(true);
+			pid->pivot(90);
+		} */
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();

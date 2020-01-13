@@ -13,12 +13,11 @@ void initialize() {
 	// Initializes the gyro with calibration
 	LCD::setStatus("Calibrating gyroscope...");
 	LCD::setText(2, "***DO NOT MOVE THE ROBOT***");
-	pros::delay(1500);
-	LCD::setText(2, "");
 
-	// Use the first gyro only
-	ports::gyro->useFirstGyro(true);
-	ports::gyro->useSecondGyro(false);
+	ports::imu->reset();
+
+	pros::delay(2250);
+	LCD::setText(2, "");
 
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
