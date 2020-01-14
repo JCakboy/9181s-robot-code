@@ -256,6 +256,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getHeading();
+  else;
   velocityle = 0;
   velocityse = 0;
 
@@ -348,6 +349,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getHeading();
+  else;
   velocityle = 0;
   velocityse = 0;
 
@@ -475,6 +477,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
       velocityGyroValue = toGyroUnits(desiredHeading);
     else
       velocityGyroValue = velocityGyro->getHeading();
+  else;
   strafevle = 0;
   strafevse = 0;
 
