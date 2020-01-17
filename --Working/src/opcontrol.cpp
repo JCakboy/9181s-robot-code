@@ -3,7 +3,6 @@
 #include <climits>
 #include <ctime>
 #include <utility>
-#include "definitions.hpp"
 
 // Dump ports namespace for ease of use
 using namespace ports;
@@ -92,9 +91,9 @@ void opcontrol() {
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
-			intakeSpeed = 105;
+			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeSpeed = -60;
+			intakeSpeed = -80;
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
@@ -105,10 +104,6 @@ void opcontrol() {
 			tiltMotor->move(65 + (666 - tiltMotor->get_position()) * 0.115); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
 			tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
-
-		// Tilt the tray forward if the arm is moving up
-		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock || liftMotor->get_position() > 300)
-			tiltMotor->move_absolute(258, 40);
 
 		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 5)

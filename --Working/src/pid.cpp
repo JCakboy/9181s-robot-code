@@ -17,10 +17,10 @@ double PID::getGearRatio() {
 
 // Converts to and from degrees and gyro units
 double PID::toGyroUnits(double degrees) {
-  return (degrees * rightAngle / 90.0);
+  return (degrees * 10);
 }
 double PID::toDegrees(double gyroUnits) {
-  return (gyroUnits / rightAngle * 90.0);
+  return (gyroUnits / 10);
 }
 
 // The logic to continue PID loops

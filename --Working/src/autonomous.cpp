@@ -36,34 +36,6 @@ void releaseTray() {
   intakeMotorRight->move(127);
 }
 
-void driveReleaseTray(int drivePower) {
-  // Outtake to throw the rollers forward
-  pid->resetEncoders();
-  intakeMotorLeft->move(-127);
-  intakeMotorRight->move(-127);
-
-  // Push the tray back and reset, just in case it didn't start there
-  tiltMotor->move(-40);
-  for (int i = 0; i < 5; i++) {
-    pid->driveStraight(drivePower);
-    pros::delay(20);
-  }
-
-  // Stop the rollers and reset the tray
-  intakeMotorLeft->move(0);
-  intakeMotorRight->move(0);
-  tiltMotor->tare_position();
-  tiltMotor->move(0);
-
-  // Wait for the tray to complete flip out
-  for (int i = 0; i < 40; i++) {
-    pid->driveStraight(drivePower);
-    pros::delay(20);
-  }
-  intakeMotorLeft->move(127);
-  intakeMotorRight->move(127);
-}
-
 void autonomousBlueTall() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
   bool absoluteTurn = false;

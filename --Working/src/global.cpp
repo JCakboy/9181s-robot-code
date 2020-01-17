@@ -8,23 +8,23 @@ namespace ports {
   pros::Controller * controllerPartner = new pros::Controller(CONTROLLER_PARTNER);
 
   // Motors
-  pros::Motor * port1 = new pros::Motor(1, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port2 = NULL;
+  pros::Motor * port1 = NULL;
+  pros::Motor * port2 = new pros::Motor(2, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port3 = NULL;
   pros::Motor * port4 = NULL;
   pros::Motor * port5 = NULL;
   pros::Motor * port6 = NULL;
   pros::Motor * port7 = NULL;
-  pros::Motor * port8 = NULL;
+  pros::Motor * port8 = new pros::Motor(8, GEARSET_100, REV, ENCODER_DEGREES);
   pros::Motor * port9 = new pros::Motor(9, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port10 = NULL;
   pros::Motor * port11 = NULL;
   pros::Motor * port12 = NULL;
-  pros::Motor * port13 = new pros::Motor(13, GEARSET_100, FWD, ENCODER_DEGREES);
+  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port15 = NULL;
   pros::Motor * port16 = NULL;
-  pros::Motor * port17 = new pros::Motor(17);
+  pros::Motor * port17 = new pros::Motor(17, GEARSET_100, REV, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port20 = NULL;
@@ -35,10 +35,10 @@ namespace ports {
   pros::Motor * backLeftDrive = port13;
   pros::Motor * frontRightDrive = port18;
   pros::Motor * backRightDrive = port19;
-  pros::Motor * intakeMotorLeft = port1;
+  pros::Motor * intakeMotorLeft = port2;
   pros::Motor * intakeMotorRight = port9;
   pros::Motor * tiltMotor = port17;
-  pros::Motor * liftMotor = port17;
+  pros::Motor * liftMotor = port8;
 
   // Vision sensor
 

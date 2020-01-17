@@ -11,8 +11,8 @@ void initialize() {
 	LCD::initializeLLEMU(ports::controllerMain, ports::controllerPartner);
 
 	// Initializes the gyro with calibration
-	LCD::setStatus("Calibrating gyroscope...");
-	LCD::setText(2, "***DO NOT MOVE THE ROBOT***");
+	LCD::setStatus("Calibrating inertial sensor...");
+	LCD::setText(2, "Do not touch the robot");
 
 	ports::imu->reset();
 
