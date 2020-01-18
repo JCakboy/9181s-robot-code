@@ -16,24 +16,11 @@ using namespace ports;
  */
 
 void releaseTray() {
-  // Outtake to throw the rollers forward
-  intakeMotorLeft->move(-127);
-  intakeMotorRight->move(-127);
-
-  // Push the tray back and reset, just in case it didn't start there
-  tiltMotor->move(-40);
-  pros::delay(130);
-
-  // Stop the rollers and reset the tray
-  intakeMotorLeft->move(0);
-  intakeMotorRight->move(0);
-  tiltMotor->tare_position();
-  tiltMotor->move(0);
-
-  // Wait for the tray to complete flip out
+  liftMotor->move(127);
+  pros::delay(500);
+  liftMotor->move(-100);
   pros::delay(600);
-  intakeMotorLeft->move(127);
-  intakeMotorRight->move(127);
+liftMotor->move(0);
 }
 
 void autonomousBlueTall() {
@@ -255,17 +242,22 @@ void autonomousBlueFlat() {
 
 void autonomousRedFlat() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+  bool absoluteTurn = true;
+  bool absoluteMove = true;
 
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(41.5, 95);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(44, 80);
   pros::delay(300);
+
+  pid->move(-41);
+  pid->pivot(90);
+  pid->strafe(2);
+  return;
 
   // Slow the intake and drive back
   intakeMotorRight->move(70);
@@ -280,7 +272,7 @@ void autonomousRedFlat() {
     pid->pivotRelative(pivotAmount);
 
   // Move into position
-  pid->move(-23, absoluteMove);
+  pid->move(-26, absoluteMove);
 
   // Turn to face the next line of cubes
   pivotAmount = 67;
@@ -292,7 +284,7 @@ void autonomousRedFlat() {
   // Intake the next line of cubes
   intakeMotorRight->move(110);
   intakeMotorLeft->move(110);
-  pid->velocityMove(34.5, 88);
+  pid->velocityMove(34.5, 75);
   pros::delay(400);
 
   // Get ready to stack

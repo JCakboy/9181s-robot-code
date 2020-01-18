@@ -70,15 +70,18 @@ void opcontrol() {
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
 
+	// Target for tray to be perpendicular to the ground
+	const int traytarget = 725;
+
 	while (true) {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
 		// Maps the right joystick to the lift, implementing liftLock
 		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
-			liftMotor->move_absolute(535, 100);
+			liftMotor->move_absolute(550, 100);
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
-			liftMotor->move_absolute(390, 100);
+			liftMotor->move_absolute(412, 100);
 		else {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
@@ -98,45 +101,43 @@ void opcontrol() {
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 230)
-			tiltMotor->move(45 + (666 - tiltMotor->get_position()) * 0.18); // Simple P controller
-		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 630)
-			tiltMotor->move(65 + (666 - tiltMotor->get_position()) * 0.115); // Simple P controller
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30))
+			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.16); // Simple P controller
+		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15))
+			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.10); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
+			tiltMotor->move_absolute(traytarget, 48); // Gets rid of the jittering
 
 		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 5)
 			tiltMotor->move_absolute(0, 50);
 		else tiltMotor->move(0);
 
-		/*if (controllerMain->get_digital(BUTTON_X)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(40);
-		}
-
-		if (controllerMain->get_digital(BUTTON_B)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(50,true);
-		}
-
-		if (controllerMain->get_digital(BUTTON_Y)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(-90);
-		}
-
-		if (controllerMain->get_digital(BUTTON_A)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(90);
-		} */
+		// if (controllerMain->get_digital(BUTTON_X)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(40);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_B)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(50, true);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_Y)) {
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(-90);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_A)) {
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(90);
+		// }
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();

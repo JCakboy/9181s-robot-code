@@ -2,10 +2,6 @@
 *.o
 *.obj
 
-# Executables
-*.bin
-*.elf
-
 # PROS
 bin/
 .vscode/
