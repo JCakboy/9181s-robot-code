@@ -501,7 +501,7 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
     pros::delay(20);
 
     // Update the error and current distance
-    currentDistance = (backLeftDrive->get_position() - backRightDrive->get_position()) / 2;
+    currentDistance = (backRightDrive->get_position() - backLeftDrive->get_position()) / 2;
     error = targetDistance - currentDistance;
 
     // Log it to the message holder if the flag is set
