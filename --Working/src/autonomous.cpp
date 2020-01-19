@@ -17,10 +17,11 @@ using namespace ports;
 
 void releaseTray() {
   liftMotor->move(127);
-  pros::delay(500);
+  pros::delay(550);
   liftMotor->move(-100);
-  pros::delay(600);
+  pros::delay(660);
 liftMotor->move(0);
+pros::delay(750);
 }
 
 void autonomousBlueTall() {
@@ -153,17 +154,47 @@ void autonomousRedTall() {
 
 void autonomousBlueFlat() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+  bool absoluteTurn = true;
+  bool absoluteMove = true;
 
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(41.5, 89);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(57, 60);
   pros::delay(300);
+
+  pid->move(-51);
+  pid->pivot(-90);
+  int steps = 70;
+  pid->setAbsoluteDesiredHeading(-90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(-80);
+    pros::delay(20);
+  }
+  pid->move(13);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  pros::delay(500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  // Score the stack
+  while (tiltMotor->get_position() < 700)
+    tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
+  pros::delay(1500);
+
+  // Move the tray back and let go go of the stack
+  pid->velocityMove(-10, 50, false);
+  tiltMotor->move_absolute(0, 60);
+  return;
 
   // Slow the intake and drive back
   intakeMotorRight->move(70);
@@ -251,12 +282,37 @@ void autonomousRedFlat() {
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(44, 80);
+  pid->velocityMove(57, 60);
   pros::delay(300);
 
-  pid->move(-41);
+  pid->move(-51);
   pid->pivot(90);
-  pid->strafe(2);
+  int steps = 70;
+  pid->setAbsoluteDesiredHeading(90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(80);
+    pros::delay(20);
+  }
+  pid->move(13);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  pros::delay(500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  // Score the stack
+  while (tiltMotor->get_position() < 700)
+    tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
+  pros::delay(1500);
+
+  // Move the tray back and let go go of the stack
+  pid->velocityMove(-10, 50, false);
+  tiltMotor->move_absolute(0, 60);
   return;
 
   // Slow the intake and drive back

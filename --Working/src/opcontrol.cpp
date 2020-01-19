@@ -71,7 +71,7 @@ void opcontrol() {
 	competitionTimer->opcontrolStartTimer();
 
 	// Target for tray to be perpendicular to the ground
-	const int traytarget = 725;
+	const int traytarget = 740;
 
 	while (true) {
 		// Drives the robot with the main controller
@@ -79,9 +79,9 @@ void opcontrol() {
 
 		// Maps the right joystick to the lift, implementing liftLock
 		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
-			liftMotor->move_absolute(550, 100);
+			liftMotor->move_absolute(614, 100);
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
-			liftMotor->move_absolute(412, 100);
+			liftMotor->move_absolute(490, 100);
 		else {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
@@ -102,9 +102,9 @@ void opcontrol() {
 
 		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30))
-			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.16); // Simple P controller
+			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.155); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15))
-			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.10); // Simple P controller
+			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.0875); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
 			tiltMotor->move_absolute(traytarget, 48); // Gets rid of the jittering
 
