@@ -3,7 +3,6 @@
 #include <climits>
 #include <ctime>
 #include <utility>
-#include "definitions.hpp"
 
 // Dump ports namespace for ease of use
 using namespace ports;
@@ -71,15 +70,18 @@ void opcontrol() {
 	// Start the operator control timer
 	competitionTimer->opcontrolStartTimer();
 
+	// Target for tray to be perpendicular to the ground
+	const int traytarget = 740;
+
 	while (true) {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
 		// Maps the right joystick to the lift, implementing liftLock
 		if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock > 1)
-			liftMotor->move_absolute(535, 100);
+			liftMotor->move_absolute(614, 100);
 		else if (controllerMain->get_analog(STICK_RIGHT_Y) == 0 && liftLock == 1)
-			liftMotor->move_absolute(400, 100);
+			liftMotor->move_absolute(490, 100);
 		else {
 			if (liftLock) liftLock = 0;
 			liftMotor->move(controllerMain->get_analog(STICK_RIGHT_Y));
@@ -92,26 +94,19 @@ void opcontrol() {
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
-			intakeSpeed = 105;
+			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeSpeed = -60;
-		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 1 ? 127 : intakeSpeed);
-		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 1 ? 127 : intakeSpeed);
+			intakeSpeed = -80;
+		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
+		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		// if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 100)
-		// 	tiltMotor->move(90); // Simple P controller
-		// else
-		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 230)
-			tiltMotor->move(45 + (666 - tiltMotor->get_position()) * 0.16); // Simple P controller
-		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < 630)
-			tiltMotor->move(67 + (666 - tiltMotor->get_position()) * 0.115); // Simple P controller
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30))
+			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.155); // Simple P controller
+		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15))
+			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.0875); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
-			tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
-
-		// Tilt the tray forward if the arm is moving up
-		else if (controllerMain->get_analog(STICK_RIGHT_Y) > 10 || liftLock || liftMotor->get_position() > 300)
-			tiltMotor->move_absolute(258, 40);
+			tiltMotor->move_absolute(traytarget, 48); // Gets rid of the jittering
 
 		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 5)
@@ -129,18 +124,16 @@ void opcontrol() {
 		// 	pid->setNoStopDebug(true);
 		// 	pid->setControllerXStop(true);
 		// 	pid->setLoggingDebug(true);
-		// 	pid->move(50,true);
+		// 	pid->move(50, true);
 		// }
 		//
 		// if (controllerMain->get_digital(BUTTON_Y)) {
-		// 	pid->setNoStopDebug(true);
 		// 	pid->setControllerXStop(true);
 		// 	pid->setLoggingDebug(true);
 		// 	pid->pivot(-90);
 		// }
 		//
 		// if (controllerMain->get_digital(BUTTON_A)) {
-		// 	pid->setNoStopDebug(true);
 		// 	pid->setControllerXStop(true);
 		// 	pid->setLoggingDebug(true);
 		// 	pid->pivot(90);
@@ -162,7 +155,7 @@ void opcontrol() {
 			pros::delay(2000);
 			tiltMotor->tare_position();
 			liftMotor->tare_position();
-			liftLock = 0;
+			liftLock = false;
 		}
 
 		// Update the LCD screen

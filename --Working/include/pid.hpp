@@ -42,7 +42,6 @@ friend class LCD;
   double pivotkd = 0;
 
   // Gyro desired heading
-  double rightAngle = 975;
   double strafeInchAmount = 70;
   double desiredHeading = 0;
 
@@ -63,10 +62,6 @@ friend class LCD;
 
   // Calculates and returns the gear ratio for the drive
   static double getGearRatio();
-
-  // Converts to and from degrees to gyro units
-  double toGyroUnits(double degrees);
-  double toDegrees(double gyroUnits);
 
   // Sets the brake mode
   void setBrakeMode();
@@ -94,7 +89,7 @@ public:
   // Sets the move velocity PID values
   void setMoveVelPID(double velocitykp, double velocityki, double velocitykd);
   // Sets the pivot PID values
-  void setPivotPID(double rightAngleAmount, double pivotkp, double pivotki, double pivotkd);
+  void setPivotPID(double pivotkp, double pivotki, double pivotkd);
   // Sets the strafe positional PID values
   void setStrafePosPID(double inchAmount, double strafekp, double strafeki, double strafekd);
   // Sets the strafe velocity PID values
@@ -131,11 +126,11 @@ public:
   void strafe(double inches, double threshold = 25, bool useDesiredHeading = true);
 
   // Pivots the robot relative the given amount of degrees, based on the current desired heading
-  void pivot(double degrees, double threshold = 7, bool modifyDesiredHeading = true);
+  void pivot(double degrees, double threshold = 2, bool modifyDesiredHeading = true);
   // Pivots the robot relative the given amount of degrees, based on the current heading of the robot
-  void pivotRelative(double degrees, double threshold = 7, bool modifyDesiredHeading = true);
+  void pivotRelative(double degrees, double threshold = 2, bool modifyDesiredHeading = true);
   // Pivots the robot to the heading given
-  void pivotAbsolute(double heading, double threshold = 7, bool modifyDesiredHeading = true);
+  void pivotAbsolute(double heading, double threshold = 2, bool modifyDesiredHeading = true);
 
   // Sets the desired heading to the current heading
   void tareDesiredHeading();

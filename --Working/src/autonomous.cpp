@@ -16,52 +16,12 @@ using namespace ports;
  */
 
 void releaseTray() {
-  // Outtake to throw the rollers forward
-  intakeMotorLeft->move(-127);
-  intakeMotorRight->move(-127);
-
-  // Push the tray back and reset, just in case it didn't start there
-  tiltMotor->move(-40);
-  pros::delay(250);
-
-  // Stop the rollers and reset the tray
-  intakeMotorLeft->move(0);
-  intakeMotorRight->move(0);
-  tiltMotor->tare_position();
-  tiltMotor->move(0);
-
-  // Wait for the tray to complete flip out
-  pros::delay(600);
-  intakeMotorLeft->move(127);
-  intakeMotorRight->move(127);
-}
-
-void driveReleaseTray(int drivePower) {
-  // Outtake to throw the rollers forward
-  pid->resetEncoders();
-  intakeMotorLeft->move(-127);
-  intakeMotorRight->move(-127);
-
-  // Push the tray back and reset, just in case it didn't start there
-  tiltMotor->move(-40);
-  for (int i = 0; i < 5; i++) {
-    pid->driveStraight(drivePower);
-    pros::delay(20);
-  }
-
-  // Stop the rollers and reset the tray
-  intakeMotorLeft->move(0);
-  intakeMotorRight->move(0);
-  tiltMotor->tare_position();
-  tiltMotor->move(0);
-
-  // Wait for the tray to complete flip out
-  for (int i = 0; i < 40; i++) {
-    pid->driveStraight(drivePower);
-    pros::delay(20);
-  }
-  intakeMotorLeft->move(127);
-  intakeMotorRight->move(127);
+  liftMotor->move(127);
+  pros::delay(550);
+  liftMotor->move(-100);
+  pros::delay(660);
+liftMotor->move(0);
+pros::delay(750);
 }
 
 void autonomousBlueTall() {
@@ -76,17 +36,17 @@ void autonomousBlueTall() {
   // Drive slowly to knock the first stack
   intakeMotorRight->move(108);
   intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 65);
+  pid->velocityMove(30.5, 50);
 
   // Woit and try and intake any fallen cubes
   pros::delay(1000);
-  pid->velocityMove(20.5, 65);
+  pid->velocityMove(20.5, 50);
   pros::delay(300);
 
   // Move back to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(-30);
+  pid->move(-27);
 
   // Turn to intake the solo cube
   double pivotAmount = 90;
@@ -96,12 +56,12 @@ void autonomousBlueTall() {
     pid->pivotRelative(pivotAmount);
 
   // Intake the solo cube
-  intakeMotorRight->move(90);
-  intakeMotorLeft->move(90);
-  pid->velocityMove(14, 50);
+  intakeMotorRight->move(108);
+  intakeMotorLeft->move(108);
+  pid->velocityMove(13, 50);
 
   // Turn to score
-  pivotAmount = 48;
+  pivotAmount = 30;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
@@ -110,7 +70,7 @@ void autonomousBlueTall() {
   // Move to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(19);
+  pid->move(17);
 
   // Score the stack
   intakeMotorRight->move(-10);
@@ -140,17 +100,17 @@ void autonomousRedTall() {
   // Drive slowly to knock the first stack
   intakeMotorRight->move(108);
   intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 65);
+  pid->velocityMove(30.5, 50);
 
   // Woit and try and intake any fallen cubes
   pros::delay(1000);
-  pid->velocityMove(20.5, 65);
+  pid->velocityMove(20.5, 50);
   pros::delay(300);
 
   // Move back to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(-28);
+  pid->move(-27);
 
   // Turn to intake the solo cube
   double pivotAmount = -90;
@@ -160,12 +120,12 @@ void autonomousRedTall() {
     pid->pivotRelative(pivotAmount);
 
   // Intake the solo cube
-  intakeMotorRight->move(90);
-  intakeMotorLeft->move(90);
+  intakeMotorRight->move(108);
+  intakeMotorLeft->move(108);
   pid->velocityMove(13, 50);
 
   // Turn to score
-  pivotAmount = -45;
+  pivotAmount = -30;
   if (absoluteTurn)
     pid->pivot(pivotAmount);
   else
@@ -174,7 +134,7 @@ void autonomousRedTall() {
   // Move to score
   intakeMotorRight->move(50);
   intakeMotorLeft->move(50);
-  pid->move(19.8);
+  pid->move(17);
 
   // Score the stack
   intakeMotorRight->move(-10);
@@ -194,17 +154,47 @@ void autonomousRedTall() {
 
 void autonomousBlueFlat() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+  bool absoluteTurn = true;
+  bool absoluteMove = true;
 
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(41.5, 89);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(57, 60);
   pros::delay(300);
+
+  pid->move(-51);
+  pid->pivot(-90);
+  int steps = 70;
+  pid->setAbsoluteDesiredHeading(-90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(-80);
+    pros::delay(20);
+  }
+  pid->move(13);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  pros::delay(500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  // Score the stack
+  while (tiltMotor->get_position() < 700)
+    tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
+  pros::delay(1500);
+
+  // Move the tray back and let go go of the stack
+  pid->velocityMove(-10, 50, false);
+  tiltMotor->move_absolute(0, 60);
+  return;
 
   // Slow the intake and drive back
   intakeMotorRight->move(70);
@@ -283,17 +273,47 @@ void autonomousBlueFlat() {
 
 void autonomousRedFlat() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+  bool absoluteTurn = true;
+  bool absoluteMove = true;
 
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(41.5, 95);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(57, 60);
   pros::delay(300);
+
+  pid->move(-51);
+  pid->pivot(90);
+  int steps = 70;
+  pid->setAbsoluteDesiredHeading(90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(80);
+    pros::delay(20);
+  }
+  pid->move(13);
+
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  pros::delay(500);
+
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  // Score the stack
+  while (tiltMotor->get_position() < 700)
+    tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
+  pros::delay(1500);
+
+  // Move the tray back and let go go of the stack
+  pid->velocityMove(-10, 50, false);
+  tiltMotor->move_absolute(0, 60);
+  return;
 
   // Slow the intake and drive back
   intakeMotorRight->move(70);
@@ -308,7 +328,7 @@ void autonomousRedFlat() {
     pid->pivotRelative(pivotAmount);
 
   // Move into position
-  pid->move(-23, absoluteMove);
+  pid->move(-26, absoluteMove);
 
   // Turn to face the next line of cubes
   pivotAmount = 67;
@@ -320,7 +340,7 @@ void autonomousRedFlat() {
   // Intake the next line of cubes
   intakeMotorRight->move(110);
   intakeMotorLeft->move(110);
-  pid->velocityMove(34.5, 88);
+  pid->velocityMove(34.5, 75);
   pros::delay(400);
 
   // Get ready to stack

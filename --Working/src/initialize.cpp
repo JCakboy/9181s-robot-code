@@ -11,14 +11,13 @@ void initialize() {
 	LCD::initializeLLEMU(ports::controllerMain, ports::controllerPartner);
 
 	// Initializes the gyro with calibration
-	LCD::setStatus("Calibrating gyroscope...");
-	LCD::setText(2, "***DO NOT MOVE THE ROBOT***");
-	pros::delay(1500);
-	LCD::setText(2, "");
+	LCD::setStatus("Calibrating inertial sensor...");
+	LCD::setText(2, "Do not touch the robot");
 
-	// Use the first gyro only
-	ports::gyro->useFirstGyro(true);
-	ports::gyro->useSecondGyro(false);
+	ports::imu->reset();
+
+	pros::delay(2250);
+	LCD::setText(2, "");
 
 	// Brake the tilt motor
 	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
@@ -30,11 +29,11 @@ void initialize() {
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 40);
-	ports::pid->setMovePosPID(0.29, 0.000, 0.22);
-	ports::pid->setMoveVelPID(0.315, 0.002, 0.265);
-	ports::pid->setPivotPID(970, 0.19, 0.00015, 0.175);
+	ports::pid->setMovePosPID(0.29, 0.000, 0.50);
+	ports::pid->setMoveVelPID(3.75, 0.000, 1.7);
+	ports::pid->setPivotPID(1.3, 0.01, 7);
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
-	ports::pid->setStrafeVelPID(0.58, 0.000, 0.1);
+	ports::pid->setStrafeVelPID(7, 0.000, 0);
 	ports::pid->setForwardAcceleration(1.14, 3, 50);
 	ports::pid->setBackwardAcceleration(1.14, 3, 50);
 
