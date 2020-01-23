@@ -20,9 +20,9 @@ namespace ports {
   pros::Motor * port10 = NULL;
   pros::Motor * port11 = NULL;
   pros::Motor * port12 = NULL;
-  pros::Motor * port13 = new pros::Motor(13, GEARSET_200, FWD, ENCODER_DEGREES);
+  pros::Motor * port13 = NULL;
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port15 = NULL;
+  pros::Motor * port15 = new pros::Motor(15, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port16 = NULL;
   pros::Motor * port17 = new pros::Motor(17, GEARSET_100, REV, ENCODER_DEGREES);
   pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
@@ -31,8 +31,8 @@ namespace ports {
   pros::Motor * port21 = NULL;
 
   // Port mapping
-  pros::Motor * frontLeftDrive = port14;
-  pros::Motor * backLeftDrive = port13;
+  pros::Motor * frontLeftDrive = port15;
+  pros::Motor * backLeftDrive = port14;
   pros::Motor * frontRightDrive = port18;
   pros::Motor * backRightDrive = port19;
   pros::Motor * intakeMotorLeft = port2;
