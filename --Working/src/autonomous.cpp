@@ -440,9 +440,11 @@ void autonnomousSkills() {
   pid->velocityMove(55, 60);
 
   // Turn to face the scoring zone
+  intakeMotorRight->move(50);
+  intakeMotorLeft->move(50);
+  pid->pivot(-90);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->pivot(-90);
   // Strafe align for scoring
   steps = 68;
   pid->setAbsoluteDesiredHeading(-90);
@@ -451,7 +453,7 @@ void autonnomousSkills() {
     pros::delay(20);
   }
   // Move into position to score
-  pid->move(11.5);
+  pid->move(10.7);
 
   // Score the first stack
   while (tiltMotor->get_position() < 700)
@@ -462,7 +464,7 @@ void autonnomousSkills() {
   pros::delay(1500);
 
   // Move the tray back and let go go of the stack
-  pid->velocityMove(-17.7, 50, false);
+  pid->velocityMove(-17.7, 55, false);
   tiltMotor->move_absolute(0, 60);
 
   // Turn and reset to get in position to score the next tower
@@ -491,7 +493,7 @@ void autonnomousSkills() {
 
   // Score the center tower
   liftMotor->move_absolute(490, 100);
-  pros::delay(1500);
+  pros::delay(1100);
   pid->velocityMove(8, 40);
   intakeMotorRight->move(-100);
   intakeMotorLeft->move(-100);
@@ -501,7 +503,7 @@ void autonnomousSkills() {
 
   // Move into position and face the tall tower
   liftMotor->move_absolute(0, 100);
-  pid->move(-32);
+  pid->move(-34);
 
   tiltMotor->move_absolute(500, 48); // TO FIT FIELD, REMOVE
   pros::delay(1000);
@@ -512,25 +514,110 @@ void autonnomousSkills() {
   // Get the tower cube
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->move(18);
+  pid->move(19.6);
   pros::delay(500);
   // Set the cube in the intake
-  intakeMotorRight->move(-80);
-  intakeMotorLeft->move(-80);
-  pros::delay(800);
+  intakeMotorRight->move(-70);
+  intakeMotorLeft->move(-70);
+  pros::delay(600);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->velocityMove(-6, 40);
+  pid->velocityMove(-4.2, 40);
 
   // Score the tower
   liftMotor->move_absolute(614, 100);
   pros::delay(1500);
   pid->velocityMove(8, 40);
-  intakeMotorRight->move(-100);
-  intakeMotorLeft->move(-100);
-  pros::delay(950);
+  intakeMotorRight->move(-127);
+  intakeMotorLeft->move(-127);
+  pros::delay(1000);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
+
+  // Get in position to intake the second row of cubes
+  pid->move(-4.5);
+  pid->pivot(90);
+  liftMotor->move_absolute(0, 100);
+  // Reset
+  steps = 60;
+  pid->tareDesiredHeading();
+  for (int i = 0; i < steps; i++) {
+    pid->driveStraight(-73);
+    pros::delay(20);
+  }
+  gyro->tarePosition();
+  pid->tareDesiredHeading();
+
+  // Intake the second line of cubes
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(65, 70);
+  pid->velocityMove(54, 60);
+
+  pid->pivot(90);
+  pid->move(20);
+
+  // Strafe align for scoring
+  steps = 68;
+  pid->setAbsoluteDesiredHeading(-90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(-85);
+    pros::delay(20);
+  }
+
+  // Move into position to score
+  pid->move(12);
+
+  intakeMotorRight->move(-45);
+  intakeMotorLeft->move(-45);
+  pros::delay(250);
+  intakeMotorRight->move(-17);
+  intakeMotorLeft->move(-17);
+  // Score the stack
+  while (tiltMotor->get_position() < 650)
+    tiltMotor->move(48 + (666 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  pid->powerDrive(10, 10);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
+  pros::delay(500);
+
+  // Move the tray back and let go go of the stack
+  pid->velocityMove(-18, 55, false);
+  tiltMotor->move_absolute(0, 60);
+
+  // Strafe
+  steps = 45;
+  pid->setAbsoluteDesiredHeading(-90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(85);
+    pros::delay(20);
+  }
+  pid->pivot(180);
+
+  // Get the tower cube
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->move(16);
+  pros::delay(500);
+  // Set the cube in the intake
+  intakeMotorRight->move(-70);
+  intakeMotorLeft->move(-70);
+  pros::delay(600);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  pid->velocityMove(-5, 40);
+
+  // Score the tower
+  liftMotor->move_absolute(614, 100);
+  pros::delay(1500);
+  pid->velocityMove(8, 40);
+  intakeMotorRight->move(-127);
+  intakeMotorLeft->move(-127);
+  pros::delay(1000);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
 }
 
 void autonomousDrvSkills() {
