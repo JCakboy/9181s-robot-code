@@ -117,14 +117,14 @@ void opcontrol() {
 		// 	pid->setNoStopDebug(true);
 		// 	pid->setControllerXStop(true);
 		// 	pid->setLoggingDebug(true);
-		// 	pid->move(40);
+		// 	pid->move(10);
 		// }
 		//
 		// if (controllerMain->get_digital(BUTTON_B)) {
 		// 	pid->setNoStopDebug(true);
 		// 	pid->setControllerXStop(true);
 		// 	pid->setLoggingDebug(true);
-		// 	pid->move(50, true);
+		// 	pid->move(-10);
 		// }
 		//
 		// if (controllerMain->get_digital(BUTTON_Y)) {

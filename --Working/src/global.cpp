@@ -23,8 +23,8 @@ namespace ports {
   pros::Motor * port13 = NULL;
   pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES);
   pros::Motor * port15 = new pros::Motor(15, GEARSET_200, FWD, ENCODER_DEGREES);
-  pros::Motor * port16 = NULL;
-  pros::Motor * port17 = new pros::Motor(17, GEARSET_100, REV, ENCODER_DEGREES);
+  pros::Motor * port16 = new pros::Motor(16, GEARSET_100, REV, ENCODER_DEGREES);
+  pros::Motor * port17 = NULL;
   pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES);
   pros::Motor * port20 = NULL;
@@ -37,13 +37,13 @@ namespace ports {
   pros::Motor * backRightDrive = port19;
   pros::Motor * intakeMotorLeft = port2;
   pros::Motor * intakeMotorRight = port9;
-  pros::Motor * tiltMotor = port17;
+  pros::Motor * tiltMotor = port16;
   pros::Motor * liftMotor = port8;
 
   // Vision sensor
 
   // Inertial sensor
-  pros::Imu * imu = new pros::Imu(15);
+  pros::Imu * imu = new pros::Imu(17);
 
   // ADI (3-wire) ports
   pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('A', 'B');

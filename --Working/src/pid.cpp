@@ -305,7 +305,6 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
 
     // Print the sensor debug information
     LCD::printDebugInformation();
-    LCD::setText(6, std::to_string(error));
 
     // Run every 20 ms
     pros::delay(20);
@@ -576,6 +575,9 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   // If requested, modify the current desired heading
   if (modifyDesiredHeading)
     PID::desiredHeading = heading;
+
+  // Stop the motors and exit
+  powerDrive(0, 0);
 }
 
 // Sets the desired heading to the current heading
