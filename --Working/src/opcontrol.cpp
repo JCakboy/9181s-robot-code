@@ -102,9 +102,9 @@ void opcontrol() {
 
 		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30))
-			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.155); // Simple P controller
+			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.15); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15))
-			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.0875); // Simple P controller
+			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.085); // Simple P controller
 		else if (controllerMain->get_digital(BUTTON_L1))
 			tiltMotor->move_absolute(traytarget, 48); // Gets rid of the jittering
 
