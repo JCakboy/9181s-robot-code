@@ -72,6 +72,7 @@ void opcontrol() {
 
 	// Target for tray to be perpendicular to the ground
 	const int traytarget = 740;
+	int trayMoveStage = 0;
 
 	while (true) {
 		// Drives the robot with the main controller
@@ -101,17 +102,22 @@ void opcontrol() {
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30))
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30) && trayMoveStage <= 1) {
 			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.15); // Simple P controller
-		else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15))
+			trayMoveStage = 1;
+		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15) && trayMoveStage <= 2) {
 			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.085); // Simple P controller
-		else if (controllerMain->get_digital(BUTTON_L1))
+			trayMoveStage = 2;
+		} else if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage <= 3) {
 			tiltMotor->move_absolute(traytarget, 48); // Gets rid of the jittering
+			trayMoveStage = 3;
+		}
 
 		// Otherwise, lower the tray
-		else if (tiltMotor->get_position() > 5)
+		else if (tiltMotor->get_position() > 5) {
 			tiltMotor->move_absolute(0, 50);
-		else tiltMotor->move(0);
+			trayMoveStage = 0;
+		} else tiltMotor->move(0);
 
 		// if (controllerMain->get_digital(BUTTON_X)) {
 		// 	pid->setNoStopDebug(true);
