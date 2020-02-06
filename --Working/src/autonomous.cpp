@@ -167,161 +167,38 @@ void autonomousBlueFlat() {
   bool absoluteMove = true;
 
   // Release the tray
-  skillsReleaseTray();
+  releaseTray();
 
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(45, 100);
+  pid->velocityMove(57, 60);
   pros::delay(300);
 
-  pid->setAbsoluteDesiredHeading(-70);
-  pid->move(22);
-
-  pid->pivot(-125);
-
-  pid->setAbsoluteDesiredHeading(-180);
-  pid->velocityMove(43, 75);
-
-  pid->pivot(90);
+  pid->move(-51);
+  pid->pivot(-90);
   int steps = 70;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
     pid->strafeStraight(-80);
     pros::delay(20);
   }
-  intakeMotorRight->move(-45);
-  intakeMotorLeft->move(-45);
-  pid->move(10); // Was 10.7
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
+  pid->move(13);
 
-  // Score the first stack
-  while (tiltMotor->get_position() < 700)
-    tiltMotor->move(46 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(1500);
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
+  pros::delay(500);
 
-  // Move the tray back and let go go of the stack
-  pid->velocityMove(-15.5, 55, false);
-}
-
-void autonomousBlueFlatBackup() {
-  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = true;
-  bool absoluteMove = true;
-
-  // Release the tray
-  releaseTray();
-
-  // Intake the first line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(45, 100);
-  pros::delay(300);
-
-  // pid->move(-51);
-  // pid->pivot(-90);
-  // int steps = 70;
-  // pid->setAbsoluteDesiredHeading(-90);
-  // for (int i = 0; i < steps; i++) {
-  //   pid->strafeStraight(-80);
-  //   pros::delay(20);
-  // }
-  // pid->move(13);
-  //
-  // intakeMotorRight->move(-60);
-  // intakeMotorLeft->move(-60);
-  // pros::delay(500);
-  //
-  // intakeMotorRight->move(0);
-  // intakeMotorLeft->move(0);
-  //
-  // // Score the stack
-  // while (tiltMotor->get_position() < 700)
-  //   tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  // intakeMotorRight->move(0);
-  // intakeMotorLeft->move(0);
-  // tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  // pros::delay(1500);
-  //
-  // // Move the tray back and let go go of the stack
-  // pid->velocityMove(-10, 50, false);
-  // tiltMotor->move_absolute(0, 60);
-  // return;
-
-  // Slow the intake and drive back
-  intakeMotorRight->move(70);
-  intakeMotorLeft->move(70);
-  pid->move(-27);
-
-  // // Get in position to turn to the next line of cubes
-  // double pivotAmount = 65;
-  // if (absoluteTurn)
-  //   pid->pivot(pivotAmount);
-  // else
-  //   pid->pivotRelative(pivotAmount);
-
-  // Move into position
-  pid->setAbsoluteDesiredHeading(65);
-  pid->move(-32);
-
-  // Turn to face the next line of cubes
-  double pivotAmount = -65;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount, 8);
-  else
-    pid->pivotRelative(pivotAmount, 8);
-
-  // Intake the next line of cubes
-  intakeMotorRight->move(110);
-  intakeMotorLeft->move(110);
-  pid->setAbsoluteDesiredHeading(0);
-  pid->velocityMove(30.5, 83);
-  pros::delay(400);
-
-  // pid->move(-28);
-  // pid->pivot(-90);
-  // int steps = 70;
-  // pid->setAbsoluteDesiredHeading(-90);
-  // for (int i = 0; i < steps; i++) {
-  //   pid->strafeStraight(-80);
-  //   pros::delay(20);
-  // }
-  // pid->velocityMove(6, 50);
-  //
-  // intakeMotorRight->move(-60);
-  // intakeMotorLeft->move(-60);
-  // pros::delay(500);
-  //
-  // intakeMotorRight->move(0);
-  // intakeMotorLeft->move(0);
-  // Pivot to face to the scoring zone
-  pid->move(-19);
-  pid->setPowerLimits(120, 35);
-  pivotAmount = -134;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount, 3.5);
-  else
-    pid->pivotRelative(pivotAmount, 4);
-  ports::pid->setPowerLimits(120, 48);
-  pros::delay(100);
-
-  // Move forward into the scoring position
-  intakeMotorRight->move(-45);
-  intakeMotorLeft->move(-45);
-  pid->velocityMove(13, 80, absoluteMove);
-  pid->powerDrive(0,0);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
 
   // Score the stack
   while (tiltMotor->get_position() < 700)
     tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
   tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(1350);
+  pros::delay(1500);
 
   // Move the tray back and let go go of the stack
   pid->velocityMove(-10, 50, false);
@@ -342,105 +219,30 @@ void autonomousRedFlat() {
   pid->velocityMove(57, 60);
   pros::delay(300);
 
-  // pid->move(-51);
-  // pid->pivot(90);
-  // int steps = 70;
-  // pid->setAbsoluteDesiredHeading(90);
-  // for (int i = 0; i < steps; i++) {
-  //   pid->strafeStraight(80);
-  //   pros::delay(20);
-  // }
-  // pid->move(13);
-  //
-  // intakeMotorRight->move(-60);
-  // intakeMotorLeft->move(-60);
-  // pros::delay(500);
-  //
-  // intakeMotorRight->move(0);
-  // intakeMotorLeft->move(0);
-  //
-  // // Score the stack
-  // while (tiltMotor->get_position() < 700)
-  //   tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  // intakeMotorRight->move(0);
-  // intakeMotorLeft->move(0);
-  // tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  // pros::delay(1500);
-  //
-  // // Move the tray back and let go go of the stack
-  // pid->velocityMove(-10, 50, false);
-  // tiltMotor->move_absolute(0, 60);
-  // return;
+  pid->move(-51);
+  pid->pivot(90);
+  int steps = 70;
+  pid->setAbsoluteDesiredHeading(90);
+  for (int i = 0; i < steps; i++) {
+    pid->strafeStraight(80);
+    pros::delay(20);
+  }
+  pid->move(13);
 
-  // Slow the intake and drive back
-  intakeMotorRight->move(70);
-  intakeMotorLeft->move(70);
-  pid->move(-29);
-
-  // Get in position to turn to the next line of cubes
-  double pivotAmount = -67;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount);
-  else
-    pid->pivotRelative(pivotAmount);
-
-  // Move into position
-  pid->move(-26, absoluteMove);
-
-  // Turn to face the next line of cubes
-  pivotAmount = 67;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount, 8);
-  else
-    pid->pivotRelative(pivotAmount, 8);
-
-  // Intake the next line of cubes
-  intakeMotorRight->move(110);
-  intakeMotorLeft->move(110);
-  pid->velocityMove(34.5, 75);
-  pros::delay(400);
-
-  // Get ready to stack
-  pid->move(-18, absoluteMove);
-  intakeMotorRight->move(80);
-  intakeMotorLeft->move(80);
-  frontLeftDrive->set_brake_mode(BRAKE_HOLD);
-  frontRightDrive->set_brake_mode(BRAKE_HOLD);
-  backLeftDrive->set_brake_mode(BRAKE_HOLD);
-  backRightDrive->set_brake_mode(BRAKE_HOLD);
-
-  // Pivot to face to the scoring zone
-  pid->setPowerLimits(120, 35);
-  pivotAmount = 127.3;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount, 4);
-  else
-    pid->pivotRelative(pivotAmount, 4);
-  ports::pid->setPowerLimits(120, 48);
-  pros::delay(100);
-
-  // Move forward into the scoring position
-  pid->velocityMove(16, 80, absoluteMove);
-  pid->velocityMove(-2.1, 50, absoluteMove);
-  pid->powerDrive(0,0);
-  pros::delay(250);
-  intakeMotorRight->move(-17);
-  intakeMotorLeft->move(-17);
-
-  // Score the stack
-  while (tiltMotor->get_position() < 650)
-    tiltMotor->move(48 + (666 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  pid->powerDrive(10, 10);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
+  intakeMotorRight->move(-60);
+  intakeMotorLeft->move(-60);
   pros::delay(500);
 
-  // Brake the motors
-  frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-  backLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  backRightDrive->set_brake_mode(BRAKE_BRAKE);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  // Score the stack
+  while (tiltMotor->get_position() < 700)
+    tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+  tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
+  pros::delay(1500);
 
   // Move the tray back and let go go of the stack
   pid->velocityMove(-10, 50, false);
@@ -477,14 +279,14 @@ void autonnomousSkills() {
 
   // Back up and get in position to intake the first line of cubes
   liftMotor->move_absolute(0, 100);
-  pid->move(-14.5);
+  pid->move(-13.5);
   pid->pivot(45);
 
   // Reset
   int steps = 40;
   pid->setAbsoluteDesiredHeading(45);
   for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-60);
+    pid->driveStraight(-50);
     pros::delay(20);
   }
   gyro->tarePosition();
@@ -500,17 +302,17 @@ void autonnomousSkills() {
   intakeMotorRight->move(120);
   intakeMotorLeft->move(120);
   pid->pivot(-90);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
   // Strafe align for scoring
-  steps = 78;
+  steps = 90;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
     pid->strafeStraight(85);
     pros::delay(20);
   }
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
   // Move into position to score
-  pid->move(9.1); // Was 10.7
+  pid->move(9.6); // Was 10.7
 
   // Score the first stack
   while (tiltMotor->get_position() < 700)
@@ -521,7 +323,7 @@ void autonnomousSkills() {
   pros::delay(1500);
 
   // Move the tray back and let go go of the stack
-  pid->velocityMove(-15.5, 55, false);
+  pid->velocityMove(-14.75, 55, false);
   tiltMotor->move_absolute(0, 60);
 
   // Turn and reset to get in position to score the next tower
@@ -529,7 +331,7 @@ void autonnomousSkills() {
   steps = 40;
   pid->tareDesiredHeading();
   for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-60);
+    pid->driveStraight(-50);
     pros::delay(20);
   }
   gyro->tarePosition();
@@ -559,8 +361,8 @@ void autonnomousSkills() {
   intakeMotorLeft->move(0);
 
   // Move into position and face the tall tower
-  liftMotor->move_absolute(0, 100);
-  pid->move(-30.4);
+  liftMotor->move_absolute(0, 80);
+  pid->move(-31);
   pid->pivot(-88.8);
   pros::delay(300);
   pid->tareDesiredHeading();
@@ -568,7 +370,7 @@ void autonnomousSkills() {
   // Get the tower cube
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(13, 65);
+  pid->velocityMove(14, 65);
   pros::delay(700);
   // Set the cube in the intake
   intakeMotorRight->move(-70);
@@ -593,10 +395,10 @@ void autonnomousSkills() {
   pid->pivot(90);
   liftMotor->move_absolute(0, 100);
   // Reset
-  steps = 60;
+  steps = 80;
   pid->tareDesiredHeading();
   for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-73);
+    pid->driveStraight(-50);
     pros::delay(20);
   }
   gyro->tarePosition();
@@ -606,7 +408,7 @@ void autonnomousSkills() {
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
   pid->velocityMove(65, 70);
-  pid->velocityMove(54, 60);
+  pid->velocityMove(54, 50);
 
   pid->pivot(90);
   pid->move(20);
@@ -620,11 +422,11 @@ void autonnomousSkills() {
   }
 
   // Move into position to score
-  pid->move(11.5);
+  pid->move(10.3);
 
-  intakeMotorRight->move(-50);
-  intakeMotorLeft->move(-50);
-  pros::delay(400);
+  intakeMotorRight->move(-45);
+  intakeMotorLeft->move(-45);
+  pros::delay(350);
   intakeMotorRight->move(-17);
   intakeMotorLeft->move(-17);
   // Score the stack
@@ -634,12 +436,12 @@ void autonnomousSkills() {
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
   tiltMotor->move_absolute(666, 48); // Gets rid of the jittering
-  pros::delay(500);
+  pros::delay(1500);
 
   // Move the tray back and let go go of the stack
   pid->velocityMove(-18, 55, false);
   tiltMotor->move_absolute(0, 60);
-
+return;
   // Strafe
   steps = 55;
   pid->setAbsoluteDesiredHeading(-90);
@@ -689,7 +491,22 @@ void autonomousDrvSkills() {
     pros::delay(1);
 
   pros::Task dsopcontrol (Temp::call, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Driver Skills");
+  competitionTimer->opcontrolWaitUntil(30000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(50000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(55000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(56000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(57000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(58000);
+  controllerMain->rumble(".");
+  competitionTimer->opcontrolWaitUntil(59000);
+  controllerMain->rumble(".");
   competitionTimer->opcontrolWaitUntil(60000);
+  controllerMain->rumble(".");
   dsopcontrol.suspend();
 
   ports::frontLeftDrive->move(0);
