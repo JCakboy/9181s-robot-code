@@ -17,18 +17,18 @@ using namespace ports;
 
 void releaseTray() {
   liftMotor->move(127);
-  pros::delay(400);
-  liftMotor->move(-100);
-  pros::delay(450);
+  pros::delay(630);
+  liftMotor->move(-110);
+  pros::delay(720);
   liftMotor->move(0);
-  pros::delay(250);
+  pros::delay(675);
 }
 
 void skillsReleaseTray() {
   liftMotor->move(127);
   pros::delay(650);
   liftMotor->move(-100);
-  pros::delay(750);
+  pros::delay(715);
   liftMotor->move(0);
   pros::delay(750);
 }
@@ -172,22 +172,31 @@ void autonomousBlueFlat() {
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(57, 60);
-  pros::delay(300);
+  pid->velocityMove(44.5, 78);
+  pid->velocityMove(10.3, 55);
+  pros::delay(220);
+  pid->move(-10);
+  pid->setAbsoluteDesiredHeading(58);
+  pid->velocityMove(8, 88);
+  pid->setAbsoluteDesiredHeading(0);
 
-  pid->move(-51);
+  pid->move(-43);
   pid->pivot(-90);
-  int steps = 70;
+  int steps = 33;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(-80);
+    pid->strafeStraight(-127);
     pros::delay(20);
   }
-  pid->move(13);
 
-  intakeMotorRight->move(-60);
-  intakeMotorLeft->move(-60);
-  pros::delay(500);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  pid->move(12.3);
+
+  intakeMotorRight->move(-55);
+  intakeMotorLeft->move(-55);
+  pros::delay(400);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -198,10 +207,10 @@ void autonomousBlueFlat() {
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
   tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(1500);
+  pros::delay(800);
 
   // Move the tray back and let go go of the stack
-  pid->velocityMove(-10, 50, false);
+  pid->velocityMove(-10, 40, false);
   tiltMotor->move_absolute(0, 60);
 }
 
@@ -216,22 +225,31 @@ void autonomousRedFlat() {
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(57, 60);
-  pros::delay(300);
+  pid->velocityMove(44.3, 77);
+  pid->velocityMove(10.3, 50);
+  pros::delay(220);
+  pid->move(-10);
+  pid->setAbsoluteDesiredHeading(-58);
+  pid->velocityMove(8.2, 90);
+  pid->setAbsoluteDesiredHeading(0);
 
-  pid->move(-51);
+  pid->move(-43.5);
   pid->pivot(90);
-  int steps = 70;
+  int steps = 30;
   pid->setAbsoluteDesiredHeading(90);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(80);
+    pid->strafeStraight(120);
     pros::delay(20);
   }
-  pid->move(13);
 
-  intakeMotorRight->move(-60);
-  intakeMotorLeft->move(-60);
-  pros::delay(500);
+  intakeMotorRight->move(0);
+  intakeMotorLeft->move(0);
+
+  pid->move(13.5);
+
+  intakeMotorRight->move(-55);
+  intakeMotorLeft->move(-55);
+  pros::delay(400);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -242,10 +260,10 @@ void autonomousRedFlat() {
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
   tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(1500);
+  pros::delay(800);
 
   // Move the tray back and let go go of the stack
-  pid->velocityMove(-10, 50, false);
+  pid->velocityMove(-10, 40, false);
   tiltMotor->move_absolute(0, 60);
 }
 
@@ -422,7 +440,7 @@ void autonnomousSkills() {
   }
 
   // Move into position to score
-  pid->move(10.3);
+  pid->move(9.9);
 
   intakeMotorRight->move(-45);
   intakeMotorLeft->move(-45);
