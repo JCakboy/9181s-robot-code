@@ -67,6 +67,7 @@ void LCD::printDebugInformation() {
   // Print sensor information
   LCD::setText(2, std::to_string(ports::gyro->getHeading()));
   LCD::setText(3, "Left: " + std::to_string((int) ports::intakeMotorLeft->get_temperature()) + ", Right: " + std::to_string((int) ports::intakeMotorRight->get_temperature()));
+  LCD::setText(4, "Tray: " + std::to_string((int) ports::intakeMotorLeft->get_temperature()));
 }
 
 void LCD::setStatus(std::string status) {
