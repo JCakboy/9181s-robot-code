@@ -26,12 +26,22 @@ void initialize() {
 	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
 	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);
 
+	// Brake the drive motors
+	ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+	ports::frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+	ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+	ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
+
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
-	ports::pid->setPowerLimits(120, 40);
+	ports::pid->setPowerLimits(120, 20);
 	ports::pid->setMovePosPID(0.30, 0.000, 0.45);
 	ports::pid->setMoveVelPID(3.75, 0.000, 1.7);
-	ports::pid->setPivotPID(1.3, 0.01, 7);
+	// ports::pid->setPivotPID(1.25, 0.01105, 1.1);
+	// ports::pid->setPivotPID(1.d25, 0.013925, 1.262); // good for 90s
+	ports::pid->setPivotPID(0.8, 0.0165525, 4); //
+	// ports::pid->setPivotPID(0.8, 0.018925, 4);
+
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
 	ports::pid->setStrafeVelPID(7, 0.000, 0);
 	ports::pid->setForwardAcceleration(1.14, 3, 50);
