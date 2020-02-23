@@ -34,12 +34,12 @@ void initialize() {
 
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
-	ports::pid->setPowerLimits(120, 20);
+	ports::pid->setPowerLimits(120, 30);
 	ports::pid->setMovePosPID(0.30, 0.000, 0.45);
 	ports::pid->setMoveVelPID(3.75, 0.000, 1.7);
 	// ports::pid->setPivotPID(1.25, 0.01105, 1.1);
-	// ports::pid->setPivotPID(1.d25, 0.013925, 1.262); // good for 90s
-	ports::pid->setPivotPID(0.8, 0.0165525, 4); //
+	// ports::pid->setPivotPID(1.25, 0.013925, 1.262); // good for 90s
+	ports::pid->setPivotPID(1.00, 0.0185525, 4); //
 	// ports::pid->setPivotPID(0.8, 0.018925, 4);
 
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);

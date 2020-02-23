@@ -545,7 +545,8 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
   while (continuePIDLoop(util::abs(error) >= threshold)) {
     // Calculate the integral and derivative term and store the current error
     derivative = error - lastError;
-    errorsum += error;
+    if (util::abs(error) < 90.5) // Only activate integral when the error is less than 90 degrees
+      errorsum += error;
     lastError = error;
 
     // Determines power and checks if power is within constraints
