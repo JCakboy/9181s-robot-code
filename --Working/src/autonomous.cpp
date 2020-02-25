@@ -21,7 +21,7 @@ void releaseTray() {
   liftMotor->move(-110);
   pros::delay(720);
   liftMotor->move(0);
-  pros::delay(675);
+  pros::delay(405);
 }
 
 void skillsReleaseTray() {
@@ -172,12 +172,13 @@ void autonomousBlueFlat() {
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(44.5, 78);
-  pid->velocityMove(10.3, 55);
+  pid->velocityMove(14.3, 120);
+  pid->velocityMove(31, 67);
+  pid->velocityMove(10.3, 45);
   pros::delay(220);
-  pid->move(-10);
-  pid->setAbsoluteDesiredHeading(58);
-  pid->velocityMove(8, 88);
+  pid->move(-9.7);
+  pid->setAbsoluteDesiredHeading(60);
+  pid->velocityMove(8.2, 90);
   pid->setAbsoluteDesiredHeading(0);
 
   pid->move(-43);
@@ -194,9 +195,9 @@ void autonomousBlueFlat() {
 
   pid->move(12.8);
 
-  intakeMotorRight->move(-55);
-  intakeMotorLeft->move(-55);
-  pros::delay(400);
+  intakeMotorRight->move(-48);
+  intakeMotorLeft->move(-48);
+  pros::delay(435);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -225,11 +226,12 @@ void autonomousRedFlat() {
   // Intake the first line of cubes
   intakeMotorRight->move(127);
   intakeMotorLeft->move(127);
-  pid->velocityMove(44.3, 77);
-  pid->velocityMove(10.3, 50);
+  pid->velocityMove(14.3, 120);
+  pid->velocityMove(31, 67);
+  pid->velocityMove(10.3, 45);
   pros::delay(220);
-  pid->move(-10);
-  pid->setAbsoluteDesiredHeading(-58);
+  pid->move(-9.7);
+  pid->setAbsoluteDesiredHeading(-60);
   pid->velocityMove(8.2, 90);
   pid->setAbsoluteDesiredHeading(0);
 
@@ -247,9 +249,9 @@ void autonomousRedFlat() {
 
   pid->move(14.5);
 
-  intakeMotorRight->move(-55);
-  intakeMotorLeft->move(-55);
-  pros::delay(400);
+  intakeMotorRight->move(-48);
+  intakeMotorLeft->move(-48);
+  pros::delay(435);
 
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
@@ -275,29 +277,28 @@ void autonnomousSkills() {
   // Release the tray
   skillsReleaseTray();
 
+  liftMotor->move_absolute(490, 105);
   // Get in position to put the first cube in the alliance tower
   // intakeMotorRight->move(127);
   // intakeMotorLeft->move(127);
-  pid->velocityMove(13, 80);
+  pid->velocityMove(13, 70);
   // intakeMotorRight->move(-70);
   // intakeMotorLeft->move(-70);
   // pros::delay(580);
   // intakeMotorRight->move(0);
   // intakeMotorLeft->move(0);
   // Lift the intake
-  liftMotor->move_absolute(490, 100);
-  pros::delay(1100);
-  pid->velocityMove(6, 40);
+  pid->velocityMove(6, 38);
   // Score the cube
   intakeMotorRight->move(-100);
   intakeMotorLeft->move(-100);
-  pros::delay(950);
+  pros::delay(900);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
 
   // Back up and get in position to intake the first line of cubes
   liftMotor->move_absolute(0, 100);
-  pid->move(-13.5);
+  pid->move(-13.8);
   pid->pivot(45);
 
   // Reset
@@ -321,24 +322,24 @@ void autonnomousSkills() {
   intakeMotorLeft->move(120);
   pid->pivot(-90);
   // Strafe align for scoring
-  steps = 90;
+  steps = 78;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(85);
+    pid->strafeStraight(90);
     pros::delay(20);
   }
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
   // Move into position to score
-  pid->move(9.2); // Was 10.7
+  pid->move(9.1); // Was 10.7
 
   // Score the first stack
   while (tiltMotor->get_position() < 700)
-    tiltMotor->move(46 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
+    tiltMotor->move(42 + (730 - tiltMotor->get_position()) * 0.1925); // Simple P controller
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
   tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(1600);
+  pros::delay(1400);
 
   // Move the tray back and let go go of the stack
   pid->velocityMove(-15, 55, false);
@@ -366,11 +367,11 @@ void autonnomousSkills() {
   pros::delay(500);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->velocityMove(-6, 40);
 
   // Score the center tower
   liftMotor->move_absolute(490, 100);
-  pros::delay(1100);
+  pid->velocityMove(-6, 40);
+  pros::delay(500);
   pid->velocityMove(8, 40);
   intakeMotorRight->move(-100);
   intakeMotorLeft->move(-100);
@@ -382,7 +383,7 @@ void autonnomousSkills() {
   liftMotor->move_absolute(0, 80);
   pid->move(-31);
   pid->pivot(-88.8);
-  pros::delay(300);
+  pros::delay(100);
   pid->tareDesiredHeading();
 
   // Get the tower cube
@@ -396,11 +397,11 @@ void autonnomousSkills() {
   pros::delay(600);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);
-  pid->velocityMove(-5, 40);
 
   // Score the tower
   liftMotor->move_absolute(614, 100);
-  pros::delay(1500);
+  pid->velocityMove(-5, 40);
+  pros::delay(800);
   pid->velocityMove(9.5, 40);
   intakeMotorRight->move(-115);
   intakeMotorLeft->move(-115);
@@ -429,13 +430,14 @@ void autonnomousSkills() {
   pid->velocityMove(54, 50);
 
   pid->pivot(90);
-  pid->move(20);
+  pid->move(35);
+  pid->pivot(-90);
 
   // Strafe align for scoring
   steps = 88;
-  pid->setAbsoluteDesiredHeading(-90);
+  pid->setAbsoluteDesiredHeading(0);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(-85);
+    pid->strafeStraight(85);
     pros::delay(20);
   }
 
@@ -449,7 +451,7 @@ void autonnomousSkills() {
   intakeMotorLeft->move(-13);
   // Score the stack
   while (tiltMotor->get_position() < 650)
-    tiltMotor->move(48 + (666 - tiltMotor->get_position()) * 0.22); // Simple P controller
+    tiltMotor->move(42 + (666 - tiltMotor->get_position()) * 0.2075); // Simple P controller
   pid->powerDrive(10, 10);
   intakeMotorRight->move(0);
   intakeMotorLeft->move(0);

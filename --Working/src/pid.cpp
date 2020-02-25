@@ -566,7 +566,7 @@ void PID::pivotAbsolute(double heading, double threshold, bool modifyDesiredHead
     currentBearing = ports::gyro->getHeading();
     error = targetBearing - currentBearing;
 
-    if (abs(error) < 2) errorsum = 0;
+    if (abs(error) < 3) errorsum = 0;
 
     // Log it to the message holder if the flag is set
     if (logPIDErrors)

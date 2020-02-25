@@ -101,23 +101,14 @@ void opcontrol() {
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
-		// If stacking, hold the motors
-		if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage == 0) {
-			frontLeftDrive->set_brake_mode(BRAKE_HOLD);
-			frontRightDrive->set_brake_mode(BRAKE_HOLD);
-			backLeftDrive->set_brake_mode(BRAKE_HOLD);
-			backRightDrive->set_brake_mode(BRAKE_HOLD);
-		} else if (!controllerMain->get_digital_new_press(BUTTON_L1) && trayMoveStage > 0) {
-			frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-			frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-			backLeftDrive->set_brake_mode(BRAKE_BRAKE);
-			backRightDrive->set_brake_mode(BRAKE_BRAKE);
-		}
-
 		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .05) && trayMoveStage <= 1) {
 			tiltMotor->move(80); // Simple P controller
 			trayMoveStage = 1;
+			frontLeftDrive->set_brake_mode(BRAKE_HOLD);
+			frontRightDrive->set_brake_mode(BRAKE_HOLD);
+			backLeftDrive->set_brake_mode(BRAKE_HOLD);
+			backRightDrive->set_brake_mode(BRAKE_HOLD);
 		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30) && trayMoveStage <= 2) {
 			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.14); // Simple P controller
 			trayMoveStage = 2;
@@ -133,6 +124,10 @@ void opcontrol() {
 		else if (tiltMotor->get_position() > 5) {
 			tiltMotor->move_absolute(0, 50);
 			trayMoveStage = 0;
+			frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+			frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+			backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+			backRightDrive->set_brake_mode(BRAKE_BRAKE);
 		} else tiltMotor->move(0);
 
 		if (controllerMain->get_digital(BUTTON_X)) {
