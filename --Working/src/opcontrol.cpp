@@ -71,7 +71,7 @@ void opcontrol() {
 	competitionTimer->opcontrolStartTimer();
 
 	// Target for tray to be perpendicular to the ground
-	const int traytarget = 740;
+	const int traytarget = 780;
 	int trayMoveStage = 0;
 
 	while (true) {
@@ -89,8 +89,8 @@ void opcontrol() {
 		}
 
 		// Lock the lift if X is pressed
-		// if (controllerMain->get_digital_new_press(BUTTON_X))
-		// 	liftLock++;
+		if (controllerMain->get_digital_new_press(BUTTON_X))
+			liftLock++;
 
 		// Maps the right trigger buttons to intake and outtake the cubes
 		int intakeSpeed = 0;
@@ -102,18 +102,21 @@ void opcontrol() {
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
 		// If the left triggers are pressed, tilt the stack to be upright
-		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .05) && trayMoveStage <= 1) {
-			tiltMotor->move(80); // Simple P controller
-			trayMoveStage = 1;
+		if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage == 0) {
 			frontLeftDrive->set_brake_mode(BRAKE_HOLD);
 			frontRightDrive->set_brake_mode(BRAKE_HOLD);
 			backLeftDrive->set_brake_mode(BRAKE_HOLD);
 			backRightDrive->set_brake_mode(BRAKE_HOLD);
-		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .30) && trayMoveStage <= 2) {
-			tiltMotor->move(45 + (traytarget - tiltMotor->get_position()) * 0.14); // Simple P controller
+		}
+
+		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .535) && trayMoveStage <= 1) {
+			tiltMotor->move(127); // Simple P controller
+			trayMoveStage = 1;
+		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .368) && trayMoveStage <= 2) {
+			tiltMotor->move(55 + (traytarget - tiltMotor->get_position()) * 0.125); // Simple P controller
 			trayMoveStage = 2;
 		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15) && trayMoveStage <= 3) {
-			tiltMotor->move(65 + (traytarget - tiltMotor->get_position()) * 0.078); // Simple P controller
+			tiltMotor->move(55 + (traytarget - tiltMotor->get_position()) * 0.059); // Simple P controller
 			trayMoveStage = 3;
 		} else if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage <= 4) {
 			tiltMotor->move_absolute(traytarget, 36); // Gets rid of the jittering
@@ -130,31 +133,31 @@ void opcontrol() {
 			backRightDrive->set_brake_mode(BRAKE_BRAKE);
 		} else tiltMotor->move(0);
 
-		if (controllerMain->get_digital(BUTTON_X)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(10);
-		}
-
-		if (controllerMain->get_digital(BUTTON_B)) {
-			pid->setNoStopDebug(true);
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->move(-10);
-		}
-
-		if (controllerMain->get_digital(BUTTON_Y)) {
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(-180);
-		}
-
-		if (controllerMain->get_digital(BUTTON_A)) {
-			pid->setControllerXStop(true);
-			pid->setLoggingDebug(true);
-			pid->pivot(-90);
-		}
+		// if (controllerMain->get_digital(BUTTON_X)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(10);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_B)) {
+		// 	pid->setNoStopDebug(true);
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->move(-10);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_Y)) {
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(-180);
+		// }
+		//
+		// if (controllerMain->get_digital(BUTTON_A)) {
+		// 	pid->setControllerXStop(true);
+		// 	pid->setLoggingDebug(true);
+		// 	pid->pivot(-90);
+		// }
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
