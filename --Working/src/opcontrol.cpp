@@ -101,63 +101,36 @@ void opcontrol() {
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
-		// If the left triggers are pressed, tilt the stack to be upright
+		// If stacking should begin, hold the motors to minimize an aggressor's disturbance. Otherwise, use standard braking
 		if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage == 0) {
 			frontLeftDrive->set_brake_mode(BRAKE_HOLD);
 			frontRightDrive->set_brake_mode(BRAKE_HOLD);
 			backLeftDrive->set_brake_mode(BRAKE_HOLD);
 			backRightDrive->set_brake_mode(BRAKE_HOLD);
+		} else if (!controllerMain->get_digital(BUTTON_L1) && trayMoveStage > 0) {
+			frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+			frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+			backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+			backRightDrive->set_brake_mode(BRAKE_BRAKE);
 		}
 
+		// If the left triggers are pressed, tilt the stack to be upright
 		if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .535) && trayMoveStage <= 1) {
-			tiltMotor->move(127); // Simple P controller
+			tiltMotor->move(127); // Use max power for the beginning
 			trayMoveStage = 1;
-		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget * .368) && trayMoveStage <= 2) {
-			tiltMotor->move(55 + (traytarget - tiltMotor->get_position()) * 0.125); // Simple P controller
+		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15) && trayMoveStage <= 2) {
+			tiltMotor->move(55 + (traytarget - tiltMotor->get_position()) * 0.059); // Simple P controller to be a little faster
 			trayMoveStage = 2;
-		} else if (controllerMain->get_digital(BUTTON_L1) && tiltMotor->get_position() < (traytarget - 15) && trayMoveStage <= 3) {
-			tiltMotor->move(55 + (traytarget - tiltMotor->get_position()) * 0.059); // Simple P controller
-			trayMoveStage = 3;
-		} else if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage <= 4) {
+		} else if (controllerMain->get_digital(BUTTON_L1) && trayMoveStage <= 3) {
 			tiltMotor->move_absolute(traytarget, 36); // Gets rid of the jittering
-			trayMoveStage = 4;
+			trayMoveStage = 3;
 		}
 
 		// Otherwise, lower the tray
 		else if (tiltMotor->get_position() > 5) {
 			tiltMotor->move_absolute(0, 50);
 			trayMoveStage = 0;
-			frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-			frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-			backLeftDrive->set_brake_mode(BRAKE_BRAKE);
-			backRightDrive->set_brake_mode(BRAKE_BRAKE);
 		} else tiltMotor->move(0);
-
-		// if (controllerMain->get_digital(BUTTON_X)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->move(10);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_B)) {
-		// 	pid->setNoStopDebug(true);
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->move(-10);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_Y)) {
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->pivot(-180);
-		// }
-		//
-		// if (controllerMain->get_digital(BUTTON_A)) {
-		// 	pid->setControllerXStop(true);
-		// 	pid->setLoggingDebug(true);
-		// 	pid->pivot(-90);
-		// }
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();
@@ -168,14 +141,14 @@ void opcontrol() {
 
 		// If the up button is pressed, run autonomous
 		if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
-		// If down is pressed, run the reset routine
-		if (controllerMain->get_digital_new_press(BUTTON_DOWN)) {
-			tiltMotor->move(-40);
-			liftMotor->move(-40);
-			pros::delay(2000);
+		// While down is pressed, attempt to reset
+		while (controllerMain->get_digital_new_press(BUTTON_DOWN)) {
+			tiltMotor->move(-80);
+			liftMotor->move(-80);
 			tiltMotor->tare_position();
 			liftMotor->tare_position();
 			liftLock = false;
+			pros::delay(20);
 		}
 
 		// Update the LCD screen

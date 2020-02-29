@@ -3,7 +3,7 @@ Right stick - Lift height
 
 A -
 B -
-X -
+X - Arm lock
 Y -
 
 Up - (Debug) Run autonomous

@@ -37,10 +37,7 @@ void initialize() {
 	ports::pid->setPowerLimits(120, 30);
 	ports::pid->setMovePosPID(0.30, 0.000, 0.45);
 	ports::pid->setMoveVelPID(3.775, 0.000, 1.65);
-	// ports::pid->setPivotPID(1.25, 0.01105, 1.1);
-	// ports::pid->setPivotPID(1.25, 0.013925, 1.262); // good for 90s
-	ports::pid->setPivotPID(1.09, 0.0175, 6.32); //
-	// ports::pid->setPivotPID(0.8, 0.018925, 4);
+	ports::pid->setPivotPID(1.09, 0.0175, 6.32);
 
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
 	ports::pid->setStrafeVelPID(7, 0.000, 0);
