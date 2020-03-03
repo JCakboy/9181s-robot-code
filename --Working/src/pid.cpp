@@ -112,8 +112,8 @@ void PID::resetEncoders() {
 // Powers the drive motors based on the given powers
 void PID::powerDrive(int powerLeft, int powerRight) {
   frontLeftDrive->move(powerLeft);
-  frontRightDrive->move(powerRight);
   backLeftDrive->move(powerLeft);
+  frontRightDrive->move(powerRight);
   backRightDrive->move(powerRight);
 }
 

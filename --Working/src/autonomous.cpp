@@ -185,41 +185,34 @@ void autonomousBlueFlat() {
   bool absoluteTurn = true;
   bool absoluteMove = true;
 
+  ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
+
   // Release the tray
   releaseTray();
+  pros::delay(250);
 
   // Intake the first line of cubes
-  powerIntake(127);
-  pid->velocityMove(14.3, 120);
-  pid->velocityMove(31, 67);
-  pid->velocityMove(10.3, 45); // Slow down to make sure the neutral cube is taken
-  pros::delay(220);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(56.2, 60);
+  pros::delay(300);
 
-  // Back up
-  pid->move(-9.7);
-
-  // Curve turn to grab the 7th cube
-  pid->setAbsoluteDesiredHeading(60);
-  pid->velocityMove(8.2, 90);
-
-  // Drive back and face the scoring zone
-  pid->setAbsoluteDesiredHeading(0);
-  pid->move(-43.5);
+  pid->move(-48);
   pid->pivot(-90);
-
-  // Strafe align
-  int steps = 38;
+  int steps = 70;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(-120);
+    pid->strafeStraight(-80);
     pros::delay(20);
   }
+  pid->move(6.8);
 
   // Prepare to stack
-  powerIntake(0);
-  pid->move(14.5);
-  powerIntake(-48);
-  pros::delay(435);
+  powerIntake(-40);
+  pros::delay(500);
   powerIntake(0);
 
   // Score the stack
@@ -232,6 +225,8 @@ void autonomousBlueFlat() {
   // Move the tray back and let go go of the stack
   pid->velocityMove(-10, 40, false);
   tiltMotor->move_absolute(0, 60);
+
+  pid->move(-15);
 }
 
 void autonomousRedFlat() {
@@ -239,39 +234,30 @@ void autonomousRedFlat() {
   bool absoluteTurn = true;
   bool absoluteMove = true;
 
+  ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::frontRightDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
+  ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
+
   // Release the tray
   releaseTray();
 
   // Intake the first line of cubes
-  powerIntake(127);
-  pid->velocityMove(14.3, 120);
-  pid->velocityMove(31, 67);
-  pid->velocityMove(10.3, 45); // Slow down to make sure the neutral cube is taken
-  pros::delay(220);
+  intakeMotorRight->move(127);
+  intakeMotorLeft->move(127);
+  pid->velocityMove(57, 60);
+  pros::delay(300);
 
-  // Back up
-  pid->move(-9.7);
-
-  // Curve turn to grab the 7th cube
-  pid->setAbsoluteDesiredHeading(-60);
-  pid->velocityMove(8.2, 90);
-
-  // Drive back and face the scoring zone
-  pid->setAbsoluteDesiredHeading(0);
-  pid->move(-43.5);
+  pid->move(-51);
   pid->pivot(90);
-
-  // Strafe align
-  int steps = 38;
+  int steps = 70;
   pid->setAbsoluteDesiredHeading(90);
   for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(120);
+    pid->strafeStraight(80);
     pros::delay(20);
   }
+  pid->move(8.5);
 
-// Prepare to stack
-  powerIntake(0);
-  pid->move(14.5);
   powerIntake(-48);
   pros::delay(435);
   powerIntake(0);
@@ -312,7 +298,7 @@ void autonnomousSkills() {
 
   // Back up and get in position to intake the first line of cubes
   liftMotor->move_absolute(0, 100);
-  pid->move(-13.8);
+  pid->move(-12.35);
   pid->pivot(45);
 
   // Reset
@@ -327,14 +313,16 @@ void autonnomousSkills() {
 
   // Intake the first line of cubes
   powerIntake(127);
-  pid->velocityMove(65, 68);
-  pid->velocityMove(55, 55);
+  pid->velocityMove(12, 38);
+
+  pid->velocityMove(55, 68);
+  pid->velocityMove(56.5, 55);
 
   // Turn to face the scoring zone
   powerIntake(120);
   pid->pivot(-90);
   // Strafe align for scoring
-  steps = 78;
+  steps = 110;
   pid->setAbsoluteDesiredHeading(-90);
   for (int i = 0; i < steps; i++) {
     pid->strafeStraight(90);
@@ -343,7 +331,7 @@ void autonnomousSkills() {
   powerIntake(0);
 
   // Move into position to score
-  pid->move(8.55, 12, true); // Was 10.7
+  pid->move(9.1, 12, true); // Was 10.7
 
   // Score the first stack
   safeStack();
@@ -353,7 +341,7 @@ void autonnomousSkills() {
   powerIntake(-60);
 
   // Move the tray back and let go go of the stack
-  pid->velocityMove(-14.9, 60, false);
+  pid->velocityMove(-15.5, 60, false);
 
   // Turn and reset to get in position to score the next tower
   powerIntake(0);
@@ -388,7 +376,7 @@ void autonnomousSkills() {
   // Move into position and face the tall tower
   liftMotor->move_absolute(0, 80);
   pid->move(-31.2);
-  pid->pivot(-88.8);
+  pid->pivot(-89.2);
   pros::delay(100);
   pid->tareDesiredHeading();
 
@@ -511,17 +499,22 @@ void autonomousDrvSkills() {
 
 void autonomousOther(int selectedAutonomous) {
   // If an invalid autonomous is selected, run a one point autonomous
-  if (selectedAutonomous != 0) {
-    pid->powerDrive(-100, -100);
-    pros::delay(650);
-    pid->powerDrive(100, 100);
-    pros::delay(650);
+  // if (selectedAutonomous != 0) {
+  //   pid->powerDrive(-100, -100);
+  //   pros::delay(650);
+  //   pid->powerDrive(100, 100);
+  //   pros::delay(650);
+  //   pid->powerDrive(0, 0);
+  //   pros::delay(750);
+  // }
+  if (selectedAutonomous == -1) {
+    pid->powerDrive(127, 127);
+    pros::delay(1000);
     pid->powerDrive(0, 0);
-    pros::delay(750);
   }
   // Release the tray
-  releaseTray();
-  pros::delay(700);
+  // releaseTray();
+  // pros::delay(700);
 }
 
 // Entry point for autonomous

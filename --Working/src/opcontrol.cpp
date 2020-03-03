@@ -142,7 +142,7 @@ void opcontrol() {
 		// If the up button is pressed, run autonomous
 		if (controllerMain->get_digital_new_press(BUTTON_UP)) autonomous();
 		// While down is pressed, attempt to reset
-		while (controllerMain->get_digital_new_press(BUTTON_DOWN)) {
+		while (controllerMain->get_digital(BUTTON_DOWN)) {
 			tiltMotor->move(-80);
 			liftMotor->move(-80);
 			tiltMotor->tare_position();

@@ -41,8 +41,8 @@ void initialize() {
 
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
 	ports::pid->setStrafeVelPID(7, 0.000, 0);
-	ports::pid->setForwardAcceleration(1.14, 3, 50);
-	ports::pid->setBackwardAcceleration(1.14, 3, 50);
+	ports::pid->setForwardAcceleration(1.12, 3, 50);
+	ports::pid->setBackwardAcceleration(1.12, 3, 50);
 
 	ports::pid->setNoStopDebug(false);
 	ports::pid->setLoggingDebug(false);
