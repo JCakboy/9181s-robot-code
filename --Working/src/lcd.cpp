@@ -48,10 +48,6 @@ void LCD::onRightButton() {
   updateScreen(true);
 }
 
-void LCD::updateScreen() {
-  updateScreen(false);
-}
-
 void LCD::updateScreen(bool forceController) {
   // Updates the selected autonomous on the LCD
   setText(0, "Selected autonomous: " + LCD::getAutonomousName());

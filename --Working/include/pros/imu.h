@@ -9,7 +9,7 @@
  * This file should not be modified by users, since it gets replaced whenever
  * a kernel upgrade occurs.
  *
- * Copyright (c) 2017-2019, Purdue University ACM SIGBots.
+ * Copyright (c) 2017-2020, Purdue University ACM SIGBots.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -41,7 +41,7 @@ typedef struct __attribute__((__packed__)) quaternion_s {
 	double w;
 } quaternion_s_t;
 
-struct __attribute__((__packed__)) imu_raw_s {
+struct imu_raw_s {
 	double x;
 	double y;
 	double z;
@@ -55,6 +55,8 @@ typedef struct __attribute__((__packed__)) euler_s {
 	double roll;
 	double yaw;
 } euler_s_t;
+
+#define IMU_MINIMUM_DATA_RATE 5
 
 /**
  * Calibrate IMU
@@ -73,6 +75,33 @@ typedef struct __attribute__((__packed__)) euler_s {
  * failed, setting errno.
  */
 int32_t imu_reset(uint8_t port);
+
+
+/**
+ * Set the Inertial Sensor's refresh interval in milliseconds.
+ *
+ * The rate may be specified in increments of 5ms, and will be rounded down to
+ * the nearest increment. The minimum allowable refresh rate is 5ms. The default
+ * rate is 10ms.
+ *
+ * As values are copied into the shared memory buffer only at 10ms intervals,
+ * setting this value to less than 10ms does not mean that you can poll the
+ * sensor's values any faster. However, it will guarantee that the data is as
+ * recent as possible.
+ *
+ * This function uses the following values of errno when an error state is
+ * reached:
+ * ENXIO - The given value is not within the range of V5 ports (1-21).
+ * ENODEV - The port cannot be configured as an Inertial Sensor
+ * EAGAIN - The sensor is still calibrating
+ *
+ * \param port
+ *		  The V5 Inertial Sensor port number from 1-21
+ * \param rate The data refresh interval in milliseconds
+ * \return 1 if the operation was successful or PROS_ERR if the operation
+ * failed, setting errno.
+ */
+int32_t imu_set_data_rate(uint8_t port, uint32_t rate);
 
 /**
  * Get the total number of degrees the Inertial Sensor has spun about the z-axis
@@ -95,25 +124,6 @@ int32_t imu_reset(uint8_t port);
 double imu_get_rotation(uint8_t port);
 
 /**
- * Get the total number of degrees the Inertial Sensor has spun about the z-axis
- *
- * This function is an alias for imu_get_rotation. It is preserved for use by
- * those familiar with the vexOS API.
- *
- * This function uses the following values of errno when an error state is
- * reached:
- * ENXIO - The given value is not within the range of V5 ports (1-21).
- * ENODEV - The port cannot be configured as an Inertial Sensor
- * EAGAIN - The sensor is still calibrating
- *
- * \param  port
- * 				 The V5 Inertial Sensor port number from 1-21
- * \return The degree value or PROS_ERR_F if the operation failed, setting
- * errno.
- */
-double imu_get_vex_heading(uint8_t port);
-
-/**
  * Get the Inertial Sensor's heading relative to the initial direction of its
  * x-axis
  *
@@ -133,26 +143,6 @@ double imu_get_vex_heading(uint8_t port);
  * errno.
  */
 double imu_get_heading(uint8_t port);
-
-/**
- * Get the Inertial Sensor's heading relative to the initial direction of its
- * x-axis
- *
- * This function is an alias for imu_get_heading. It is preserved for use by
- * those familiar with the vexOS API.
- *
- * This function uses the following values of errno when an error state is
- * reached:
- * ENXIO - The given value is not within the range of V5 ports (1-21).
- * ENODEV - The port cannot be configured as an Inertial Sensor
- * EAGAIN - The sensor is still calibrating
- *
- * \param  port
- * 				 The V5 Inertial Sensor port number from 1-21
- * \return The degree value or PROS_ERR_F if the operation failed, setting
- * errno.
- */
-double imu_get_vex_degrees(uint8_t port);
 
 /**
  * Get a quaternion representing the Inertial Sensor's orientation

@@ -32,12 +32,8 @@ class LCD {
     // The method called on a right LCD button press, only effective if the LLEMU is initialized
     static void onRightButton();
 
-
-    // Updates the selected autonomous on the lCD
-    static void updateScreen();
-
     // Updates the selected autonomous on the lCD, specifying whether to force an update onto the controllers' LCD
-    static void updateScreen(bool forceController);
+    static void updateScreen(bool forceController = false);
 
     // Prints debug information to the LCD
     static void printDebugInformation();
