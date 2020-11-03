@@ -3,15 +3,15 @@ Right stick - Lift height
 
 A -
 B -
-X - Arm lock
+X -
 Y -
 
 Up - (Debug) Run autonomous
-Down - Reset routine
+Down -
 Left - Brain LCD Button Left
 Right - Brain LCD Button Right
 
 R1 - Intake
 R2 - Outtake (slower)
-L1 - (Hold) Push ladder forward to 90 degrees
-L2 - (Hold) Lock the heading and treat turning as strafing
+L1 - 
+L2 - 

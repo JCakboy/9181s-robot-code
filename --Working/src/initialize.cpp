@@ -19,9 +19,6 @@ void initialize() {
 	pros::delay(2250);
 	LCD::setText(2, "");
 
-	// Brake the tilt motor
-	ports::tiltMotor->set_brake_mode(BRAKE_BRAKE);
-
 	// Brake the intake motors
 	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
 	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);

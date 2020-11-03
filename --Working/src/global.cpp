@@ -37,8 +37,6 @@ namespace ports {
   pros::Motor * backRightDrive = port19;
   pros::Motor * intakeMotorLeft = port3;
   pros::Motor * intakeMotorRight = port6;
-  pros::Motor * tiltMotor = port16;
-  pros::Motor * liftMotor = port8;
 
   // Vision sensor
 
