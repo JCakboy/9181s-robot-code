@@ -3,7 +3,6 @@
 *.obj
 
 # PROS
-bin/
 .vscode/
 compile_commands.json
 temp.log
