@@ -10,6 +10,7 @@ namespace ports {
   extern pros::Controller * controllerPartner;
 
   // Motors
+  extern pros::Motor * emptyPort;
   extern pros::Motor * port1;
   extern pros::Motor * port2;
   extern pros::Motor * port3;
@@ -39,6 +40,8 @@ namespace ports {
   extern pros::Motor * backRightDrive;
   extern pros::Motor * intakeMotorLeft;
   extern pros::Motor * intakeMotorRight;
+  extern pros::Motor * indexer;
+  extern pros::Motor * flywheel;
 
   // Vision sensor
 

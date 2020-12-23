@@ -1,8 +1,8 @@
 Left stick - Drive
-Right stick - Lift height
+Right stick - 
 
-A -
-B -
+A - Indexer/Flywheel out
+B - 
 X -
 Y -
 
@@ -13,5 +13,5 @@ Right - Brain LCD Button Right
 
 R1 - Intake
 R2 - Outtake (slower)
-L1 - 
-L2 - 
+L1 - Indexer in (filtered)
+L2 - Flywheel in

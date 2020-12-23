@@ -11,7 +11,7 @@ void initialize() {
 	LCD::initializeLLEMU(ports::controllerMain, ports::controllerPartner);
 
 	// Initializes the gyro with calibration
-	LCD::setStatus("Calibrating inertial sensor...");
+	LCD::setStatus("Initilizing: Calibration");
 	LCD::setText(2, "Do not touch the robot");
 
 	ports::imu->reset();
@@ -19,6 +19,7 @@ void initialize() {
 	pros::delay(2250);
 	LCD::setText(2, "");
 
+	LCD::setStatus("Initilizing: Motors");
 	// Brake the intake motors
 	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
 	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);
@@ -29,6 +30,7 @@ void initialize() {
 	ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
 	ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
 
+	LCD::setStatus("Initializing: PID");
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 30);
@@ -44,6 +46,7 @@ void initialize() {
 	ports::pid->setNoStopDebug(false);
 	ports::pid->setLoggingDebug(false);
 
+	LCD::setStatus("Initializing: Tasks");
 	// Start gyroscope tracking
 	ports::gyroTask = new pros::Task(gyroTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Gyro");
 	// Start message debugging if the debugger is attached
@@ -70,4 +73,22 @@ void disabled() {
  * This task will exit when the robot is enabled and autonomous or opcontrol
  * starts.
  */
-void competition_initialize() {}
+void competition_initialize() {
+	LCD::setStatus("Competition detected");
+	
+	// Run the autonomous selector
+	while (true) {
+		// Prints debug information to the LCD
+		LCD::printDebugInformation();
+
+		// Maps the left and right buttons on the controller to the left and right buttons on the Brain LCD
+		if (ports::controllerMain->get_digital_new_press(BUTTON_LEFT)) LCD::onLeftButton();
+		if (ports::controllerMain->get_digital_new_press(BUTTON_RIGHT)) LCD::onRightButton();
+
+		// Update the LCD screen
+		LCD::updateScreen();
+
+		// Run every 20 ms
+		pros::delay(20);
+	}
+}

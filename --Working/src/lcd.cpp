@@ -113,13 +113,13 @@ std::string LCD::getAutonomousName() {
     case 0:
       return "None";
     case 1:
-      return "Blue Tall";
+      return "Blue Right";
     case 2:
-      return "Red Tall";
+      return "Red Right";
     case 3:
-      return "Blue Flat";
+      return "Blue Left";
     case 4:
-      return "Red Flat";
+      return "Red Left";
     case 5:
       return "Skills";
     case 6:

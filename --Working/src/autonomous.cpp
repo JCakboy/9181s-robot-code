@@ -21,7 +21,6 @@ void powerIntake(int power) {
   intakeMotorLeft->move(power);
 }
 
-
 // Blue front/ autonomous (represented with a tall stack of cubes)
 void autonomousBlueTall() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
