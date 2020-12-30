@@ -68,7 +68,7 @@ void LCD::printDebugInformation() {
   LCD::setText(2, std::to_string(ports::gyro->getHeading()));
   // Print temperature sensors for critical motors
   LCD::setText(3, "Left: " + std::to_string((int) ports::intakeMotorLeft->get_temperature()) + ", Right: " + std::to_string((int) ports::intakeMotorRight->get_temperature()));
-  LCD::setText(4, "Tray: " + std::to_string((int) ports::intakeMotorLeft->get_temperature()));
+  LCD::setText(4, "Flywheel: " + std::to_string((int) ports::flywheel->get_temperature()));
 }
 
 void LCD::setStatus(std::string status) {

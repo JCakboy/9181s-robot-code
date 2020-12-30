@@ -64,7 +64,7 @@ void opcontrol() {
 
 		bool outtake = controllerMain->get_digital(BUTTON_A);
 		indexer->move(outtake ? -127 : controllerMain->get_digital(BUTTON_L1) * 127);
-		flywheel->move(outtake ? -127 : controllerMain->get_digital(BUTTON_L2) * 127);
+		flywheel->move(outtake ? -127 : controllerMain->get_digital(BUTTON_L1) * 127);
 
 		// Prints debug information to the LCD
 		LCD::printDebugInformation();

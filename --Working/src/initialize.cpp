@@ -11,7 +11,7 @@ void initialize() {
 	LCD::initializeLLEMU(ports::controllerMain, ports::controllerPartner);
 
 	// Initializes the gyro with calibration
-	LCD::setStatus("Initilizing: Calibration");
+	LCD::setStatus("IMU Calibration");
 	LCD::setText(2, "Do not touch the robot");
 
 	ports::imu->reset();
@@ -19,7 +19,7 @@ void initialize() {
 	pros::delay(2250);
 	LCD::setText(2, "");
 
-	LCD::setStatus("Initilizing: Motors");
+	LCD::setStatus("Initilizing motors");
 	// Brake the intake motors
 	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
 	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);
@@ -30,7 +30,7 @@ void initialize() {
 	ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
 	ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
 
-	LCD::setStatus("Initializing: PID");
+	LCD::setStatus("Initializing PID");
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
 	ports::pid->setPowerLimits(120, 30);

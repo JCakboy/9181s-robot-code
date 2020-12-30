@@ -10,29 +10,29 @@ namespace ports {
   // Motors
   pros::Motor * emptyPort = new pros::Motor(1);
   pros::Motor * port1 = NULL;
-  pros::Motor * port2 = NULL; // Works 
+  pros::Motor * port2 = NULL; 
   pros::Motor * port3 = NULL;
-  pros::Motor * port4 = NULL;
-  pros::Motor * port5 = NULL; // Works 
-  pros::Motor * port6 = NULL; // Works 
+  pros::Motor * port4 = new pros::Motor(4, GEARSET_200, FWD, ENCODER_DEGREES); 
+  pros::Motor * port5 = NULL; 
+  pros::Motor * port6 = NULL;
   pros::Motor * port7 = NULL;
-  pros::Motor * port8 = NULL; // Works 
+  pros::Motor * port8 = NULL;
   pros::Motor * port9 = NULL;
   pros::Motor * port10 = NULL;
-  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES); // Works 
+  pros::Motor * port11 = new pros::Motor(11, GEARSET_200, FWD, ENCODER_DEGREES); 
   pros::Motor * port12 = NULL;
-  pros::Motor * port13 = NULL; // Works 
-  pros::Motor * port14 = new pros::Motor(14, GEARSET_200, FWD, ENCODER_DEGREES); // Works 
-  pros::Motor * port15 = new pros::Motor(15, GEARSET_200, FWD, ENCODER_DEGREES); // Works 
-  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, REV, ENCODER_DEGREES); // Works 
-  pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES); // Works 
-  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES); // Works 
-  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES); // Works 
-  pros::Motor * port20 = NULL; // Works 
-  pros::Motor * port21 = new pros::Motor(21, GEARSET_200, REV, ENCODER_DEGREES); // Works 
+  pros::Motor * port13 = NULL;
+  pros::Motor * port14 = NULL;
+  pros::Motor * port15 = new pros::Motor(15, GEARSET_200, FWD, ENCODER_DEGREES); 
+  pros::Motor * port16 = new pros::Motor(16, GEARSET_200, REV, ENCODER_DEGREES); 
+  pros::Motor * port17 = new pros::Motor(17, GEARSET_200, REV, ENCODER_DEGREES); 
+  pros::Motor * port18 = new pros::Motor(18, GEARSET_200, REV, ENCODER_DEGREES); 
+  pros::Motor * port19 = new pros::Motor(19, GEARSET_200, REV, ENCODER_DEGREES); 
+  pros::Motor * port20 = NULL;
+  pros::Motor * port21 = new pros::Motor(21, GEARSET_200, REV, ENCODER_DEGREES); 
 
   // Port mapping
-  pros::Motor * frontLeftDrive = port14;
+  pros::Motor * frontLeftDrive = port4;
   pros::Motor * backLeftDrive = port11;
   pros::Motor * frontRightDrive = port18;
   pros::Motor * backRightDrive = port19;
@@ -44,7 +44,7 @@ namespace ports {
   // Vision sensor
 
   // Inertial sensor
-  pros::Imu * imu = new pros::Imu(1);
+  pros::Imu * imu = new pros::Imu(3);
 
   // ADI (3-wire) ports
   pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('A', 'B');
