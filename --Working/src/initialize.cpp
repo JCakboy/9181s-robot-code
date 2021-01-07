@@ -23,6 +23,8 @@ void initialize() {
 	// Brake the intake motors
 	ports::intakeMotorLeft->set_brake_mode(BRAKE_BRAKE);
 	ports::intakeMotorRight->set_brake_mode(BRAKE_BRAKE);
+	// Brake the indexer
+	// ports::indexer->set_brake_mode(BRAKE_BRAKE);
 
 	// Brake the drive motors
 	ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
