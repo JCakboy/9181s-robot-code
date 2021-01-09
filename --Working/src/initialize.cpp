@@ -35,15 +35,16 @@ void initialize() {
 	LCD::setStatus("Initializing PID");
 	// Set the PID configuration
 	ports::pid->setVelocityGyro(ports::gyro);
-	ports::pid->setPowerLimits(120, 30);
+	ports::pid->setPowerLimits(115, 30);
 	ports::pid->setMovePosPID(0.30, 0.000, 0.45);
-	ports::pid->setMoveVelPID(3.775, 0.000, 1.65);
+	// ports::pid->setMoveVelPID(3.775, 0.000, 1.65);
+	ports::pid->setMoveVelPID(2.5, 0.000, 0.2);
 	ports::pid->setPivotPID(1.09, 0.0175, 6.32);
 
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
 	ports::pid->setStrafeVelPID(7, 0.000, 0);
-	ports::pid->setForwardAcceleration(1.12, 3, 50);
-	ports::pid->setBackwardAcceleration(1.12, 3, 50);
+	ports::pid->setForwardAcceleration(1.031, 9, 75);
+	ports::pid->setBackwardAcceleration(1.02, 8, 100);
 
 	ports::pid->setNoStopDebug(false);
 	ports::pid->setLoggingDebug(false);

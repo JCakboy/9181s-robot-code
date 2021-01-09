@@ -70,7 +70,7 @@ void opcontrol() {
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
 		else if (controllerMain->get_digital(BUTTON_R2))
-			intakeSpeed = -80;
+			intakeSpeed = -127;
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
@@ -99,6 +99,14 @@ void opcontrol() {
 
 		// Update the LCD screen
 		LCD::updateScreen();
+
+		if (controllerMain->get_digital(BUTTON_B)) {
+			pid->setRelativeDesiredHeading(90);
+			while (controllerMain->get_digital(BUTTON_B)) {
+				pros::delay(20);
+				pid->driveStraight(110);
+			}
+		}
 
 		// Run every 20 ms
 		pros::delay(20);
