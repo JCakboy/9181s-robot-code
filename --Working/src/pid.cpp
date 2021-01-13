@@ -8,11 +8,11 @@ PID::PID() = default;
 
 // Returns the calculated full gear ratio
 double PID::getGearRatio() {
-  double in = 2;
-  double out = 3;
-  double wheelDiameter = 4; // in inches
+  double in = 9.0;
+  double out = 8.0;
+  double wheelDiameter = 4.0; // in inches
   // Calculates and returns the full gear ratio
-  return (360 * out) / (wheelDiameter * PI * in);
+  return (360.0 * in) / (wheelDiameter * PI * out);
 }
 
 // The logic to continue PID loops
@@ -305,6 +305,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
 
     // Print the sensor debug information
     LCD::printDebugInformation();
+    LCD::setText(6, std::to_string(error));
 
     // Run every 20 ms
     pros::delay(20);
@@ -494,7 +495,6 @@ void PID::strafe(double inches, double threshold, bool useDesiredHeading) {
 
     // Print the sensor debug information
     LCD::printDebugInformation();
-    LCD::setText(6, std::to_string(error));
 
     // Run every 20 ms
     pros::delay(20);

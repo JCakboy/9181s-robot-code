@@ -56,15 +56,6 @@ void opcontrol() {
 		// Drives the robot with the main controller
 		drive(controllerMain);
 
-		// Hold the indexer in the case of indexing and not shooting
-		// if (!holdflag && controllerMain->get_digital_new_press(BUTTON_L1) && !controllerMain->get_digital(BUTTON_L2)) {
-		// 		flywheel->set_brake_mode(BRAKE_HOLD);
-		// 		holdflag = true;
-		// } else if (holdflag && !controllerMain->get_digital(BUTTON_L2)) {
-		// 		flywheel->set_brake_mode(BRAKE_BRAKE);
-		// 		holdflag = false;
-		// }
-
 		// Maps the right trigger buttons to intake and outtake the balls
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
@@ -74,15 +65,15 @@ void opcontrol() {
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
-		bool outtake = controllerMain->get_digital(BUTTON_A);
+		bool outtake = controllerMain->get_digital(BUTTON_R2);
 		// Indexer speed control
 		int indexerSpeed = controllerMain->get_digital(BUTTON_L1) * 127;
 		if (indexerSpeed == 0 && intakeSpeed > 50)
-			indexerSpeed = 40;
+			indexerSpeed = 70;
 		indexer->move(outtake ? -127 : indexerSpeed);
 
 		// Flywheel speed control
-		int flywheelSpeed = controllerMain->get_digital(BUTTON_L2) * 127;
+		int flywheelSpeed = controllerMain->get_digital(BUTTON_L1) * 127;
 		if (flywheelSpeed == 0 && indexerSpeed > 50)
 			flywheelSpeed = -16;
 		flywheel->move(outtake ? -127 : flywheelSpeed);
@@ -100,13 +91,19 @@ void opcontrol() {
 		// Update the LCD screen
 		LCD::updateScreen();
 
-		if (controllerMain->get_digital(BUTTON_B)) {
-			pid->setRelativeDesiredHeading(90);
-			while (controllerMain->get_digital(BUTTON_B)) {
-				pros::delay(20);
-				pid->driveStraight(110);
-			}
-		}
+		// if (controllerMain->get_digital(BUTTON_B)) {
+		// 	pid->setRelativeDesiredHeading(10);
+		// 	while (controllerMain->get_digital(BUTTON_B)) {
+		// 		pros::delay(20);
+		// 		pid->driveStraight(110);
+		// 	}
+		// }
+
+		if (controllerMain->get_digital(BUTTON_X))
+			pid->move(40);
+		
+		if (controllerMain->get_digital(BUTTON_Y))
+			pid->move(-40);
 
 		// Run every 20 ms
 		pros::delay(20);
