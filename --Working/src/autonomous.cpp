@@ -21,6 +21,12 @@ void powerIntake(int power) {
   intakeMotorLeft->move(power);
 }
 
+void flipout() {
+  flywheel->move(127);
+  pros::delay(250);
+  flywheel->move(0);
+}
+
 // Blue front/ autonomous (represented with a tall stack of cubes)
 void autonomousBlueTall() {
   // Flags to set when driving, deciding whether to use absolute or relative gyro positions
@@ -249,8 +255,36 @@ void autonnomousSkills() {
   bool absoluteTurn = true;
   bool absoluteMove = true;
 
-  // Release the tray
-  // skillsReleaseTray();
+  // Release the hood
+  flipout();
+
+  // Drive and collect the two balls
+  powerIntake(127);
+  indexer->move(100);
+  flywheel->move(-10);
+  pid->move(59);
+  
+  // Drive to score the two balls
+  pid->move(-19.5);
+  powerIntake(0);
+  indexer->move(-10);
+  pid->pivot(-66);
+  pid->velocityMove(20, 80);
+  // Score the balls
+  flywheel->move(127);
+  powerIntake(127);
+  indexer->move(127);
+  pros::delay(1150);
+  powerIntake(-127);
+  indexer->move(-127);
+  flywheel->move(127);
+
+  // Back up
+  pid->move(-20);
+  pid->pivot(170);
+  pid->move(20);
+
+  return;
 
   // liftMotor->move_absolute(490, 105);
   // Get in position to put the first cube in the alliance tower
@@ -482,6 +516,8 @@ void autonomousDrvSkills() {
 }
 
 void autonomousOther(int selectedAutonomous) {
+  if (selectedAutonomous == 0)
+    flipout();
   // If an invalid autonomous is selected, run a one point autonomous
   if (selectedAutonomous == -1) {
     pid->powerDrive(127, 127);

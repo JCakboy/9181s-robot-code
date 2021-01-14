@@ -60,7 +60,7 @@ void opcontrol() {
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
-		else if (controllerMain->get_digital(BUTTON_R2))
+		else if (controllerMain->get_digital(BUTTON_R2) || controllerMain->get_digital(BUTTON_A))
 			intakeSpeed = -127;
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
@@ -92,18 +92,25 @@ void opcontrol() {
 		LCD::updateScreen();
 
 		// if (controllerMain->get_digital(BUTTON_B)) {
-		// 	pid->setRelativeDesiredHeading(10);
+		// 	pid->setRelativeDesiredHeading(90);
 		// 	while (controllerMain->get_digital(BUTTON_B)) {
 		// 		pros::delay(20);
 		// 		pid->driveStraight(110);
 		// 	}
 		// }
+		// if (controllerMain->get_digital(BUTTON_A)) {
+		// 	pid->setRelativeDesiredHeading(10);
+		// 	while (controllerMain->get_digital(BUTTON_A)) {
+		// 		pros::delay(20);
+		// 		pid->driveStraight(110);
+		// 	}
+		// }
 
-		if (controllerMain->get_digital(BUTTON_X))
-			pid->move(40);
+		// if (controllerMain->get_digital(BUTTON_X))
+		// 	pid->pivot(45);
 		
-		if (controllerMain->get_digital(BUTTON_Y))
-			pid->move(-40);
+		// if (controllerMain->get_digital(BUTTON_Y))
+		// 	pid->pivot(135);
 
 		// Run every 20 ms
 		pros::delay(20);
