@@ -258,6 +258,79 @@ void autonnomousSkills() {
   // Release the hood
   flipout();
 
+  // Drive and collect the ball
+  powerIntake(127);
+  indexer->move(100);
+  flywheel->move(-10);
+  pid->velocityMove(80.1, 48);
+  pros::delay(500);
+  pid->pivot(56.4);
+  powerIntake(127);
+  indexer->move(0);
+  flywheel->move(0);
+
+  // Poke three times
+  pid->velocityMove(14.2, 50);
+  pros::delay(500);
+  pid->velocityMove(-14.4, 50);
+  pros::delay(500);
+
+  pid->velocityMove(15., 50);
+  pros::delay(500);
+  pid->velocityMove(-14.6, 50);
+  pros::delay(500);
+
+  pid->velocityMove(15., 50);
+  pros::delay(500);
+  pid->velocityMove(-1.5, 50);
+  pros::delay(500);
+
+  // Turn to score the balls
+  pid->pivot(27.5);
+
+  // Score the ball
+  flywheel->move(127);
+  powerIntake(127);
+  indexer->move(127);
+  pros::delay(1150);
+  powerIntake(0);
+  indexer->move(0);
+  flywheel->move(0);
+
+  // Back up and line up with balls
+  pid->move(-10);
+  pid->pivot(-59);
+  powerIntake(127);
+  indexer->move(80);
+  pid->velocityMove(109.5, 50);
+  powerIntake(0);
+  pros::delay(300);
+
+  // Score the balls
+  flywheel->move(127);
+  pros::delay(250);
+  powerIntake(127);
+  indexer->move(127);
+
+  pros::delay(600);
+
+  indexer->move(0);
+
+  pros::delay(350);
+
+  flywheel->move(0);
+
+  pros::delay(350);
+
+  powerIntake(0);
+  
+  pid->move(-10);
+  powerIntake(-0);
+  indexer->move(-0);
+  flywheel->move(0);
+  return;
+
+
   // Drive and collect the two balls
   powerIntake(127);
   indexer->move(100);
