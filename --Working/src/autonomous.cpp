@@ -21,6 +21,12 @@ void powerIntake(int power) {
   intakeMotorLeft->move(power);
 }
 
+void cycle(int power) {
+  flywheel->move(power);
+  powerIntake(power);
+  indexer->move(power);
+}
+
 void flipout() {
   flywheel->move(127);
   pros::delay(250);
@@ -258,8 +264,75 @@ void autonnomousSkills() {
   // Release the hood
   flipout();
 
-  // Drive and collect the ball
+  // Drive and turn to collect the ball
+  pid->velocityMove(1.5, 60);
+  pros::delay(400);
+  pid->pivot(-35.5);
   powerIntake(127);
+  indexer->move(67.3);
+  pid->move(76);
+  pros::delay(250);
+
+  // Turn and score the ball
+  pid->pivot(125.8);
+  powerIntake(0);
+  indexer->move(40);
+  pid->move(38.2, 15, true);
+  
+  // Score the ball
+  cycle(127);
+  pros::delay(900);
+  indexer->move(0);
+  pros::delay(250);
+  flywheel->move(0);
+  // First tower done
+
+  // Back up and align with the next ball
+  cycle(-127);
+  indexer->move(-127);
+  pid->move(-32.2);
+  cycle(0);
+  pid->pivot(-60);
+  
+  // Intake and score the next ball
+  powerIntake(127);
+  indexer->move(40);
+  pid->move(75, 15, true);
+
+  // Score the corner ball
+  cycle(127);
+  pros::delay(500);
+  indexer->move(0);
+  pros::delay(850);
+  cycle(0);
+  // Second tower done
+
+  // Back up and align with the next ball
+  cycle(-80);
+  pid->move(-32.2);
+  cycle(0);
+  pid->pivot(-129);
+
+  // Collect the ball
+  powerIntake(127);
+  pid->move(50.5);
+
+  // Turn and score the ball
+  pid->pivot(100);
+  powerIntake(0);
+  indexer->move(40);
+  pid->move(38.2, 15, true);
+
+  // Score the ball
+  cycle(127);
+  pros::delay(900);
+  indexer->move(0);
+  pros::delay(250);
+  cycle(0);
+  // Third tower done
+
+
+  return;
   indexer->move(100);
   flywheel->move(-10);
   pid->velocityMove(80.1, 48);
