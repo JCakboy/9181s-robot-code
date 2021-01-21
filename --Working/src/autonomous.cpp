@@ -265,19 +265,19 @@ void autonnomousSkills() {
   flipout();
 
   // Drive and turn to collect the ball
-  pid->velocityMove(1.5, 60);
+  pid->velocityMove(1.6, 60);
   pros::delay(400);
   pid->pivot(-35.5);
   powerIntake(127);
   indexer->move(67.3);
-  pid->move(76);
+  pid->move(76.3);
   pros::delay(250);
 
   // Turn and score the ball
-  pid->pivot(125.8);
+  pid->pivot(125);
   powerIntake(0);
   indexer->move(40);
-  pid->move(38.2, 15, true);
+  pid->move(38, 15, true);
   
   // Score the ball
   cycle(127);
@@ -290,47 +290,60 @@ void autonnomousSkills() {
   // Back up and align with the next ball
   cycle(-127);
   indexer->move(-127);
-  pid->move(-32.2);
+  pid->move(-32.3);
   cycle(0);
   pid->pivot(-60);
   
   // Intake and score the next ball
   powerIntake(127);
   indexer->move(40);
-  pid->move(75, 15, true);
+  pid->move(74, 15, true);
 
   // Score the corner ball
   cycle(127);
-  pros::delay(500);
-  indexer->move(0);
+  pros::delay(800);
+  flywheel->move(0);
   pros::delay(850);
   cycle(0);
   // Second tower done
 
   // Back up and align with the next ball
-  cycle(-80);
+  cycle(-127);
   pid->move(-32.2);
   cycle(0);
-  pid->pivot(-129);
+  pid->pivot(-133.5);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(50.5);
+  pid->move(51.5);
 
   // Turn and score the ball
-  pid->pivot(100);
-  powerIntake(0);
-  indexer->move(40);
-  pid->move(38.2, 15, true);
+  pid->pivot(105);
+  indexer->move(60);
+  pid->move(38, 15, true);
 
   // Score the ball
   cycle(127);
-  pros::delay(900);
+  pros::delay(650);
   indexer->move(0);
   pros::delay(250);
   cycle(0);
   // Third tower done
 
+  // Back up and align with the next ball
+  cycle(-127);
+  pid->move(-23.5);
+  cycle(0);
+  pid->pivotAbsolute(-90);
+
+  // Collect the ball
+  powerIntake(127);
+  pid->move(52.5);
+
+  // Turn and score the ball
+  pid->pivot(65);
+  // indexer->move(60);
+  // pid->move(38, 15, true);
 
   return;
   indexer->move(100);
