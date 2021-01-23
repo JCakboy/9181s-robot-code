@@ -265,7 +265,7 @@ void autonnomousSkills() {
   flipout();
 
   // Drive and turn to collect the ball
-  pid->velocityMove(1.6, 60);
+  pid->velocityMove(1.15, 50);
   pros::delay(400);
   pid->pivot(-35.5);
   powerIntake(127);
@@ -277,11 +277,11 @@ void autonnomousSkills() {
   pid->pivot(125);
   powerIntake(0);
   indexer->move(40);
-  pid->move(38, 15, true);
+  pid->move(38.3, 15, true);
   
   // Score the ball
   cycle(127);
-  pros::delay(900);
+  pros::delay(1150);
   indexer->move(0);
   pros::delay(250);
   flywheel->move(0);
@@ -292,16 +292,16 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-32.3);
   cycle(0);
-  pid->pivot(-60);
+  pid->pivot(-59);
   
   // Intake and score the next ball
   powerIntake(127);
   indexer->move(40);
-  pid->move(74, 15, true);
+  pid->move(73, 15, true);
 
   // Score the corner ball
   cycle(127);
-  pros::delay(800);
+  pros::delay(1050);
   flywheel->move(0);
   pros::delay(850);
   cycle(0);
@@ -311,20 +311,20 @@ void autonnomousSkills() {
   cycle(-127);
   pid->move(-32.2);
   cycle(0);
-  pid->pivot(-133.5);
+  pid->pivot(-133);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(51.5);
+  pid->move(51.2);
 
   // Turn and score the ball
   pid->pivot(105);
   indexer->move(60);
-  pid->move(38, 15, true);
+  pid->move(38.4, 15, true);
 
   // Score the ball
   cycle(127);
-  pros::delay(650);
+  pros::delay(900);
   indexer->move(0);
   pros::delay(250);
   cycle(0);
@@ -341,9 +341,65 @@ void autonnomousSkills() {
   pid->move(52.5);
 
   // Turn and score the ball
-  pid->pivot(65);
-  // indexer->move(60);
-  // pid->move(38, 15, true);
+  pid->pivot(63);
+  indexer->move(60);
+  pid->move(28.4, 15, true);
+
+  // Score the ball
+  cycle(127);
+  pros::delay(850);
+  indexer->move(0);
+  pros::delay(250);
+  flywheel->move(0);
+  // Fourth tower done
+
+  // Back up and align with the next ball
+  cycle(-127);
+  pid->move(-20);
+  pid->pivot(170);
+
+  // Collect the ball
+  powerIntake(127);
+  pid->move(56);
+
+  // Turn and score the ball
+  pid->pivotAbsolute(270);
+  indexer->move(60);
+  pid->move(37, 15, true);
+
+  // Score the ball
+  cycle(127);
+  pros::delay(900);
+  indexer->move(0);
+  pros::delay(250);
+  flywheel->move(0);
+  // Fifth tower done
+
+  cycle(-127);
+  pid->move(-20);
+  pid->pivot(-150);
+  powerIntake(127);
+  indexer->move(60);
+
+  pid->move(56);
+
+  pid->pivotAbsolute(0);
+
+  // Poke three times
+  pid->velocityMove(14.2, 50);
+  pros::delay(500);
+  pid->velocityMove(-14.4, 50);
+  pros::delay(500);
+
+  pid->velocityMove(15., 50);
+  pros::delay(500);
+  pid->velocityMove(-14.6, 50);
+  pros::delay(500);
+
+  pid->velocityMove(15., 50);
+  pros::delay(500);
+  pid->velocityMove(-1.5, 50);
+  pros::delay(500);
 
   return;
   indexer->move(100);
