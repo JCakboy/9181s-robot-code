@@ -73,4 +73,9 @@ namespace ports {
 // Selected autonomous routine
 extern int selectedAutonomous;
 
+// POST result
+extern bool postPass;
+extern bool postNotified;
+extern std::string postResult;
+
 #endif

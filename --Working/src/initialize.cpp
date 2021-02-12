@@ -16,83 +16,88 @@ std::string post() {
 	int intakeMotorRightValue = ports::intakeMotorRight->get_position();
 	int indexerValue = ports::indexer->get_position();
 	int flywheelValue = ports::flywheel->get_position();
-	ports::pid->driveStraight(2);
-	ports::intakeMotorLeft->move(2);
-	ports::intakeMotorRight->move(2);
-	ports::indexer->move(2);
-	ports::flywheel->move(2);
+	ports::frontRightDrive->move(8);
+	ports::frontLeftDrive->move(8);
+	ports::backRightDrive->move(8);
+	ports::backLeftDrive->move(8);
+	ports::intakeMotorLeft->move(8);
+	ports::intakeMotorRight->move(8);
+	ports::indexer->move(8);
+	ports::flywheel->move(8);
 	int timer = 0;
-	while (util::abs(frontRightValue - ports::frontRightDrive->get_position()) > 5) {
+	while (util::abs(frontRightValue - ports::frontRightDrive->get_position()) < 3 || frontRightValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::frontRightDrive->move(-2);
+			ports::frontRightDrive->move(-8);
 		else if (timer == 40)
 			return "frontRightDrive";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(frontLeftValue - ports::frontLeftDrive->get_position()) > 5) {
+	while (util::abs(frontLeftValue - ports::frontLeftDrive->get_position()) < 3 || frontLeftValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::frontLeftDrive->move(-2);
+			ports::frontLeftDrive->move(-8);
 		else if (timer == 40)
 			return "frontLeftDrive";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(backRightValue - ports::backRightDrive->get_position()) > 5) {
+	while (util::abs(backRightValue - ports::backRightDrive->get_position()) < 3 || backRightValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::backRightDrive->move(-2);
+			ports::backRightDrive->move(-8);
 		else if (timer == 40)
 			return "backRightDrive";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(backLeftValue - ports::backLeftDrive->get_position()) > 5) {
+	while (util::abs(backLeftValue - ports::backLeftDrive->get_position()) < 3 || backLeftValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::backLeftDrive->move(-2);
+			ports::backLeftDrive->move(-8);
 		else if (timer == 40)
 			return "backLeftDrive";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(intakeMotorRightValue - ports::intakeMotorRight->get_position()) > 5) {
+	while (util::abs(intakeMotorRightValue - ports::intakeMotorRight->get_position()) < 3 || intakeMotorRightValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::intakeMotorRight->move(-2);
+			ports::intakeMotorRight->move(-8);
 		else if (timer == 40)
 			return "intakeMotorRight";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(intakeMotorLeftValue - ports::intakeMotorLeft->get_position()) > 5) {
+	while (util::abs(intakeMotorLeftValue - ports::intakeMotorLeft->get_position()) < 3 || intakeMotorLeftValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::intakeMotorLeft->move(-2);
+			ports::intakeMotorLeft->move(-8);
 		else if (timer == 40)
 			return "intakeMotorLeft";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
-	while (util::abs(indexerValue - ports::indexer->get_position()) > 5) {
+	while (util::abs(indexerValue - ports::indexer->get_position()) < 3 || indexerValue > 5000) {
 		timer++;
 		if (timer == 20)
-			ports::indexer->move(-2);
+			ports::indexer->move(-8);
 		else if (timer == 40)
 			return "indexer";
-		pros::delay(5);
+		pros::delay(15);
 	}
 	timer = 0;
 	while (util::abs(flywheelValue - ports::flywheel->get_position()) > 5) {
 		timer++;
 		if (timer == 20)
-			ports::flywheel->move(-2);
+			ports::flywheel->move(-8);
 		else if (timer == 40)
 			return "flywheel";
-		pros::delay(5);
+		pros::delay(15);
 	}
+	if (ports::gyro->getHeading() > 5000)
+		return "inertial";
 	return "Success";
 }
 
@@ -146,16 +151,21 @@ void initialize() {
 
 	LCD::setStatus("Power on self-test...");
 	std::string postResult = post();
-	if (postResult != "Success")
-		LCD::setStatus("POST pass");
+	ports::frontRightDrive->move(0);
+	ports::frontLeftDrive->move(0);
+	ports::backRightDrive->move(0);
+	ports::backLeftDrive->move(0);
+	ports::intakeMotorLeft->move(0);
+	ports::intakeMotorRight->move(0);
+	ports::indexer->move(0);
+	ports::flywheel->move(0);
+	if (postResult == "Success")
+		LCD::setStatus("Initialization complete");
 	else {
 		LCD::setStatus("POST FAIL - " + postResult);
-		LCD::setControllerText("Check " + postResult);
-		ports::controllerMain->rumble("---");
-		pros::delay(3000);
+		postPass = false;
+		::postResult = postResult;
 	}
-
-	LCD::setStatus("Initialization complete");
 }
 
 /**

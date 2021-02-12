@@ -43,6 +43,14 @@ void drive(pros::Controller * controller) {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	// Check POST status
+	if (!postPass && !postNotified) {
+		postNotified = true;
+		LCD::setControllerText("Check " + postResult);
+		controllerMain->rumble(".");
+		pros::delay(3000);
+	}
+
 	// Sets the status on the LCD
 	LCD::setStatus("Operator Control");
 

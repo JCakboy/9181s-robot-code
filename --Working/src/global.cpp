@@ -69,3 +69,8 @@ namespace ports {
 
 // Selected autonomous routine
 int selectedAutonomous = 0;
+
+// POST result
+bool postPass = true;
+bool postNotified = false;
+std::string postResult = "";
