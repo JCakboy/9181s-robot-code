@@ -77,7 +77,7 @@ void opcontrol() {
 		// Indexer speed control
 		int indexerSpeed = controllerMain->get_digital(BUTTON_L1) * 127;
 		if (indexerSpeed == 0 && intakeSpeed > 50)
-			indexerSpeed = 70;
+			indexerSpeed = 127;
 		indexer->move(outtake ? -127 : indexerSpeed);
 
 		// Flywheel speed control

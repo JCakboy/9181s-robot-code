@@ -51,9 +51,7 @@ namespace ports {
   // ADI (3-wire) ports
   extern pros::ADIGyro * gyro1;
   extern pros::ADIGyro * gyro2;
-  extern pros::ADIUltrasonic * leftUltrasonic;
-  extern pros::ADIUltrasonic * rightUltrasonic;
-  extern pros::ADIUltrasonic * frontUltrasonic;
+  extern pros::ADIUltrasonic * intakeUltrasonic;
 
   // Gyro manager
   extern Gyro * gyro;
@@ -77,5 +75,8 @@ extern int selectedAutonomous;
 extern bool postPass;
 extern bool postNotified;
 extern std::string postResult;
+
+// Driver skills auto running
+extern bool driverSkillsRunning;
 
 #endif

@@ -22,7 +22,7 @@ std::string post() {
 	ports::backLeftDrive->move(8);
 	ports::intakeMotorLeft->move(8);
 	ports::intakeMotorRight->move(8);
-	ports::indexer->move(8);
+	ports::indexer->move(25);
 	ports::flywheel->move(8);
 	int timer = 0;
 	while (util::abs(frontRightValue - ports::frontRightDrive->get_position()) < 3 || frontRightValue > 5000) {
@@ -81,9 +81,9 @@ std::string post() {
 	timer = 0;
 	while (util::abs(indexerValue - ports::indexer->get_position()) < 3 || indexerValue > 5000) {
 		timer++;
-		if (timer == 20)
-			ports::indexer->move(-8);
-		else if (timer == 40)
+		if (timer == 35)
+			ports::indexer->move(-25);
+		else if (timer == 75)
 			return "indexer";
 		pros::delay(15);
 	}

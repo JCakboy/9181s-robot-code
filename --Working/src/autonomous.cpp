@@ -28,9 +28,22 @@ void cycle(int power) {
 }
 
 void flipout() {
-  flywheel->move(127);
-  pros::delay(250);
-  flywheel->move(0);
+  indexer->move(127);
+  pros::delay(400);
+  indexer->move(0);
+}
+
+void waitForUltrasonic(double maxtime, double threshold = 150, bool n = false) { // threshold in cm
+  int c = 0;
+  while ((c * 0.05) < maxtime) {
+    bool condition = intakeUltrasonic->get_value() < threshold;
+    if (n)
+      condition = !condition;
+    if (condition)
+      break;
+    pros::delay(20);
+    c += 1;
+  }
 }
 
 // Blue front/ autonomous (represented with a tall stack of cubes)
@@ -263,66 +276,73 @@ void autonnomousSkills() {
 
   // Release the hood
   flipout();
+  pros::delay(500);
 
   // Drive and turn to collect the ball
-  pid->velocityMove(1.15, 50);
+  pid->velocityMove(2, 50);
   pros::delay(400);
   pid->pivot(-35.5);
   powerIntake(127);
-  indexer->move(67.3);
-  pid->move(76.3);
+  indexer->move(69);
+  pid->move(74.2);
   pros::delay(250);
 
   // Turn and score the ball
-  pid->pivot(125);
+  pid->pivot(124);
   powerIntake(0);
   indexer->move(40);
-  pid->move(38.3, 15, true);
+  pid->move(39.2, 15, true);
   
   // Score the ball
+  indexer->move(-80);
+  waitForUltrasonic(2, 150, true);
   cycle(127);
-  pros::delay(1150);
+  pros::delay(950);
   indexer->move(0);
-  pros::delay(250);
+  pros::delay(300);
   flywheel->move(0);
   // First tower done
 
   // Back up and align with the next ball
-  cycle(-127);
+  cycle(-90);
   indexer->move(-127);
-  pid->move(-32.3);
+  pid->move(-31.8);
   cycle(0);
-  pid->pivot(-59);
+  pid->pivot(-61);
   
   // Intake and score the next ball
   powerIntake(127);
   indexer->move(40);
-  pid->move(73, 15, true);
+  pid->move(78, 15, true);
 
   // Score the corner ball
+  indexer->move(-80);
+  waitForUltrasonic(2, 150, true);
   cycle(127);
-  pros::delay(1050);
+  pros::delay(550);
   flywheel->move(0);
-  pros::delay(850);
+  pros::delay(650);
   cycle(0);
   // Second tower done
 
   // Back up and align with the next ball
-  cycle(-127);
-  pid->move(-32.2);
+  cycle(-95);
+  pid->move(-31.5);
   cycle(0);
-  pid->pivot(-133);
+  pid->pivot(-125);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(51.2);
+  pid->move(53.5);
 
   // Turn and score the ball
-  pid->pivot(105);
+  pid->pivotAbsolute(-2.75);
   indexer->move(60);
-  pid->move(38.4, 15, true);
+  pid->move(38.2, 15, true);
 
   // Score the ball
+  indexer->move(-80);
+  waitForUltrasonic(2, 150, true);
   cycle(127);
   pros::delay(900);
   indexer->move(0);
@@ -331,19 +351,19 @@ void autonnomousSkills() {
   // Third tower done
 
   // Back up and align with the next ball
-  cycle(-127);
+  cycle(-90);
   pid->move(-23.5);
   cycle(0);
   pid->pivotAbsolute(-90);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(52.5);
+  pid->move(51);
 
   // Turn and score the ball
-  pid->pivot(63);
+  pid->pivot(56);
   indexer->move(60);
-  pid->move(28.4, 15, true);
+  pid->move(33.6, 15, true);
 
   // Score the ball
   cycle(127);
@@ -356,16 +376,16 @@ void autonnomousSkills() {
   // Back up and align with the next ball
   cycle(-127);
   pid->move(-20);
-  pid->pivot(170);
+  pid->pivot(-176);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(56);
+  pid->move(58);
 
   // Turn and score the ball
-  pid->pivotAbsolute(270);
+  pid->pivotAbsolute(-90);
   indexer->move(60);
-  pid->move(37, 15, true);
+  pid->move(38, 15, true);
 
   // Score the ball
   cycle(127);
@@ -471,198 +491,6 @@ void autonnomousSkills() {
   indexer->move(-0);
   flywheel->move(0);
   return;
-
-
-  // Drive and collect the two balls
-  powerIntake(127);
-  indexer->move(100);
-  flywheel->move(-10);
-  pid->move(59);
-  
-  // Drive to score the two balls
-  pid->move(-19.5);
-  powerIntake(0);
-  indexer->move(-10);
-  pid->pivot(-66);
-  pid->velocityMove(20, 80);
-  // Score the balls
-  flywheel->move(127);
-  powerIntake(127);
-  indexer->move(127);
-  pros::delay(1150);
-  powerIntake(-127);
-  indexer->move(-127);
-  flywheel->move(127);
-
-  // Back up
-  pid->move(-20);
-  pid->pivot(170);
-  pid->move(20);
-
-  return;
-
-  // liftMotor->move_absolute(490, 105);
-  // Get in position to put the first cube in the alliance tower
-  // powerIntake(127);
-  pid->velocityMove(13, 70);
-  // powerIntake(-70);
-  // pros::delay(580);
-  // powerIntake(0);
-  // Lift the intake
-  pid->velocityMove(6, 38);
-  // Score the cube
-  powerIntake(-100);
-  pros::delay(880);
-  powerIntake(0);
-
-  // Back up and get in position to intake the first line of cubes
-  // liftMotor->move_absolute(0, 100);
-  pid->move(-12.35);
-  pid->pivot(45);
-
-  // Reset
-  int steps = 40;
-  pid->setAbsoluteDesiredHeading(45);
-  for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-50);
-    pros::delay(20);
-  }
-  gyro->tarePosition();
-  pid->tareDesiredHeading();
-
-  // Intake the first line of cubes
-  powerIntake(127);
-  pid->velocityMove(12, 38);
-
-  pid->velocityMove(55, 68);
-  pid->velocityMove(56.5, 55);
-
-  // Turn to face the scoring zone
-  powerIntake(120);
-  pid->pivot(-90);
-  // Strafe align for scoring
-  steps = 110;
-  pid->setAbsoluteDesiredHeading(-90);
-  for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(90);
-    pros::delay(20);
-  }
-  powerIntake(0);
-
-  // Move into position to score
-  pid->move(9.1, 12, true); // Was 10.7
-
-  // Score the first stack
-  // safeStack();
-  powerIntake(0);
-  pros::delay(1350);
-  // tiltMotor->move_absolute(0, 60);
-  powerIntake(-60);
-
-  // Move the tray back and let go go of the stack
-  pid->velocityMove(-15.5, 60, false);
-
-  // Turn and reset to get in position to score the next tower
-  powerIntake(0);
-  pid->pivot(-90);
-  steps = 40;
-  pid->tareDesiredHeading();
-  for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-50);
-    pros::delay(20);
-  }
-  // gyro->tarePosition();
-  // pid->tareDesiredHeading();
-
-  // Get the center tower cube
-  powerIntake(115);
-  pid->move(46);
-  pros::delay(500);
-  // Set the cube in the intake
-  powerIntake(-70);
-  pros::delay(500);
-  powerIntake(0);
-
-  // Score the second center tower
-  // liftMotor->move_absolute(490, 100);
-  pid->velocityMove(-6, 40);
-  pros::delay(500);
-  pid->velocityMove(8, 40);
-  powerIntake(-100);
-  pros::delay(950);
-  powerIntake(0);
-
-  // Move into position and face the tall tower
-  // liftMotor->move_absolute(0, 80);
-  pid->move(-31.2);
-  pid->pivot(-89.2);
-  pros::delay(100);
-  pid->tareDesiredHeading();
-
-  // Get the tall tower cube
-  powerIntake(127);
-  pid->velocityMove(14, 65);
-  pros::delay(700);
-  // Set the cube in the intake
-  powerIntake(-70);
-  pros::delay(600);
-  powerIntake(0);
-
-  // Score third the tower
-  // liftMotor->move_absolute(614, 100);
-  pid->velocityMove(-5, 40);
-  pros::delay(800);
-  pid->velocityMove(9.5, 40);
-  powerIntake(-115);
-  pros::delay(1000);
-  powerIntake(0);
-
-  // Get in position to intake the second row of cubes
-  pid->move(-3.8);
-  pid->pivot(90);
-  // liftMotor->move_absolute(0, 100);
-  // Reset
-  steps = 80;
-  pid->tareDesiredHeading();
-  for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-50);
-    pros::delay(20);
-  }
-  gyro->tarePosition();
-  pid->tareDesiredHeading();
-
-  // Intake the second line of cubes
-  powerIntake(127);
-  pid->velocityMove(65, 70);
-  pid->velocityMove(54, 48);
-
-  pid->pivot(90);
-  pid->move(20);
-
-  // Strafe align for scoring
-  steps = 88;
-  gyro->tarePosition();
-  pid->tareDesiredHeading();
-  for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(-85);
-    pros::delay(20);
-  }
-
-  // Move into position to score
-  pid->move(10.6);
-
-  powerIntake(-35);
-  pros::delay(400);
-  powerIntake(-13);
-  // Score the stack
-  pid->powerDrive(10, 10);
-  // safeStack();
-  powerIntake(0);
-  pros::delay(1200);
-
-  // Move the tray back and let go go of the stack
-  pid->velocityMove(-18, 55, false);
-  // tiltMotor->move_absolute(0, 60);
 }
 
 // Driver skills with autonomous-controlled timing (meant to simulate a real match controller)
@@ -731,6 +559,9 @@ void autonomousDrvSkills() {
 }
 
 void autonomousOther(int selectedAutonomous) {
+  flywheel->move(100);
+  waitForUltrasonic(2, 150, true);
+  flywheel->move(0);
   if (selectedAutonomous == 0)
     flipout();
   // If an invalid autonomous is selected, run a one point autonomous

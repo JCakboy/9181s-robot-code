@@ -47,9 +47,7 @@ namespace ports {
   pros::Imu * imu = new pros::Imu(15);
 
   // ADI (3-wire) ports
-  pros::ADIUltrasonic * leftUltrasonic = new pros::ADIUltrasonic('A', 'B');
-  pros::ADIUltrasonic * rightUltrasonic = new pros::ADIUltrasonic('C', 'D');
-  pros::ADIUltrasonic * frontUltrasonic = new pros::ADIUltrasonic('E', 'F');
+  pros::ADIUltrasonic * intakeUltrasonic = new pros::ADIUltrasonic('A', 'B');
 
   // Gyro manager
   Gyro * gyro = new Gyro(imu);
@@ -74,3 +72,7 @@ int selectedAutonomous = 0;
 bool postPass = true;
 bool postNotified = false;
 std::string postResult = "";
+
+// Driver Skills auto running
+bool driverSkillsRunning = false;
+
