@@ -66,7 +66,7 @@ namespace ports {
 }
 
 // Selected autonomous routine
-int selectedAutonomous = 0;
+int selectedAutonomous = 5;
 
 // POST result
 bool postPass = true;

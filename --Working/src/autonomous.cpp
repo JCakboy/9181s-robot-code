@@ -281,21 +281,22 @@ void autonnomousSkills() {
   // Drive and turn to collect the ball
   pid->velocityMove(2, 50);
   pros::delay(400);
-  pid->pivot(-35.5);
+  pid->pivot(-35);
   powerIntake(127);
   indexer->move(69);
-  pid->move(74.2);
+  pid->move(75.5);
   pros::delay(250);
 
   // Turn and score the ball
-  pid->pivot(124);
+  pid->pivotAbsolute(89.7);
   powerIntake(0);
   indexer->move(40);
-  pid->move(39.2, 15, true);
+  pid->move(40.6, 15, true);
   
   // Score the ball
   indexer->move(-80);
-  waitForUltrasonic(2, 150, true);
+  pros::delay(300);
+  waitForUltrasonic(1.7, 150, true);
   cycle(127);
   pros::delay(950);
   indexer->move(0);
@@ -308,36 +309,37 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-31.8);
   cycle(0);
-  pid->pivot(-61);
+  pid->pivotAbsolute(27.2);
   
   // Intake and score the next ball
   powerIntake(127);
   indexer->move(40);
-  pid->move(78, 15, true);
+  pid->move(78.8, 15, true);
 
   // Score the corner ball
   indexer->move(-80);
-  waitForUltrasonic(2, 150, true);
+  pros::delay(300);
+  waitForUltrasonic(1.7, 150, true);  
   cycle(127);
-  pros::delay(550);
+  pros::delay(1150);
   flywheel->move(0);
-  pros::delay(650);
+  // pros::delay(650);
   cycle(0);
   // Second tower done
 
   // Back up and align with the next ball
-  cycle(-95);
+  cycle(-127);
   pid->move(-31.5);
-  cycle(0);
-  pid->pivot(-125);
+  cycle(-60);
+  pid->pivotAbsolute(-100);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(53.5);
+  pid->move(56.2);
 
   // Turn and score the ball
-  pid->pivotAbsolute(-2.75);
-  indexer->move(60);
+  pid->pivotAbsolute(0);
+  indexer->move(60.6);
   pid->move(38.2, 15, true);
 
   // Score the ball
@@ -352,7 +354,7 @@ void autonnomousSkills() {
 
   // Back up and align with the next ball
   cycle(-90);
-  pid->move(-23.5);
+  pid->move(-24);
   cycle(0);
   pid->pivotAbsolute(-90);
 
@@ -376,7 +378,7 @@ void autonnomousSkills() {
   // Back up and align with the next ball
   cycle(-127);
   pid->move(-20);
-  pid->pivot(-176);
+  pid->pivotAbsolute(-210);
 
   // Collect the ball
   powerIntake(127);
@@ -395,6 +397,7 @@ void autonnomousSkills() {
   flywheel->move(0);
   // Fifth tower done
 
+  return;
   cycle(-127);
   pid->move(-20);
   pid->pivot(-150);
