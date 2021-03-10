@@ -46,227 +46,20 @@ void waitForUltrasonic(double maxtime, double threshold = 150, bool n = false) {
   }
 }
 
-// Blue front/ autonomous (represented with a tall stack of cubes)
-void autonomousBlueTall() {
-  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+void autonomousBlueRight() {
 
-  // Release the tray
-  // releaseTray();
-  pros::delay(750);
-
-  // Drive slowly to knock the first stack
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 50);
-
-  // Woit and try and intake any fallen cubes
-  pros::delay(1000);
-  pid->velocityMove(20.5, 50);
-  pros::delay(300);
-
-  // Move back to score
-  intakeMotorRight->move(50);
-  intakeMotorLeft->move(50);
-  pid->move(-27);
-
-  // Turn to intake the solo cube
-  double pivotAmount = 90;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount);
-  else
-    pid->pivotRelative(pivotAmount);
-
-  // Intake the solo cube
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(13, 50);
-
-  // Turn to score
-  pivotAmount = 30;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount);
-  else
-    pid->pivotRelative(pivotAmount);
-
-  // Move to score
-  intakeMotorRight->move(50);
-  intakeMotorLeft->move(50);
-  pid->move(17);
-
-  // Score the stack
-  intakeMotorRight->move(-10);
-  intakeMotorLeft->move(-10);
-  // while (tiltMotor->get_position() < 630)
-  //   tiltMotor->move(48 + (666 - tiltMotor->get_position()) * 0.213); // Simple P controller
-  pid->powerDrive(10, 10);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  // tiltMotor->move_absolute(666, 45); // Gets rid of the jittering
-  pros::delay(500);
-
-  // Move back and release
-  pid->velocityMove(-10, 40);
-  // tiltMotor->move_absolute(0, 60);
 }
 
-void autonomousRedTall() {
-  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = false;
-  bool absoluteMove = false;
+void autonomousRedRight() {
 
-  // Release the tray
-  // releaseTray();
-  pros::delay(750);
-
-  // Drive slowly to knock the first stack
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(30.5, 50);
-
-  // Woit and try and intake any fallen cubes
-  pros::delay(1000);
-  pid->velocityMove(20.5, 50);
-  pros::delay(300);
-
-  // Move back to score
-  intakeMotorRight->move(50);
-  intakeMotorLeft->move(50);
-  pid->move(-27);
-
-  // Turn to intake the solo cube
-  double pivotAmount = -90;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount);
-  else
-    pid->pivotRelative(pivotAmount);
-
-  // Intake the solo cube
-  intakeMotorRight->move(108);
-  intakeMotorLeft->move(108);
-  pid->velocityMove(13, 50);
-
-  // Turn to score
-  pivotAmount = -30;
-  if (absoluteTurn)
-    pid->pivot(pivotAmount);
-  else
-    pid->pivotRelative(pivotAmount);
-
-  // Move to score
-  intakeMotorRight->move(50);
-  intakeMotorLeft->move(50);
-  pid->move(17);
-
-  // Score the stack
-  intakeMotorRight->move(-10);
-  intakeMotorLeft->move(-10);
-  // while (tiltMotor->get_position() < 630)
-  //   tiltMotor->move(48 + (666 - tiltMotor->get_position()) * 0.213); // Simple P controller
-  pid->powerDrive(10, 10);
-  intakeMotorRight->move(0);
-  intakeMotorLeft->move(0);
-  // tiltMotor->move_absolute(666, 45); // Gets rid of the jittering
-  pros::delay(500);
-
-  // Move back and release
-  pid->velocityMove(-10, 40);
-  // tiltMotor->move_absolute(0, 60);
 }
 
-void autonomousBlueFlat() {
-  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = true;
-  bool absoluteMove = true;
+void autonomousBlueLeft() {
 
-  ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
-
-  // Release the tray
-  // releaseTray();
-  pros::delay(250);
-
-  // Intake the first line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(56.2, 60);
-  pros::delay(300);
-
-  pid->move(-48);
-  pid->pivot(-90);
-  int steps = 70;
-  pid->setAbsoluteDesiredHeading(-90);
-  for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(-80);
-    pros::delay(20);
-  }
-  pid->move(6.8);
-
-  // Prepare to stack
-  powerIntake(-40);
-  pros::delay(500);
-  powerIntake(0);
-
-  // Score the stack
-  // while (tiltMotor->get_position() < 630)
-  //   tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  powerIntake(0);
-  // tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(800);
-
-  // Move the tray back and let go go of the stack
-  pid->velocityMove(-10, 40, false);
-  // tiltMotor->move_absolute(0, 60);
-
-  pid->move(-15);
 }
 
-void autonomousRedFlat() {
-  // Flags to set when driving, deciding whether to use absolute or relative gyro positions
-  bool absoluteTurn = true;
-  bool absoluteMove = true;
+void autonomousRedLeft() {
 
-  ports::frontLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::frontRightDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::backLeftDrive->set_brake_mode(BRAKE_BRAKE);
-  ports::backRightDrive->set_brake_mode(BRAKE_BRAKE);
-
-  // Release the tray
-  // releaseTray();
-
-  // Intake the first line of cubes
-  intakeMotorRight->move(127);
-  intakeMotorLeft->move(127);
-  pid->velocityMove(57, 60);
-  pros::delay(300);
-
-  pid->move(-51);
-  pid->pivot(90);
-  int steps = 70;
-  pid->setAbsoluteDesiredHeading(90);
-  for (int i = 0; i < steps; i++) {
-    pid->strafeStraight(80);
-    pros::delay(20);
-  }
-  pid->move(8.5);
-
-  powerIntake(-48);
-  pros::delay(435);
-  powerIntake(0);
-
-  // Score the stack
-  // while (tiltMotor->get_position() < 630)
-  //   tiltMotor->move(48 + (730 - tiltMotor->get_position()) * 0.22); // Simple P controller
-  powerIntake(0);
-  // tiltMotor->move_absolute(730, 48); // Gets rid of the jittering
-  pros::delay(800);
-
-  // Move the tray back and let go go of the stack
-  pid->velocityMove(-10, 40, false);
-  // tiltMotor->move_absolute(0, 60);
 }
 
 void autonnomousSkills() {
@@ -585,13 +378,13 @@ void autonomous() {
 
   // Based on the selected autonomous, run
   if (selectedAutonomous == 1)
-    autonomousBlueTall();
+    autonomousBlueRight();
   else if (selectedAutonomous == 2)
-    autonomousRedTall();
+    autonomousRedRight();
   else if (selectedAutonomous == 3)
-    autonomousBlueFlat();
+    autonomousBlueLeft();
   else if (selectedAutonomous == 4)
-    autonomousRedFlat();
+    autonomousRedLeft();
   else if (selectedAutonomous == 5)
     autonnomousSkills();
   else if (selectedAutonomous == 6)
