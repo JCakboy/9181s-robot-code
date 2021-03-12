@@ -68,12 +68,12 @@ void opcontrol() {
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
-		else if (controllerMain->get_digital(BUTTON_R2) || controllerMain->get_digital(BUTTON_A))
+		else if (controllerMain->get_digital(BUTTON_R2))
 			intakeSpeed = -127;
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 
-		bool outtake = controllerMain->get_digital(BUTTON_R2);
+		bool outtake = controllerMain->get_digital(BUTTON_R2) || controllerMain->get_digital(DIGITAL_L2);
 		// Indexer speed control
 		int indexerSpeed = controllerMain->get_digital(BUTTON_L1) * 127;
 		if (indexerSpeed == 0 && intakeSpeed > 50)

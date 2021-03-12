@@ -77,7 +77,7 @@ void autonnomousSkills() {
   pid->pivot(-35);
   powerIntake(127);
   indexer->move(69);
-  pid->move(75.5);
+  pid->move(75.8);
   pros::delay(250);
 
   // Turn and score the ball
@@ -88,7 +88,8 @@ void autonnomousSkills() {
   
   // Score the ball
   indexer->move(-80);
-  pros::delay(300);
+  flywheel->move(-40);
+  pros::delay(450);
   waitForUltrasonic(1.7, 150, true);
   cycle(127);
   pros::delay(950);
@@ -102,12 +103,12 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-31.8);
   cycle(0);
-  pid->pivotAbsolute(27.2);
+  pid->pivotAbsolute(27);
   
   // Intake and score the next ball
   powerIntake(127);
   indexer->move(40);
-  pid->move(78.8, 15, true);
+  pid->move(77.9, 17, true);
 
   // Score the corner ball
   indexer->move(-80);
@@ -147,50 +148,108 @@ void autonnomousSkills() {
 
   // Back up and align with the next ball
   cycle(-90);
-  pid->move(-24);
+  pid->move(-24.38);
   cycle(0);
   pid->pivotAbsolute(-90);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(51);
+  pid->move(51, 15, true);
+  pros::delay(400);
 
   // Turn and score the ball
-  pid->pivot(56);
+  pid->pivot(55.5);
   indexer->move(60);
-  pid->move(33.6, 15, true);
+  pid->move(32.5, 15, true);
 
   // Score the ball
   cycle(127);
-  pros::delay(850);
+  pros::delay(640);
   indexer->move(0);
-  pros::delay(250);
+  pros::delay(400);
   flywheel->move(0);
   // Fourth tower done
 
   // Back up and align with the next ball
-  cycle(-127);
+  cycle(-90);
   pid->move(-20);
   pid->pivotAbsolute(-210);
 
   // Collect the ball
   powerIntake(127);
-  pid->move(58);
+  pid->move(56, 14, true);
+  pros::delay(600);
 
   // Turn and score the ball
-  pid->pivotAbsolute(-90);
+  pid->pivotAbsolute(-89);
   indexer->move(60);
-  pid->move(38, 15, true);
+  pid->move(37.5, 15, true);
 
   // Score the ball
+  indexer->move(-80);
+  pros::delay(300);
+  waitForUltrasonic(1.7, 150, true);
   cycle(127);
-  pros::delay(900);
+  pros::delay(650);
   indexer->move(0);
-  pros::delay(250);
+  pros::delay(300);
   flywheel->move(0);
   // Fifth tower done
 
-  return;
+ // Back up and align with the next ball
+  cycle(-90);
+  indexer->move(-127);
+  pid->move(-32.2);
+  cycle(0);
+  pid->pivotAbsolute(-151);
+  
+  // Intake and score the next ball
+  powerIntake(127);
+  indexer->move(40);
+  pid->move(74.5, 15, true);
+  powerIntake(0);
+
+  // Score the corner ball
+  indexer->move(-80);
+  pros::delay(300);
+  waitForUltrasonic(1.7, 150, true);  
+  indexer->move(127);
+  flywheel->move(127);
+  pros::delay(1150);
+  flywheel->move(0);
+  cycle(0);
+  // Sixth tower done
+
+  // Reset routine
+  pid->move(-15.8);
+  pid->pivotAbsolute(-270);
+  int steps = 55;
+  pid->tareDesiredHeading();
+  for (int i = 0; i < steps; i++) {
+    pid->driveStraight(-60);
+    pros::delay(20);
+  }
+  pid->tareDesiredHeading();
+
+  // Collect the next ball
+  powerIntake(127);
+  pid->move(74);
+  pid->pivot(90);
+  cycle(0);
+  pid->velocityMove(9, 80);
+  pros::delay(400);
+
+  // Score the ball
+  indexer->move(-80);
+  pros::delay(300);
+  waitForUltrasonic(1.7, 150, true);  
+  indexer->move(127);
+  flywheel->move(127);
+  pros::delay(1150);
+  flywheel->move(0);
+  cycle(0);
+  // Seventh tower done
+return;
   cycle(-127);
   pid->move(-20);
   pid->pivot(-150);
