@@ -133,7 +133,7 @@ void initialize() {
 	ports::pid->setPowerLimits(110, 30);
 	ports::pid->setMovePosPID(0.2078, 0.01345, 0.992);
 	ports::pid->setMoveVelPID(4.35, 0.000, 1.38);
-	ports::pid->setPivotPID(1.5, 0.0175, 6.32);
+	ports::pid->setPivotPID(1.5, 0.01785, 6.32);
 
 	ports::pid->setStrafePosPID(39, 0.775, 0.000, 0.05);
 	ports::pid->setStrafeVelPID(7, 0.000, 0);
@@ -148,7 +148,8 @@ void initialize() {
 	ports::gyroTask = new pros::Task(gyroTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Gyro");
 	// Start message debugging if the debugger is attached
 	ports::mhTask = new pros::Task(mhTask, NULL, TASK_PRIORITY_DEFAULT, TASK_STACK_DEPTH_DEFAULT, "Message Handler");
-
+	postPass = true;
+	return;
 	LCD::setStatus("Power on self-test...");
 	std::string postResult = post();
 	ports::frontRightDrive->move(0);

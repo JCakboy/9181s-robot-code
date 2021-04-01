@@ -323,7 +323,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
   powerDrive(0, 0);
 }
 void PID::move(double inches, bool useDesiredHeading) {
-  PID::move(inches, 6, useDesiredHeading);
+  PID::move(inches, 8, useDesiredHeading);
 }
 
 // Moves the robot the given amount of inches while only using velocity PID

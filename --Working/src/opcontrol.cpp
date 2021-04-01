@@ -68,7 +68,7 @@ void opcontrol() {
 		int intakeSpeed = 0;
 		if (controllerMain->get_digital(BUTTON_R1))
 			intakeSpeed = 127;
-		else if (controllerMain->get_digital(BUTTON_R2))
+		else if (controllerMain->get_digital(BUTTON_R2) || controllerMain->get_digital(BUTTON_A))
 			intakeSpeed = -127;
 		intakeMotorLeft->move(intakeMotorLeft->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
 		intakeMotorRight->move(intakeMotorRight->get_efficiency() < 25 && intakeSpeed > 0 ? 127 : intakeSpeed);
