@@ -84,7 +84,7 @@ void autonnomousSkills() {
   // Turn and score the ball
   pid->pivotAbsolute(89.7);
   cycle(0);
-  pid->move(40.85, 15, true);
+  pid->move(40.85, 17, true);
   
   // Score the ball
   flywheel->move(127);
@@ -107,47 +107,37 @@ void autonnomousSkills() {
   powerIntake(127);
   flywheel->move(127);
   indexer->move(30);
-  pid->move(77.8, 21, true);
+  pid->move(78.4, 21, true);
 
   // Score the corner 
   cycle(127);
-  pros::delay(1150);
-  cycle(0);
+  pros::delay(1175);
   // Second tower done
 
   // Back up and align with the next ball
   cycle(-127);
 
-  // // Reset routine
-  // int steps = 10;
-  // for (int i = 0; i < steps; i++) {
-  //   pid->driveStraight(40);
-  //   pros::delay(20);
-  // }
-  // pid->move(-14.8, 15, true);
-  // pid->pivotAbsolute(-90);
-  // steps = 35;
-  // pid->tareDesiredHeading();
-  // for (int i = 0; i < steps; i++) {
-  //   pid->driveStraight(-60);
-  //   pros::delay(20);
-  // }
-  // pid->tareDesiredHeading();
-
-  pid->move(-31.5);
-  cycle(-60);
-  pid->pivotAbsolute(-100);
+  // Reset routine
+  pid->move(-9.5, 15, true);
+  pid->pivotAbsolute(-90);
+  int steps = 50;
+  pid->tareDesiredHeading();
+  for (int i = 0; i < steps; i++) {
+    pid->driveStraight(-40);
+    pros::delay(20);
+  }
+  pid->tareDesiredHeading();
 
   // Collect the ball
   powerIntake(127);
-  pid->move(56.2, 12,true);
+  pid->move(73.5, 18, true);
 
   // Turn and score the ball
-  pid->pivotAbsolute(0);
+  pid->pivot(90);
   indexer->move(30);
   flywheel->move(127);
-  pid->move(38.2, 15, true);
-
+  pid->velocityMove(9, 80);
+  pros::delay(400);
   // Score the ball
   cycle(127);
   pros::delay(900);
@@ -160,7 +150,7 @@ void autonnomousSkills() {
   cycle(-90);
   pid->move(-24.38);
   cycle(0);
-  pid->pivotAbsolute(-90);
+  pid->pivot(-90);
 
   // Collect the ball
   powerIntake(127);
@@ -171,7 +161,7 @@ void autonnomousSkills() {
   pid->pivot(56.5);
   indexer->move(30);
   flywheel->move(127);
-  pid->move(32.5, 15, true);
+  pid->move(32.2, 18, true);
 
   // Score the ball
   cycle(127);
@@ -189,11 +179,11 @@ void autonnomousSkills() {
   // Collect the ball
   powerIntake(127);
   pid->move(56.5, 20, true);
-  pros::delay(600);
+  pros::delay(250);
 
   // Turn and score the ball
   pid->pivotAbsolute(-89);
-  indexer->move(30);
+  indexer->move(40);
   flywheel->move(127);
   pid->move(37.5, 16.5, true);
 
@@ -208,36 +198,37 @@ void autonnomousSkills() {
  // Back up and align with the next ball
   cycle(-90);
   indexer->move(-127);
-  pid->move(-32.2);
+  pid->move(-37.5);
   cycle(0);
-  pid->pivotAbsolute(-151);
+  pid->pivot(-60);
   
   // Intake and score the next ball
   powerIntake(110);
   indexer->move(127);
-  pid->move(74.5, 19, true);
+  pid->move(78, 19, true);
 
-  // Score the corner ball
+  // Score the corner 
   cycle(127);
-  powerIntake(-127);
-  pros::delay(700);
+  pros::delay(600);
   flywheel->move(0);
+  pros::delay(500);
   cycle(0);
-  powerIntake(-127);
   // Sixth tower done
 
   // Reset routine
-  int steps = 10;
+  steps = 10;
   for (int i = 0; i < steps; i++) {
     pid->driveStraight(40);
     pros::delay(20);
   }
+  cycle(-127);
   pid->move(-14.8, 15, true);
   pid->pivotAbsolute(-270);
-  steps = 35;
+  steps = 50;
   pid->tareDesiredHeading();
+  cycle(0);
   for (int i = 0; i < steps; i++) {
-    pid->driveStraight(-60);
+    pid->driveStraight(-40);
     pros::delay(20);
   }
   pid->tareDesiredHeading();
@@ -253,11 +244,11 @@ void autonnomousSkills() {
 
   // Score the ball
   cycle(127);
-  pros::delay(1150);
-  cycle(0);
+  pros::delay(1250);
   // Seventh tower done
 
   // Center tower
+  cycle(-127);
   pid->move(-12);
   pid->pivot(172.5);
   cycle(40);
