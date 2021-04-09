@@ -107,7 +107,7 @@ void autonnomousSkills() {
   powerIntake(127);
   flywheel->move(127);
   indexer->move(30);
-  pid->move(78.4, 21, true);
+  pid->move(78.4, 21, true, 3.5);
 
   // Score the corner 
   cycle(127);
@@ -115,10 +115,14 @@ void autonnomousSkills() {
   // Second tower done
 
   // Back up and align with the next ball
-  cycle(-127);
+  cycle(0);
 
-  // Reset routine
-  pid->move(-9.5, 15, true);
+  // Reset routine and spit the balls toward the beginning
+  pid->move(-12.6, 15, true);
+  pid->pivotAbsolute(-190);
+  cycle(-127);
+  pros::delay(1150);
+  cycle(0);
   pid->pivotAbsolute(-90);
   int steps = 50;
   pid->tareDesiredHeading();
@@ -130,7 +134,7 @@ void autonnomousSkills() {
 
   // Collect the ball
   powerIntake(127);
-  pid->move(73.5, 18, true);
+  pid->move(72.8, 18, true);
 
   // Turn and score the ball
   pid->pivot(90);
@@ -147,8 +151,9 @@ void autonnomousSkills() {
   // Third tower done
 
   // Back up and align with the next ball
-  cycle(-90);
+  cycle(-100);
   pid->move(-24.38);
+  pros::delay(50);
   cycle(0);
   pid->pivot(-90);
 
@@ -161,7 +166,7 @@ void autonnomousSkills() {
   pid->pivot(56.5);
   indexer->move(30);
   flywheel->move(127);
-  pid->move(32.2, 18, true);
+  pid->move(32.15, 20, true);
 
   // Score the ball
   cycle(127);
@@ -185,7 +190,7 @@ void autonnomousSkills() {
   pid->pivotAbsolute(-89);
   indexer->move(40);
   flywheel->move(127);
-  pid->move(37.5, 16.5, true);
+  pid->move(37.6, 21, true, 4);
 
   // Score the ball
   cycle(127);
@@ -205,7 +210,7 @@ void autonnomousSkills() {
   // Intake and score the next ball
   powerIntake(110);
   indexer->move(127);
-  pid->move(78, 19, true);
+  pid->move(77.8, 22, true);
 
   // Score the corner 
   cycle(127);
@@ -235,7 +240,7 @@ void autonnomousSkills() {
 
   // Collect the next ball
   powerIntake(127);
-  pid->move(73.5, 18, true);
+  pid->move(73, 18, true);
   pid->pivot(90);
   cycle(0);
   flywheel->move(127);
@@ -250,12 +255,13 @@ void autonnomousSkills() {
   // Center tower
   cycle(-127);
   pid->move(-12);
-  pid->pivot(172.5);
+  pid->pivot(171);
   cycle(40);
   powerIntake(127);
-  pid->velocityMove(49.8, 80, 15, true);
+  pid->velocityMove(49.8, 80, 15, true, 3);
   cycle(0);
 
+  flywheel->move(127);
   pid->velocityMove(-3.5,40);
   pid->pivot(29);
   pid->velocityMove(4,55);

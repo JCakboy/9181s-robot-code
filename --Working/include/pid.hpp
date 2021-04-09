@@ -11,6 +11,8 @@ friend class LCD;
   bool controllerXStop = false;
   // Debugging log errors flag
   bool logPIDErrors = false;
+  // Limit the maximum time for movements;
+  int maxMoveTime = 5;
 
   // Power restraints
   int maxPower = 80;
@@ -114,10 +116,10 @@ public:
   void strafeStraight(int strafePower, int movePower = 0);
 
   // Moves the robot the given amount of inches to the desired location
-  void move(double inches, double threshold = 8, bool useDesiredHeading = true);
+  void move(double inches, double threshold = 8, bool useDesiredHeading = true, double maxMoveTime = 10.0);
   void move(double inches, bool useDesiredHeading);
   // Moves the robot the given amount of inches while only using velocity PID
-  void velocityMove(double inches, double power, double threshold = 8, bool useDesiredHeading = true);
+  void velocityMove(double inches, double power, double threshold = 8, bool useDesiredHeading = true, double maxMoveTime = 10.0);
   void velocityMove(double inches, double power, bool useDesiredHeading);
   // Moves the robot with custom left and right targets while only using positional PID
   void customMove(double leftInches, double rightInches, double threshold = 8);

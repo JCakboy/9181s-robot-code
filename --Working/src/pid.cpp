@@ -226,7 +226,7 @@ void PID::strafeStraight(int strafePower, int movePower) {
 }
 
 // Moves the robot the given amount of inches to the desired location
-void PID::move(double inches, double threshold, bool useDesiredHeading) {
+void PID::move(double inches, double threshold, bool useDesiredHeading, double maxMoveTime) {
   double kp = movekp;
   double ki = moveki;
   double kd = movekd;
@@ -236,6 +236,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
   double derivative = 0;
   double lastError = 0;
   double power = minPower * util::abs(inches) / inches;
+  double time = 0;
 
   // Convert targetDistance from inches to degrees
   double targetDistance = inches * getGearRatio();
@@ -282,6 +283,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
 
     // Repeat with the set delay
     pros::delay(accelDelay);
+    time += accelDelay/1000.0;
 
     // Update the error and current distance
     currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
@@ -290,7 +292,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
   }
 
   // Enter the main PID loop
-  while (continuePIDLoop(util::abs(error) >= threshold)) {
+  while (continuePIDLoop(util::abs(error) >= threshold) && time < maxMoveTime) {
     // Calculate the integral derivative term and store the current error
     derivative = error - lastError;
     errorsum += error;
@@ -309,6 +311,7 @@ void PID::move(double inches, double threshold, bool useDesiredHeading) {
 
     // Run every 20 ms
     pros::delay(20);
+    time += 0.02;
 
     // Update the error and current distance
     currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
@@ -327,9 +330,10 @@ void PID::move(double inches, bool useDesiredHeading) {
 }
 
 // Moves the robot the given amount of inches while only using velocity PID
-void PID::velocityMove(double inches, double power, double threshold, bool useDesiredHeading) {
+void PID::velocityMove(double inches, double power, double threshold, bool useDesiredHeading, double maxMoveTime) {
   double currentDistance = 0;
   double error = 0;
+  double time = 0;
 
   // Convert the inches to degrees
   double targetDistance = inches * pid->getGearRatio();
@@ -352,7 +356,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
   error = targetDistance - currentDistance;
 
   // While the target has not been reached, power the drive
-  while (continuePIDLoop(util::abs(error) >= threshold)) {
+  while (continuePIDLoop(util::abs(error) >= threshold) && time < maxMoveTime) {
     driveStraight(power * util::abs(error) / error);
 
     // Print the sensor debug information
@@ -360,6 +364,7 @@ void PID::velocityMove(double inches, double power, double threshold, bool useDe
 
     // Run every 20 ms
     pros::delay(20);
+    time += 0.02;
 
     // Update the error and current distance
     currentDistance = (backRightDrive->get_position() + backLeftDrive->get_position()) / 2;
