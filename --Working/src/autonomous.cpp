@@ -101,13 +101,13 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-30.6);
   cycle(0);
-  pid->pivotAbsolute(27);
+  pid->pivotAbsolute(26.5);
   
   // Intake and score the next ball
   powerIntake(127);
   flywheel->move(127);
   indexer->move(30);
-  pid->move(79, 21, true, 3.5);
+  pid->move(79.3, 21, true, 2.75);
 
   // Score the corner 
   cycle(127);
@@ -118,10 +118,10 @@ void autonnomousSkills() {
   cycle(0);
 
   // Reset routine and spit the balls toward the beginning
-  pid->move(-12.6, 15, true);
+  pid->move(-13.4, 15, true);
   flywheel->move(-127);
   indexer->move(-40);
-  pid->pivotAbsolute(-190);
+  pid->pivotAbsolute(-200);
   cycle(-127);
   pros::delay(750);
   cycle(0);
@@ -172,7 +172,7 @@ void autonnomousSkills() {
 
   // Score the ball
   cycle(127);
-  pros::delay(640);
+  pros::delay(750);
   indexer->move(0);
   pros::delay(400);
   flywheel->move(0);
@@ -192,7 +192,7 @@ void autonnomousSkills() {
   pid->pivotAbsolute(-90);
   indexer->move(40);
   flywheel->move(127);
-  pid->move(37.6, 21, true, 4);
+  pid->move(37.6, 21, true, 3);
 
   // Score the ball
   cycle(127);
@@ -207,7 +207,7 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-37.5);
   cycle(0);
-  pid->pivot(-60);
+  pid->pivot(-57.3);
   
   // Intake and score the next ball
   powerIntake(110);
@@ -216,7 +216,7 @@ void autonnomousSkills() {
 
   // Score the corner 
   cycle(127);
-  pros::delay(600);
+  pros::delay(1000);
   flywheel->move(0);
   pros::delay(500);
   cycle(0);
@@ -251,27 +251,31 @@ void autonnomousSkills() {
 
   // Score the ball
   cycle(127);
-  pros::delay(1250);
+  pros::delay(1400);
   // Seventh tower done
 
   // Center tower
   cycle(-127);
   pid->move(-12);
-  pid->pivot(171);
+  pid->pivot(170.4);
   cycle(40);
   powerIntake(127);
-  pid->velocityMove(49.8, 80, 15, true, 3);
+  pid->velocityMove(49.8, 80, 15, true, 2);
   cycle(0);
-
-  flywheel->move(127);
-  pid->velocityMove(-3.5,40);
-  pid->pivot(29);
-  indexer->move(-70);
-  pid->velocityMove(4,55);
-  pid->powerDrive(50,60);
-  cycle(127);
-  pros::delay(1750);
+  pros::delay(150);
+  pid->velocityMove(-14, 70, 15, true, 2);
+  pros::delay(150);
+  pid->velocityMove(18, 70, 15, true, 1);
+  pros::delay(150);
+  pid->velocityMove(-20, 70, 15, true, 2);
+  pid->pivot(13);
+  pros::delay(100);
+  pid->powerDrive(80,80);
+  pros::delay(200);
+  cycle(-127);
+  pros::delay(3000);
   cycle(0);
+  pid->powerDrive(0,0);
 }
 
 // Driver skills with autonomous-controlled timing (meant to simulate a real match controller)
@@ -397,5 +401,5 @@ void autonomous() {
 
   // Log the message to the message holder and set it to the screen
   messageHolder->appendLine("Autonomous took " + std::to_string(competitionTimer->autonomousTime()) + " ms");
-  LCD::setText(6, "Auto took " + std::to_string(competitionTimer->autonomousTime()) + " ms");
+  LCD::setText(6, "Auto took " + std::to_string(competitionTimer->autonomousTime()-2000) + " ms");
 }
