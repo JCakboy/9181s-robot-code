@@ -82,7 +82,7 @@ void autonnomousSkills() {
   indexer->move(-30);
 
   // Turn and score the ball
-  pid->pivotAbsolute(89.7);
+  pid->pivotAbsolute(89.2);
   cycle(0);
   pid->move(40.85, 17, true);
   
@@ -90,7 +90,7 @@ void autonnomousSkills() {
   flywheel->move(127);
   pros::delay(150);
   cycle(127);
-  pros::delay(950);
+  pros::delay(1100);
   indexer->move(0);
   pros::delay(300);
   flywheel->move(0);
@@ -107,7 +107,7 @@ void autonnomousSkills() {
   powerIntake(127);
   flywheel->move(127);
   indexer->move(30);
-  pid->move(78.4, 21, true, 3.5);
+  pid->move(79, 21, true, 3.5);
 
   // Score the corner 
   cycle(127);
@@ -119,9 +119,11 @@ void autonnomousSkills() {
 
   // Reset routine and spit the balls toward the beginning
   pid->move(-12.6, 15, true);
+  flywheel->move(-127);
+  indexer->move(-40);
   pid->pivotAbsolute(-190);
   cycle(-127);
-  pros::delay(1150);
+  pros::delay(750);
   cycle(0);
   pid->pivotAbsolute(-90);
   int steps = 50;
@@ -166,7 +168,7 @@ void autonnomousSkills() {
   pid->pivot(56.5);
   indexer->move(30);
   flywheel->move(127);
-  pid->move(32.15, 20, true);
+  pid->move(32.5, 20, true, 3);
 
   // Score the ball
   cycle(127);
@@ -187,7 +189,7 @@ void autonnomousSkills() {
   pros::delay(250);
 
   // Turn and score the ball
-  pid->pivotAbsolute(-89);
+  pid->pivotAbsolute(-90);
   indexer->move(40);
   flywheel->move(127);
   pid->move(37.6, 21, true, 4);
@@ -210,7 +212,7 @@ void autonnomousSkills() {
   // Intake and score the next ball
   powerIntake(110);
   indexer->move(127);
-  pid->move(77.8, 22, true);
+  pid->move(79.2, 22, true);
 
   // Score the corner 
   cycle(127);
@@ -227,7 +229,7 @@ void autonnomousSkills() {
     pros::delay(20);
   }
   cycle(-127);
-  pid->move(-14.8, 15, true);
+  pid->move(-11.7, 15, true);
   pid->pivotAbsolute(-270);
   steps = 50;
   pid->tareDesiredHeading();
@@ -264,10 +266,11 @@ void autonnomousSkills() {
   flywheel->move(127);
   pid->velocityMove(-3.5,40);
   pid->pivot(29);
+  indexer->move(-70);
   pid->velocityMove(4,55);
   pid->powerDrive(50,60);
   cycle(127);
-  pros::delay(1500);
+  pros::delay(1750);
   cycle(0);
 }
 
