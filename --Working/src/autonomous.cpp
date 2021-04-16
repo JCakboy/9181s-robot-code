@@ -28,8 +28,8 @@ void cycle(int power) {
 }
 
 void flipout() {
-  indexer->move(127);
-  pros::delay(400);
+  indexer->move(45);
+  pros::delay(425);
   indexer->move(0);
 }
 
@@ -77,7 +77,7 @@ void autonnomousSkills() {
   pid->pivot(-35);
   powerIntake(127);
   indexer->move(69);
-  pid->move(75.8);
+  pid->move(75.9);
   pros::delay(250);
   indexer->move(-30);
 
@@ -101,24 +101,26 @@ void autonnomousSkills() {
   indexer->move(-127);
   pid->move(-30.6);
   cycle(0);
-  pid->pivotAbsolute(26.5);
+  pid->pivotAbsolute(26.7);
   
   // Intake and score the next ball
   powerIntake(127);
   flywheel->move(127);
   indexer->move(30);
-  pid->move(79.3, 21, true, 2.75);
+  pid->move(79.3, 21, true, 2.4);
 
   // Score the corner 
+  pid->powerDrive(15,8);
   cycle(127);
-  pros::delay(1175);
+  pros::delay(1100);
+  pid->powerDrive(0,0);
   // Second tower done
 
   // Back up and align with the next ball
   cycle(0);
 
   // Reset routine and spit the balls toward the beginning
-  pid->move(-13.75, 15, true);
+  pid->move(-14, 15, true);
   flywheel->move(-127);
   indexer->move(-40);
   pid->pivotAbsolute(-200);
@@ -153,7 +155,7 @@ void autonnomousSkills() {
   // Third tower done
 
   // Back up and align with the next ball
-  cycle(-90);
+  cycle(-100);
   pid->move(-24.8);
   pros::delay(50);
   cycle(0);
@@ -165,17 +167,19 @@ void autonnomousSkills() {
   pros::delay(400);
 
   // Turn and score the ball
-  pid->pivot(56.5);
+  pid->pivot(56);
   indexer->move(30);
   flywheel->move(127);
   pid->move(32.5, 20, true, 3);
 
   // Score the ball
+  pid->powerDrive(10,10);
   cycle(127);
   pros::delay(750);
   indexer->move(0);
   pros::delay(400);
   flywheel->move(0);
+  pid->powerDrive(0,0);
   // Fourth tower done
 
   // Back up and align with the next ball
@@ -195,19 +199,21 @@ void autonnomousSkills() {
   pid->move(37.6, 21, true, 3);
 
   // Score the ball
+  pid->powerDrive(10,10);
   cycle(127);
   pros::delay(750);
   indexer->move(0);
   pros::delay(350);
   flywheel->move(0);
+  pid->powerDrive(0,0);
   // Fifth tower done
 
  // Back up and align with the next ball
   cycle(-90);
   indexer->move(-127);
-  pid->move(-38);
+  pid->move(-39.75);
   cycle(0);
-  pid->pivot(-58);
+  pid->pivot(-57.5);
   
   // Intake and score the next ball
   powerIntake(110);
@@ -215,6 +221,7 @@ void autonnomousSkills() {
   pid->move(79.2, 22, true, 3);
 
   // Score the corner 
+  pid->powerDrive(15,8);
   cycle(127);
   pros::delay(900);
   flywheel->move(0);
@@ -223,13 +230,15 @@ void autonnomousSkills() {
   // Sixth tower done
 
   // Reset routine
+  flywheel->move(-127);
+  indexer->move(-50);
   steps = 10;
   for (int i = 0; i < steps; i++) {
     pid->driveStraight(40);
     pros::delay(20);
   }
   cycle(-127);
-  pid->move(-11.7, 15, true);
+  pid->move(-11.45, 15, true);
   pros::delay(300);
   pid->pivotAbsolute(-270);
   steps = 50;
@@ -256,12 +265,13 @@ void autonnomousSkills() {
   // Seventh tower done
 
   // Center tower
-  cycle(-90);
+  cycle(-70);
   pid->move(-12);
+  cycle(-127);
   pid->pivot(170.4);
   cycle(50);
   powerIntake(127);
-  pid->velocityMove(49.8, 80, 15, true, 2);
+  pid->velocityMove(49.8, 70, 15, true, 2);
   cycle(0);
   pros::delay(150);
   pid->velocityMove(-14, 70, 15, true, 2);
@@ -271,16 +281,17 @@ void autonnomousSkills() {
   powerIntake(0);
   pros::delay(150);
   pid->velocityMove(-20, 70, 15, true, 2);
-  pid->pivot(13);
+  pid->pivot(14.6);
   pros::delay(100);
   pid->powerDrive(70,70);
   pros::delay(250);
   cycle(-127);
   pros::delay(1000);
   pid->powerDrive(0,0);
-  pros::delay(1500);
+  pros::delay(750);
+  pid->powerDrive(-12,-10);
+  pros::delay(750);
   cycle(0);
-  pid->powerDrive(0,0);
 }
 
 // Driver skills with autonomous-controlled timing (meant to simulate a real match controller)
@@ -349,32 +360,9 @@ void autonomousDrvSkills() {
 }
 
 void autonomousOther(int selectedAutonomous) {
-  flywheel->move(100);
-  waitForUltrasonic(2, 150, true);
-  flywheel->move(0);
-  if (selectedAutonomous == 0)
-    flipout();
-  // If an invalid autonomous is selected, run a one point autonomous
-  if (selectedAutonomous == -1) {
-    pid->powerDrive(127, 127);
-    pros::delay(1000);
-    pid->powerDrive(0, 0);
-  } else if (selectedAutonomous == 7) {
-      pid->move(-12);
-  pid->pivot(172.5);
-  cycle(40);
-  powerIntake(127);
-  pid->velocityMove(49.8, 80, 15, true);
-  cycle(0);
-
-  pid->velocityMove(-3.5,40);
-  pid->pivot(28);
-  pid->velocityMove(4,55);
-  cycle(127);
-  pros::delay(1500);
-  cycle(0);
-  }
-
+  // Release the hood
+  flipout();
+  pros::delay(500);
 }
 
 // Entry point for autonomous
