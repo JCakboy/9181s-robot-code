@@ -1,24 +1,19 @@
-# 9181S Robot Code
+# ⚙️ 9181S Robot Code
 
-This repository contains 9181S robot code for VEX Robotics Competition.
+9181S is a 3-person VEX Robotics high school team that competed in 2018-2021. This repository contains robot code that was used during these three seasons, consisting of [PROS](http://pros.cs.purdue.edu) projects.
 
-Current robot code: `--Working`
+A snapshot of the last iteration of each season's competition code can be found in their respective folders.
 
-## Git Integration
+## Awards:
 
-It is recommended that this project be accessed through Atom. If you prefer a different text editor, become familiar with [Git through the command line](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository).
+### 2018-2019 Season: Turning Point
 
-**For PROS projects:**
+- 1 tournament champion, under the name 9181X
+- VEX World Championship - Arts Division Think Award, under the name 9181Y
 
-1. Install [Git](https://git-scm.com/downloads) and/or either [PROS](http://pros.cs.purdue.edu) or [Atom](https://atom.io/) for your operating system.
-2. Navigate to the desired directory to place this repository through the operating system's command line with the `cd` command.
-3. Run the following command: `git clone https://github.com/JCakboy/9181s-robot-code.git`
-4. Open Atom or PROS and [add a project folder](https://atom.io/packages/project-folder) where the repository was cloned.
-5. Through Atom or PROS, open the Git panel (`View > Toggle Git Tab` or `Ctrl+Shift+9`). The editor should automatically recognize the repository.
-6. Get to know [how Git works](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
+### 2019-2020 Season:
 
-**For VCS projects:**
-
-1. Install [Git](https://git-scm.com/downloads) and [Vex Coding Studio](https://www.vexforum.com/index.php/34394-vex-coding-studio-and-v5-updates) for your operating system.
-2. Retrieve the VCS project by either downloading it from GitHub or by cloning the repository through Git (See steps 2 and 3 above)
-3. Open the .vex file through Vex Coding Studio
+- 2 Judges Award
+- Shawnigan Tournament Champion and Excellence Award
+- BC Skills Champion, Tournament Finalists and Think Award
+- Triple qualification for the VEX World Championship

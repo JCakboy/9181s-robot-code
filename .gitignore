@@ -1,10 +1,1 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-/**/.vscode/
-=======
 /**/.vscode
->>>>>>> develop-opcontrol
-=======
-/**/.vscode/**
->>>>>>> develop-pid
-/**/compile_commands.json
